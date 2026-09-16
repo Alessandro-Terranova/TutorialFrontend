@@ -4,7 +4,6 @@ import { ThemeProvider, createTheme, CssBaseline } from "@mui/material";
 import Sidebar from "@/components/Sidebar";
 import Box from "@mui/material/Box";
 import { useState } from "react";
-import { ProgressProvider } from "@/hooks/useProgress";
 
 const theme = createTheme({
   palette: {
@@ -29,23 +28,21 @@ export default function AppShell({ children }) {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <ProgressProvider>
-        <Box sx={{ display: "flex", minHeight: "100vh" }}>
-          <Sidebar open={sidebarOpen} onToggle={() => setSidebarOpen(!sidebarOpen)} />
-          <Box
-            component="main"
-            sx={{
-              flexGrow: 1,
-              ml: sidebarOpen ? "280px" : "60px",
-              transition: "margin-left 0.3s ease",
-              p: { xs: 2, md: 4 },
-              maxWidth: "960px",
-            }}
-          >
-            {children}
-          </Box>
+      <Box sx={{ display: "flex", minHeight: "100vh" }}>
+        <Sidebar open={sidebarOpen} onToggle={() => setSidebarOpen(!sidebarOpen)} />
+        <Box
+          component="main"
+          sx={{
+            flexGrow: 1,
+            ml: sidebarOpen ? "280px" : "60px",
+            transition: "margin-left 0.3s ease",
+            p: { xs: 2, md: 4 },
+            maxWidth: "960px",
+          }}
+        >
+          {children}
         </Box>
-      </ProgressProvider>
+      </Box>
     </ThemeProvider>
   );
 }
