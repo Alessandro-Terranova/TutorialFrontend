@@ -16,7 +16,7 @@ export const lessons = {
       {
         type: "text",
         content:
-          "`const` dichiara una variabile il cui *binding* non puo essere riassegnato. `let` invece permette la riassegnazione. `var` e la forma piu vecchia: ha uno *scope* diverso (function scope anziche block scope) e oggi si evita quasi sempre.",
+          "`const` dichiara una variabile il cui *binding* non può essere riassegnato. `let` invece permette la riassegnazione. `var` è la forma più vecchia: ha uno *scope* diverso (function scope anzichè block scope) e oggi si evita quasi sempre.",
       },
       {
         type: "code",
@@ -46,7 +46,7 @@ console.log(leaked);      // "visibile fuori!"
       {
         type: "text",
         content:
-          "JavaScript ha sette tipi primitivi. I piu comuni sono: `string` (testo), `number` (numeri interi e decimali), `boolean` (`true`/`false`), `null` (assenza intenzionale di valore) e `undefined` (valore non ancora assegnato).",
+          "JavaScript ha sette tipi primitivi. I più comuni sono: `string` (testo), `number` (numeri interi e decimali), `boolean` (`true`/`false`), `null` (assenza intenzionale di valore) e `undefined` (valore non ancora assegnato).",
       },
       {
         type: "code",
@@ -67,7 +67,7 @@ console.log(typeof notYet);    // "undefined"`,
       {
         type: "warning",
         content:
-          "`typeof null` restituisce `\"object\"`: e un bug storico di JavaScript mai corretto. Per controllare null usa `value === null`.",
+          "`typeof null` restituisce `\"object\"`: è un bug storico di JavaScript mai corretto. Per controllare null usa `value === null`.",
       },
       {
         type: "heading",
@@ -76,7 +76,7 @@ console.log(typeof notYet);    // "undefined"`,
       {
         type: "text",
         content:
-          "JavaScript puo convertire i tipi automaticamente (*coercion*). L'operatore `==` confronta *dopo* la coercion, mentre `===` confronta senza conversioni (strict equality). Usa sempre `===` per evitare sorprese.",
+          "JavaScript può convertire i tipi automaticamente (*coercion*). L'operatore `==` confronta *dopo* la coercion, mentre `===` confronta senza conversioni (strict equality). Usa sempre `===` per evitare sorprese.",
       },
       {
         type: "code",
@@ -101,7 +101,7 @@ console.log("3" - 2);  // 1   (coercion a numero)`,
       {
         type: "text",
         content:
-          "Gli operatori logici `&&` (AND), `||` (OR) e `!` (NOT) non restituiscono solo `true`/`false`: restituiscono il primo valore che determina il risultato (*short-circuit evaluation*). L'operatore ternario `condizione ? valoreSeVero : valoreSeFalso` e una forma compatta di `if/else`.",
+          "Gli operatori logici `&&` (AND), `||` (OR) e `!` (NOT) non restituiscono solo `true`/`false`: restituiscono il primo valore che determina il risultato (*short-circuit evaluation*). L'operatore ternario `condizione ? valoreSeVero : valoreSeFalso` è una forma compatta di `if/else`.",
       },
       {
         type: "code",
@@ -210,7 +210,7 @@ try {
       {
         type: "text",
         content:
-          'Una *function declaration* viene "sollevata" (hoisting): puo essere chiamata anche prima della riga in cui e scritta. Una *function expression* assegnata a una variabile, invece, segue le regole di `const`/`let` e non e disponibile prima della sua definizione.',
+          'Una *function declaration* viene "sollevata" (hoisting): può essere chiamata anche prima della riga in cui è scritta. Una *function expression* assegnata a una variabile, invece, segue le regole di `const`/`let` e non è disponibile prima della sua definizione.',
       },
       {
         type: "code",
@@ -238,7 +238,7 @@ console.log(multiply(2, 3)); // 6`,
       {
         type: "text",
         content:
-          "Le arrow functions (`=>`) sono la forma piu concisa e moderna. Se il corpo ha una sola espressione, il `return` e le graffe sono opzionali (*implicit return*). Sono la scelta predefinita nel codice React/Next.js.",
+          "Le arrow functions (`=>`) sono la forma più concisa e moderna. Se il corpo ha una sola espressione, il `return` e le graffe sono opzionali (*implicit return*). Sono la scelta predefinita nel codice React/Next.js.",
       },
       {
         type: "code",
@@ -473,7 +473,7 @@ console.log(sites);     // ["Milano", "Roma", "Napoli"]`,
       {
         type: "text",
         content:
-          "`.map()` crea un nuovo array trasformando ogni elemento. Non modifica l'array originale. In React, e il metodo piu usato per trasformare dati in elementi JSX.",
+          "`.map()` crea un nuovo array trasformando ogni elemento. Non modifica l'array originale. In React, e il metodo più usato per trasformare dati in elementi JSX.",
       },
       {
         type: "code",
@@ -542,7 +542,7 @@ console.log(clean); // [10, 30, 50]`,
       {
         type: "text",
         content:
-          "`.reduce()` attraversa l'array accumulando un risultato. Accetta un callback con `(accumulatore, elementoCorrente)` e un valore iniziale. E il metodo piu versatile: puo fare tutto cio che fanno `.map()` e `.filter()`.",
+          "`.reduce()` attraversa l'array accumulando un risultato. Accetta un callback con `(accumulatore, elementoCorrente)` e un valore iniziale. E il metodo più versatile: puo fare tutto cio che fanno `.map()` e `.filter()`.",
       },
       {
         type: "code",
@@ -885,7 +885,7 @@ Object.entries(filterValues).forEach(([key, value]) => {
       {
         type: "text",
         content:
-          "Il destructuring permette di estrarre valori da oggetti (e array) in modo conciso. E uno dei pattern piu usati nel JavaScript moderno e in React.",
+          "Il destructuring permette di estrarre valori da oggetti (e array) in modo conciso. E uno dei pattern più usati nel JavaScript moderno e in React.",
       },
       {
         type: "code",
@@ -933,7 +933,7 @@ const FilterBadge = (props) => {
   console.log(props.label + ": " + props.value);
 };
 
-// Con destructuring (molto piu leggibile)
+// Con destructuring (molto più leggibile)
 const FilterBadgeV2 = ({ label, value, onRemove }) => {
   console.log(label + ": " + value);
 };
@@ -1159,7 +1159,7 @@ try {
       {
         type: "text",
         content:
-          "Le stringhe in JavaScript hanno molti metodi utili per manipolare testo. Con ES6 sono arrivati i *template literals* (backtick strings), che rendono l'interpolazione e le stringhe multilinea molto piu semplici.",
+          "Le stringhe in JavaScript hanno molti metodi utili per manipolare testo. Con ES6 sono arrivati i *template literals* (backtick strings), che rendono l'interpolazione e le stringhe multilinea molto più semplici.",
       },
       {
         type: "heading",

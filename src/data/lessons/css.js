@@ -354,7 +354,7 @@ try {
       {
         type: "info",
         content:
-          "Flexbox lavora su un asse principale (main axis) e un asse trasversale (cross axis). Per default l'asse principale e orizzontale (da sinistra a destra) e quello trasversale e verticale (dall'alto in basso).",
+          "Flexbox lavora su un asse principale (main axis) e un asse trasversale (cross axis). Per default l'asse principale è orizzontale (da sinistra a destra) e quello trasversale è verticale (dall'alto in basso).",
       },
       {
         type: "heading",
@@ -403,7 +403,7 @@ try {
       {
         type: "text",
         content:
-          "justify-content allinea gli elementi lungo l'asse principale (orizzontale per row, verticale per column). align-items li allinea lungo l'asse trasversale. Sono le due proprieta Flexbox che userai di piu.",
+          "justify-content allinea gli elementi lungo l'asse principale (orizzontale per row, verticale per column). align-items li allinea lungo l'asse trasversale. Sono le due proprieta Flexbox che userai di più.",
       },
       {
         type: "code",
@@ -488,7 +488,7 @@ try {
       {
         type: "tip",
         content:
-          "In MUI con la prop sx, gap accetta valori numerici che vengono moltiplicati per 8px (il tema di default): sx={{ display: 'flex', gap: 2 }} produce uno spazio di 16px tra gli elementi. Il componente Stack di MUI e fondamentalmente un Flexbox con gap integrato.",
+          "In MUI con la prop sx, gap accetta valori numerici che vengono moltiplicati per 8px (il tema di default): sx={{ display: 'flex', gap: 2 }} produce uno spazio di 16px tra gli elementi. Il componente Stack di MUI è fondamentalmente un Flexbox con gap integrato.",
       },
       {
         type: "heading",

@@ -13,7 +13,7 @@ export const lessons = {
       {
         type: "text",
         content:
-          "Immagina un'app con filtri nella sidebar, dati nel grafico centrale e contatori nella barra superiore. Tutti questi componenti devono leggere e modificare gli stessi dati. Senza Redux, dovresti sollevare lo stato al componente piu alto e passarlo giu come props. Redux elimina questo problema creando un unico punto di verita accessibile ovunque.",
+          "Immagina un'app con filtri nella sidebar, dati nel grafico centrale e contatori nella barra superiore. Tutti questi componenti devono leggere e modificare gli stessi dati. Senza Redux, dovresti sollevare lo stato al componente più alto e passarlo giu come props. Redux elimina questo problema creando un unico punto di verita accessibile ovunque.",
       },
       {
         type: "heading",
@@ -30,7 +30,7 @@ export const lessons = {
           "configureStore: crea lo store con configurazione automatica di middleware e dev tools.",
           "createSlice: genera automaticamente actions e reducer da un singolo oggetto.",
           "Immer integrato: puoi scrivere codice che sembra mutare lo stato, ma sotto il cofano produce aggiornamenti immutabili.",
-          "Meno boilerplate: niente piu action types, action creators manuali o switch-case.",
+          "Meno boilerplate: niente più action types, action creators manuali o switch-case.",
         ],
       },
       {
@@ -136,7 +136,7 @@ export default navigationSlice.reducer;`,
       {
         type: "code",
         language: "javascript",
-        title: "Immer rende il codice molto piu leggibile",
+        title: "Immer rende il codice molto più leggibile",
         code: `// REDUX CLASSICO (senza Immer) - verboso e fragile
 function filtersReducer(state, action) {
   return {
@@ -173,7 +173,7 @@ const filtersSlice = createSlice({
       },
       {
         type: "subheading",
-        content: "Piu slices per un'app organizzata",
+        content: "più slices per un'app organizzata",
       },
       {
         type: "text",
@@ -372,7 +372,7 @@ function NavigationInfo() {
   // Legge un singolo valore dallo stato
   const siteScelto = useSelector((state) => state.navigation.selectedSite);
 
-  // Legge piu valori con destructuring
+  // Legge più valori con destructuring
   const { selectedAnalysisType, selectedPage } = useSelector(
     (state) => state.navigation
   );
@@ -643,7 +643,7 @@ console.log(select((state) => state.contatore + " - " + state.nome)); // "2 - Ma
       {
         type: "text",
         content:
-          "Il selettore piu semplice e una arrow function che accede a un campo dello stato. Questi selettori sono usati direttamente con useSelector nei componenti.",
+          "Il selettore più semplice e una arrow function che accede a un campo dello stato. Questi selettori sono usati direttamente con useSelector nei componenti.",
       },
       {
         type: "code",

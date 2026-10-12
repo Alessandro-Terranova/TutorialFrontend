@@ -41,7 +41,7 @@ function MioComponente() {
       {
         type: "text",
         content:
-          "L'uso piu comune di useRef e ottenere un riferimento diretto a un elemento DOM. Passiamo il ref come attributo ref= a un elemento JSX, e React lo popola automaticamente con il nodo DOM corrispondente.",
+          "L'uso più comune di useRef e ottenere un riferimento diretto a un elemento DOM. Passiamo il ref come attributo ref= a un elemento JSX, e React lo popola automaticamente con il nodo DOM corrispondente.",
       },
       {
         type: "code",
@@ -197,7 +197,7 @@ const activeTrimsterMonths = useMemo(() => {
         items: [
           "Per operazioni semplici come somme o concatenazioni di stringhe: il costo della memoizzazione supera il beneficio.",
           "Quando il valore cambia ad ogni render comunque (le dipendenze cambiano sempre).",
-          "Per la creazione di oggetti semplici come { color: 'red' }: e piu leggibile senza useMemo.",
+          "Per la creazione di oggetti semplici come { color: 'red' }: e più leggibile senza useMemo.",
           "Come ottimizzazione prematura: prima verifica che ci sia un vero problema di prestazioni.",
         ],
       },
@@ -269,7 +269,7 @@ console.log(contaRender(renderCountRef)); // 3`,
         type: "multiple-choice",
         title: "Quando usare useMemo",
         description:
-          "In quale di questi scenari e piu appropriato usare useMemo?",
+          "In quale di questi scenari e più appropriato usare useMemo?",
         difficulty: "medio",
         options: [
           "Per memorizzare una stringa costante come const titolo = 'Dashboard'",
@@ -338,7 +338,7 @@ function Contatore() {
       {
         type: "list",
         items: [
-          "Chiama gli hook solo al livello piu alto della funzione, mai dentro condizioni, cicli o funzioni annidate.",
+          "Chiama gli hook solo al livello più alto della funzione, mai dentro condizioni, cicli o funzioni annidate.",
           "Chiama gli hook solo dentro componenti React o altri custom hooks.",
           "Il nome deve iniziare con 'use' (es. useContatore, useSession, useFetch).",
           "Ogni chiamata a un hook ha il proprio stato indipendente: se due componenti usano lo stesso hook, non condividono lo stato.",
@@ -415,7 +415,7 @@ function ListaUtenti() {
       {
         type: "text",
         content:
-          "Un custom hook puo restituire qualsiasi cosa: un singolo valore, un array (come useState), o un oggetto con piu proprieta e funzioni. La convenzione piu comune e restituire un oggetto quando ci sono molti valori, o un array quando ce ne sono pochi.",
+          "Un custom hook puo restituire qualsiasi cosa: un singolo valore, un array (come useState), o un oggetto con più proprieta e funzioni. La convenzione più comune e restituire un oggetto quando ci sono molti valori, o un array quando ce ne sono pochi.",
       },
       {
         type: "code",
@@ -552,7 +552,7 @@ console.log(setAttivo(true)); // true`,
           "Qual e il vantaggio principale di estrarre logica in un custom hook?",
         difficulty: "facile",
         options: [
-          "I custom hooks rendono il codice piu veloce a runtime",
+          "I custom hooks rendono il codice più veloce a runtime",
           "I custom hooks permettono di condividere stato tra componenti",
           "I custom hooks permettono di riutilizzare logica stateful senza duplicare codice",
           "I custom hooks sostituiscono completamente la necessita di Redux",
@@ -818,7 +818,7 @@ console.log(useTheme().theme); // "chiaro"`,
         ],
         correct: 1,
         explanation:
-          "L'ordine e: Redux Provider (piu esterno) > MSAL Provider > SessionProvider (piu interno). Questo e necessario perche SessionProvider potrebbe aver bisogno di accedere allo stato Redux o MSAL, quindi deve trovarsi all'interno di quei Provider.",
+          "L'ordine e: Redux Provider (più esterno) > MSAL Provider > SessionProvider (più interno). Questo e necessario perche SessionProvider potrebbe aver bisogno di accedere allo stato Redux o MSAL, quindi deve trovarsi all'interno di quei Provider.",
       },
     ],
   },

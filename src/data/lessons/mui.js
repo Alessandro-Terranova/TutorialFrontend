@@ -4,7 +4,7 @@ export const lessons = {
       {
         type: "text",
         content:
-          "Material UI (MUI) e la libreria di componenti React piu popolare, basata sul Material Design di Google. Fornisce componenti pronti all'uso, temi personalizzabili, e un sistema di styling potente tramite la prop `sx`. Nelle applicazioni enterprise, MUI e la base di tutta l'interfaccia.",
+          "Material UI (MUI) e la libreria di componenti React più popolare, basata sul Material Design di Google. Fornisce componenti pronti all'uso, temi personalizzabili, e un sistema di styling potente tramite la prop `sx`. Nelle applicazioni enterprise, MUI e la base di tutta l'interfaccia.",
       },
       {
         type: "heading",
@@ -39,7 +39,7 @@ import { Forward, ZoomIn, ChevronLeft } from "@mui/icons-material";`,
       {
         type: "text",
         content:
-          "Box e il componente layout fondamentale di MUI. Renderizza un `<div>` ma accetta la prop `sx` per lo styling inline avanzato. E il componente piu usato in un progetto React reale: wrappa praticamente tutto.",
+          "Box e il componente layout fondamentale di MUI. Renderizza un `<div>` ma accetta la prop `sx` per lo styling inline avanzato. E il componente più usato in un progetto React reale: wrappa praticamente tutto.",
       },
       {
         type: "code",
@@ -220,7 +220,7 @@ import { ZoomIn, ZoomOut, RestartAlt } from "@mui/icons-material";
       {
         type: "tip",
         content:
-          "In un progetto React reale, Box e Stack sono i componenti layout piu usati. Typography gestisce tutti i testi con variant (h4, h6, body1, body2, caption). Paper e Chip compaiono nel tooltip personalizzato dei grafici.",
+          "In un progetto React reale, Box e Stack sono i componenti layout più usati. Typography gestisce tutti i testi con variant (h4, h6, body1, body2, caption). Paper e Chip compaiono nel tooltip personalizzato dei grafici.",
       },
     ],
     exercises: [
@@ -228,17 +228,17 @@ import { ZoomIn, ZoomOut, RestartAlt } from "@mui/icons-material";
         type: "multiple-choice",
         title: "Componente Layout Giusto",
         description:
-          "Vuoi creare un contenitore flex con direzione colonna e gap di 16px tra gli elementi. Qual e il modo piu conciso?",
+          "Vuoi creare un contenitore flex con direzione colonna e gap di 16px tra gli elementi. Qual e il modo più conciso?",
         difficulty: "facile",
         options: [
           '<Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>',
           "<Stack spacing={2}>",
           '<div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>',
-          "Tutte le opzioni funzionano, ma Stack e la piu concisa",
+          "Tutte le opzioni funzionano, ma Stack e la più concisa",
         ],
         correct: 3,
         explanation:
-          "Tutte e tre producono lo stesso risultato visivo. Tuttavia, Stack e la piu concisa perche imposta automaticamente display:flex e flexDirection:column. spacing={2} corrisponde a 16px (2 * 8px). Box richiede piu proprieta sx, e div non supporta il sistema di tema MUI.",
+          "Tutte e tre producono lo stesso risultato visivo. Tuttavia, Stack e la più concisa perche imposta automaticamente display:flex e flexDirection:column. spacing={2} corrisponde a 16px (2 * 8px). Box richiede più proprieta sx, e div non supporta il sistema di tema MUI.",
       },
       {
         type: "code",
@@ -275,7 +275,7 @@ export default function StatusCard() {
         type: "multiple-choice",
         title: "Variante di Button",
         description:
-          "Per un'azione primaria importante (es. 'Salva' o 'Continua'), quale variante di Button e la piu appropriata?",
+          "Per un'azione primaria importante (es. 'Salva' o 'Continua'), quale variante di Button e la più appropriata?",
         difficulty: "facile",
         options: [
           'variant="text"',
@@ -387,7 +387,7 @@ export default function StatusCard() {
   <Box sx={{
     flex: 1,
     p: { xs: 4, xl: 10 },  // Padding extra su schermi grandi
-    gap: { xs: 4, xl: 8 }, // Gap piu ampio su xl
+    gap: { xs: 4, xl: 8 }, // Gap più ampio su xl
   }}>
     Filtri
   </Box>
@@ -950,7 +950,7 @@ export default function AnalysisTypeSelect() {
         type: "multiple-choice",
         title: "Componente per Toggle",
         description:
-          "Per un'impostazione on/off come 'Mostra griglia', quale componente MUI e piu appropriato?",
+          "Per un'impostazione on/off come 'Mostra griglia', quale componente MUI e più appropriato?",
         difficulty: "facile",
         options: [
           "Checkbox",
@@ -960,7 +960,7 @@ export default function AnalysisTypeSelect() {
         ],
         correct: 1,
         explanation:
-          "Switch e progettato specificamente per impostazioni binarie on/off con feedback visivo immediato. Checkbox e piu adatto per selezioni multiple in una lista. Radio per scegliere una tra piu opzioni. Select sarebbe eccessivo per un toggle binario.",
+          "Switch e progettato specificamente per impostazioni binarie on/off con feedback visivo immediato. Checkbox e più adatto per selezioni multiple in una lista. Radio per scegliere una tra più opzioni. Select sarebbe eccessivo per un toggle binario.",
       },
       {
         type: "code",

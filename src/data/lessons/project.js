@@ -4,7 +4,7 @@ export const lessons = {
       {
         type: "text",
         content:
-          "Questa lezione raccoglie pattern avanzati comuni nelle applicazioni React enterprise: gestione di stato profondamente annidato, autenticazione basata su provider, e custom hook che combinano piu concetti insieme. Sono pattern che incontrerai in qualsiasi progetto di media-grande dimensione.",
+          "Questa lezione raccoglie pattern avanzati comuni nelle applicazioni React enterprise: gestione di stato profondamente annidato, autenticazione basata su provider, e custom hook che combinano più concetti insieme. Sono pattern che incontrerai in qualsiasi progetto di media-grande dimensione.",
       },
       {
         type: "heading",
@@ -13,7 +13,7 @@ export const lessons = {
       {
         type: "text",
         content:
-          "Quando lo stato della tua applicazione e organizzato in un oggetto annidato a piu livelli (es. configurazioni per tipo, pagina, sezione e campo), scrivere un reducer diverso per ogni combinazione diventa rapidamente ingestibile. Un approccio elegante e usare una funzione generica che naviga l'oggetto tramite un array di chiavi.",
+          "Quando lo stato della tua applicazione e organizzato in un oggetto annidato a più livelli (es. configurazioni per tipo, pagina, sezione e campo), scrivere un reducer diverso per ogni combinazione diventa rapidamente ingestibile. Un approccio elegante e usare una funzione generica che naviga l'oggetto tramite un array di chiavi.",
       },
       {
         type: "code",
@@ -184,7 +184,7 @@ function UserGreeting() {
       {
         type: "text",
         content:
-          "I custom hook piu utili nelle applicazioni reali combinano piu concetti: leggono dati da Redux, li trasformano con useMemo per evitare ricalcoli inutili, e coordinano elementi DOM tramite useRef. Ecco un esempio di hook che gestisce una lista scrollabile con sincronizzazione tra piu pannelli.",
+          "I custom hook più utili nelle applicazioni reali combinano più concetti: leggono dati da Redux, li trasformano con useMemo per evitare ricalcoli inutili, e coordinano elementi DOM tramite useRef. Ecco un esempio di hook che gestisce una lista scrollabile con sincronizzazione tra più pannelli.",
       },
       {
         type: "code",
@@ -261,12 +261,12 @@ function useFilteredDataAndScroll(dataKey) {
         type: "multiple-choice",
         title: "Path Dinamici in un Reducer",
         description:
-          "Perche il pattern setNestedProperty(state, pathKeys, value) e utile in un reducer con stato annidato a piu livelli?",
+          "Perche il pattern setNestedProperty(state, pathKeys, value) e utile in un reducer con stato annidato a più livelli?",
         difficulty: "medio",
         options: [
           "Perche evita di dover scrivere un case del reducer per ogni singola combinazione di chiavi annidate, generalizzando l'aggiornamento con un array di chiavi",
           "Perche e l'unico modo per aggiornare oggetti annidati in JavaScript",
-          "Perche rende il codice piu lento ma piu leggibile",
+          "Perche rende il codice più lento ma più leggibile",
           "Perche Redux Toolkit lo richiede obbligatoriamente per stati annidati",
         ],
         correct: 0,
@@ -281,7 +281,7 @@ function useFilteredDataAndScroll(dataKey) {
         difficulty: "facile",
         options: [
           "Tutte le pagine sotto il provider sono automaticamente protette senza bisogno di controlli in ogni componente",
-          "Rende l'applicazione piu veloce",
+          "Rende l'applicazione più veloce",
           "E richiesto da React per usare useContext",
           "Impedisce il rendering lato server",
         ],

@@ -188,7 +188,7 @@ export default function DashboardLayout({ children }) {
       {
         type: "text",
         content:
-          "In Next.js App Router, tutti i componenti sono Server Components per default. Vengono eseguiti solo sul server: il browser riceve HTML gia renderizzato. Questo significa bundle piu piccoli (il codice del componente non viene inviato al client) e la possibilita di accedere direttamente a database, filesystem e API interne.",
+          "In Next.js App Router, tutti i componenti sono Server Components per default. Vengono eseguiti solo sul server: il browser riceve HTML gia renderizzato. Questo significa bundle più piccoli (il codice del componente non viene inviato al client) e la possibilita di accedere direttamente a database, filesystem e API interne.",
       },
       {
         type: "warning",
@@ -389,7 +389,7 @@ export default function Counter() {
           "Perche in un'applicazione Next.js reale si usa `use(params)` nella pagina dashboard?",
         difficulty: "medio",
         options: [
-          "Perche use() e piu veloce di useEffect per leggere i parametri",
+          "Perche use() e più veloce di useEffect per leggere i parametri",
           "Perche in Next.js 15+ i params delle route dinamiche sono Promise e use() le risolve",
           "Perche use() sostituisce completamente useEffect",
           "Perche i Server Components richiedono use() per qualsiasi prop",
@@ -602,12 +602,12 @@ export default function SidebarNav() {
         options: [
           "Nessuna differenza, sono sinonimi",
           "[id] cattura un singolo segmento, [...params] cattura tutti i segmenti rimanenti come array",
-          "[...params] e piu veloce di [id]",
+          "[...params] e più veloce di [id]",
           "[id] funziona solo con numeri, [...params] con qualsiasi stringa",
         ],
         correct: 1,
         explanation:
-          "[id] cattura esattamente un segmento dell'URL (es. /products/42 -> id = '42'). [...params] cattura uno o piu segmenti come array (es. /LK1/CQA/Overview -> params = ['LK1', 'CQA', 'Overview']).",
+          "[id] cattura esattamente un segmento dell'URL (es. /products/42 -> id = '42'). [...params] cattura uno o più segmenti come array (es. /LK1/CQA/Overview -> params = ['LK1', 'CQA', 'Overview']).",
       },
       {
         type: "code",
