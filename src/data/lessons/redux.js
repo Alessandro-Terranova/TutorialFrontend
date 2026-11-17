@@ -376,6 +376,8 @@ if (s2.items.length !== 2 || s2.total !== 2) return "removeItem con un nome ines
 s = r(s, a.clearCart());
 if (!$equal(s, { items: [], total: 0 })) return "clearCart deve riportare lo stato a { items: [], total: 0 }";
 return true;`,
+        solutionExplanation:
+          "Ogni reducer riceve una copia dello stato (la bozza) e la modifica direttamente: `push` aggiunge il prodotto e `total` viene aggiornato nello stesso passo, così i due dati restano coerenti. In `removeItem` si cerca l'indice con `findIndex`: se vale -1 il prodotto non c'è e non si fa nulla, altrimenti si sottrae il prezzo PRIMA di rimuovere l'elemento con `splice` (dopo non sarebbe più disponibile). `clearCart` riassegna i campi ai valori iniziali.",
       },
       {
         type: "multiple-choice",
@@ -383,12 +385,12 @@ return true;`,
         description: "Cosa genera automaticamente `createSlice` di Redux Toolkit?",
         difficulty: "facile",
         options: [
-          "Solo il reducer: le action vanno create a mano",
           "Il reducer, i tipi di action e gli action creators a partire dall'oggetto reducers",
+          "Solo il reducer: le action vanno create a mano",
           "Solo le action: il reducer va scritto separatamente",
           "Un componente React con lo stato predefinito",
         ],
-        correct: 1,
+        correct: 0,
         explanation:
           "`createSlice` riceve name, initialState e reducers e genera il reducer della slice, i tipi di action (stringhe come `\"cart/addItem\"`, formate da name + nome del reducer) e gli action creators (funzioni come `addItem(payload)` che costruiscono l'oggetto action). Tutto da un unico punto di configurazione.",
       },
@@ -407,6 +409,22 @@ return true;`,
         correct: 1,
         explanation:
           "Redux Toolkit integra la libreria Immer: il reducer riceve una *bozza* (draft) dello stato, Immer registra le modifiche e produce un nuovo oggetto, lasciando intatto quello precedente. Questo vale solo dentro i reducer di createSlice: altrove lo stato non va mai modificato direttamente.",
+      },
+      {
+        type: "multiple-choice",
+        title: "Un reducer classico con un errore",
+        description:
+          "Questo reducer è scritto \"a mano\", SENZA createSlice:\n\nfunction cartReducer(state = { items: [] }, action) {\n  if (action.type === \"cart/addItem\") {\n    state.items.push(action.payload);\n    return state;\n  }\n  return state;\n}\n\nCosa c'è di sbagliato?",
+        difficulty: "difficile",
+        options: [
+          "Niente: `push` è il modo corretto di aggiungere un elemento allo stato",
+          "Manca il `payload` nel controllo del type",
+          "Il reducer deve restituire `undefined` quando l'action non è riconosciuta",
+          "Modifica lo stato ricevuto e restituisce lo stesso oggetto: va restituito un nuovo stato, ad esempio `{ ...state, items: [...state.items, action.payload] }`",
+        ],
+        correct: 3,
+        explanation:
+          "Fuori da createSlice non c'è Immer: un reducer deve essere puro e non può modificare lo stato ricevuto. Restituendo lo stesso oggetto, il riferimento non cambia e chi confronta con `===` (come useSelector) non si accorge della modifica. La soluzione è creare nuovi oggetti e array con lo spread. Il payload non va controllato nel type, e per un'action sconosciuta il reducer deve restituire lo stato attuale, non undefined.",
       },
     ],
   },
@@ -732,6 +750,8 @@ const p = createStore(preferencesReducer);
 p.dispatch({ type: "preferences/toggleTheme" });
 if (select(p, (s) => s.theme) !== "scuro") return "Con preferencesReducer, dopo toggleTheme il tema deve essere \\"scuro\\"";
 return true;`,
+        solutionExplanation:
+          "Lo stato vive in una variabile `let` nella closure di `createStore`: nessuno può modificarlo dall'esterno, solo tramite `dispatch`. `dispatch` calcola il nuovo stato con il reducer e solo DOPO chiama i listener, così chi legge `getState()` dentro un listener vede già i dati aggiornati. È esattamente il meccanismo che `useSelector` usa dietro le quinte: si iscrive con subscribe e, a ogni dispatch, riesegue il selettore.",
       },
       {
         type: "code",
@@ -812,6 +832,22 @@ return true;`,
         correct: 2,
         explanation:
           "Senza un Provider che fornisce lo store tramite il contesto React, useSelector non sa da quale store leggere e lancia un errore. Il Provider è obbligatorio e deve avvolgere tutti i componenti che usano gli hook di Redux.",
+      },
+      {
+        type: "multiple-choice",
+        title: "Dispatch nel posto giusto",
+        description:
+          "Quale di questi componenti invia correttamente l'action `addItem` quando l'utente clicca il bottone?",
+        difficulty: "medio",
+        options: [
+          "`<button onClick={dispatch(addItem(prodotto))}>Aggiungi</button>`",
+          "`<button onClick={() => dispatch(addItem(prodotto))}>Aggiungi</button>`",
+          "`<button onClick={() => addItem(prodotto)}>Aggiungi</button>`",
+          "`<button onClick={() => useDispatch(addItem(prodotto))}>Aggiungi</button>`",
+        ],
+        correct: 1,
+        explanation:
+          "Serve una funzione che, al clic, chiami `dispatch` con l'action creata da `addItem(prodotto)`. Nella prima opzione `dispatch` viene eseguito subito durante il render (e a ogni render), non al clic. Nella terza `addItem(prodotto)` crea solo l'oggetto action, ma nessuno lo invia allo store. Nella quarta useDispatch è un hook: va chiamato al livello più alto del componente (`const dispatch = useDispatch();`), non dentro un gestore di eventi.",
       },
     ],
   },
@@ -1127,6 +1163,8 @@ if (selectItemById(s1, 99) !== undefined) return "selectItemById con un id inesi
 if (!/selectCartItems\\(/.test($codeNoComments.replace(/function\\s+selectCartItems\\s*\\(/, "")))
   return "Riusa selectCartItems dentro gli altri selettori";
 return true;`,
+        solutionExplanation:
+          "`selectCartItems` è il selettore \"di base\": gli altri lo riusano, così se un giorno la forma dello stato cambia basta aggiornare un solo punto. Conteggio e totale si ottengono con `reduce` partendo da 0 (che è anche il risultato corretto per un carrello vuoto), mentre `find` restituisce già `undefined` quando nessun item ha l'id cercato.",
       },
       {
         type: "code",
@@ -1205,6 +1243,8 @@ if (!$equal(r3, { theme: "chiaro", notifications: { email: false, sms: true } })
 const r4 = mergePreferences(d, {});
 if (!$equal(r4, d)) return "Con custom vuoto il risultato deve essere uguale ai default";
 return true;`,
+        solutionExplanation:
+          "L'ordine degli spread conta: prima `...defaults`, poi `...custom`, così le proprietà personalizzate vincono. Lo spread però è *superficiale*: `...custom` sostituirebbe l'intero oggetto `notifications`, perdendo i canali non specificati. Per questo `notifications` viene ricostruito a parte con un secondo spread, e `custom.notifications || {}` evita errori quando custom non lo contiene.",
       },
       {
         type: "code",
@@ -1302,6 +1342,8 @@ selU({});
 selU({});
 if (m !== 1) return "Anche se il primo input è undefined, alla seconda chiamata con lo stesso input non devi ricalcolare: usa un flag per la prima chiamata";
 return true;`,
+        solutionExplanation:
+          "La closure conserva tra una chiamata e l'altra l'ultimo input e l'ultimo risultato. Se l'input è lo stesso riferimento (`===`), si restituisce il risultato salvato: è ciò che permette a useSelector di non ri-renderizzare il componente. Il flag `hasResult` serve per la prima chiamata: senza di esso, un primo input `undefined` sarebbe uguale al valore iniziale di `lastInput` e `resultFn` non verrebbe mai eseguita.",
       },
       {
         type: "multiple-choice",
@@ -1317,6 +1359,38 @@ return true;`,
         correct: 2,
         explanation:
           "Il selettore con lo spread crea un NUOVO oggetto a ogni esecuzione. Poiché useSelector confronta i risultati con ===, un nuovo oggetto è sempre diverso dal precedente e il componente si ri-renderizza a ogni action. Gli altri selettori restituiscono riferimenti già presenti nello stato o valori primitivi.",
+      },
+      {
+        type: "multiple-choice",
+        title: "Cosa stampa lo spread annidato?",
+        description:
+          "Cosa stampa questo codice?\n\nconst defaults = { theme: \"chiaro\", notifications: { email: true, push: false } };\nconst custom = { notifications: { push: true } };\nconst merged = { ...defaults, ...custom };\nconsole.log(merged.notifications);",
+        difficulty: "medio",
+        options: [
+          "`{ email: true, push: true }`",
+          "`{ push: true }`",
+          "`{ email: true, push: false }`",
+          "Un errore, perché `custom` non ha la proprietà `theme`",
+        ],
+        correct: 1,
+        explanation:
+          "Lo spread copia solo il primo livello: `...custom` sostituisce l'INTERO oggetto `notifications` dei default con `{ push: true }`, quindi `email` va perso. Per ottenere `{ email: true, push: true }` serve uno spread annidato: `notifications: { ...defaults.notifications, ...custom.notifications }`. Le proprietà mancanti in custom (come theme) non causano errori: restano semplicemente quelle dei default.",
+      },
+      {
+        type: "multiple-choice",
+        title: "Dove mettere il totale del carrello",
+        description:
+          "Il carrello contiene gli item `{ name, price, quantity }`. Qual è l'approccio migliore per mostrare il totale in più componenti?",
+        difficulty: "facile",
+        options: [
+          "Salvare `total` nello stato e ricordarsi di aggiornarlo a mano in ogni componente che modifica il carrello",
+          "Ricalcolare il totale con un ciclo dentro ogni componente che lo mostra",
+          "Scrivere un selettore `selectCartTotal(state)` accanto alla slice e usarlo con useSelector dove serve",
+          "Salvare il totale in una variabile globale fuori da Redux",
+        ],
+        correct: 2,
+        explanation:
+          "Il totale è un valore *derivato*: si ricava dagli item. Un selettore riutilizzabile lo calcola in un solo posto e non può andare fuori sincrono. Aggiornarlo a mano in ogni componente è fragile (basta dimenticarsene una volta), duplicare il calcolo nei componenti sparge la stessa logica ovunque, e una variabile globale fuori da Redux non fa ri-renderizzare i componenti quando cambia.",
       },
     ],
   },

@@ -2030,8 +2030,8 @@ console.log(url); // "/blog/anna/42"
 
 // Qualsiasi espressione dentro \${}
 const price = 19.99;
-console.log(\`Prezzo: \${price.toFixed(0)} EUR\`); // "Prezzo: 20 EUR"
-console.log(\`Doppio: \${price * 2} EUR\`);         // "Doppio: 39.98 EUR"
+console.log(\`Doppio: \${price * 2} EUR\`);                 // "Doppio: 39.98 EUR"
+console.log(\`Fascia: \${price > 15 ? "alta" : "bassa"}\`); // "Fascia: alta"
 
 // Stringhe multilinea
 const message = \`
@@ -2205,7 +2205,7 @@ items.forEach((item) => {
       {
         type: "text",
         content:
-          "Spesso i dati arrivano come stringhe (dai campi di un form, dall'URL, da un server) e devono essere convertiti in numeri. JavaScript offre diversi modi per farlo.",
+          "Spesso i dati arrivano come stringhe (dai campi di un form, dall'URL, da un server) e devono essere convertiti in numeri. JavaScript offre diversi modi per farlo. Per il percorso inverso, `String(valore)` converte un numero in stringa, mentre `numero.toFixed(cifre)` restituisce una stringa con il numero arrotondato al numero di decimali indicato (utile per mostrare i prezzi).",
       },
       {
         type: "code",
@@ -2233,7 +2233,9 @@ console.log(isNaN(Number("42")));   // false
 
 // Da numero a stringa
 console.log(String(42));        // "42"
-console.log((3.14159).toFixed(2)); // "3.14"
+console.log((3.14159).toFixed(2)); // "3.14" (stringa con 2 decimali)
+console.log((19.99).toFixed(0));   // "20" (arrotondato, nessun decimale)
+console.log((5).toFixed(2));       // "5.00"
 
 // Pattern comune: sommare valori letti da un form
 const quantityInput = "3";
@@ -2248,6 +2250,54 @@ console.log(\`Totale: \${total} euro\`); // "Totale: 37.5 euro"`,
       },
     ],
     exercises: [
+      {
+        type: "multiple-choice",
+        title: "Backtick o virgolette?",
+        description:
+          'Con `const name = "Sara";`, cosa stampa questa riga?\n`console.log("Ciao ${name}!");`',
+        difficulty: "facile",
+        options: [
+          '`Ciao Sara!`',
+          '`Ciao ${name}!`',
+          "Un errore: `name` non è definita",
+          '`Ciao undefined!`',
+        ],
+        correct: 1,
+        explanation:
+          "L'interpolazione con `${...}` funziona **solo** nei template literals, cioè nelle stringhe scritte tra backtick. Tra virgolette doppie (o singole) `${name}` è testo normale e viene stampato così com'è. Per ottenere `Ciao Sara!` bisogna usare i backtick al posto delle virgolette.",
+      },
+      {
+        type: "multiple-choice",
+        title: "Number o parseInt?",
+        description:
+          'Cosa stampa questo codice?\n`console.log(Number("15px"), parseInt("15px"), Number(""));`',
+        difficulty: "medio",
+        options: [
+          "`15 15 0`",
+          "`NaN NaN NaN`",
+          "`NaN 15 NaN`",
+          "`NaN 15 0`",
+        ],
+        correct: 3,
+        explanation:
+          '`Number()` fa una conversione stretta: se la stringa contiene caratteri non numerici come `"px"` restituisce `NaN`. `parseInt()` legge le cifre iniziali e si ferma al primo carattere non numerico, quindi restituisce `15`. Un caso particolare da ricordare: `Number("")` (stringa vuota) restituisce `0`, non `NaN`.',
+      },
+      {
+        type: "multiple-choice",
+        title: "Le stringhe non si modificano",
+        description:
+          'Cosa stampa questo codice?\n`const city = "  Roma ";`\n`city.trim();`\n`city.toUpperCase();`\n`console.log("[" + city + "]");`',
+        difficulty: "difficile",
+        options: [
+          '`[  Roma ]`',
+          '`[ROMA]`',
+          '`[Roma]`',
+          '`[  ROMA ]`',
+        ],
+        correct: 0,
+        explanation:
+          'I metodi delle stringhe come `trim` e `toUpperCase` **non modificano** la stringa originale: restituiscono una nuova stringa. Qui i risultati non vengono salvati da nessuna parte, quindi `city` resta `"  Roma "` con gli spazi e le minuscole. Per usare il risultato bisogna assegnarlo, per esempio `const clean = city.trim().toUpperCase();`, che darebbe `"ROMA"`.',
+      },
       {
         type: "code",
         title: "Template literal e interpolazione",
@@ -2291,6 +2341,8 @@ console.log(formatCities(" milano , roma , napoli , torino "));`,
 };
 
 console.log(formatCities(" milano , roma , napoli , torino "));`,
+        solutionExplanation:
+          "`split(\",\")` trasforma la stringa in un array di pezzi (ancora con gli spazi ai lati). `map` applica a ogni pezzo `trim()` e poi `toUpperCase()`: i metodi delle stringhe si possono concatenare perché ognuno restituisce una nuova stringa. Infine `join(\" | \")` riunisce l'array in una sola stringa con il separatore richiesto.",
         validate: `
 if (typeof formatCities !== "function") return "Definisci la funzione formatCities";
 const code = $codeNoComments;
@@ -2318,6 +2370,8 @@ console.log(formatDate(2024, 3, 7));`,
 };
 
 console.log(formatDate(2024, 3, 7));`,
+        solutionExplanation:
+          "`padStart` è un metodo delle stringhe, quindi mese e giorno (che sono numeri) vanno prima convertiti con `String(...)`. `padStart(2, \"0\")` aggiunge zeri a sinistra solo finché la stringa non è lunga 2 caratteri: `\"3\"` diventa `\"03\"`, mentre `\"12\"` resta invariato. Il template literal compone poi le tre parti con i trattini.",
         validate: `
 if (typeof formatDate !== "function") return "Definisci la funzione formatDate";
 const code = $codeNoComments;

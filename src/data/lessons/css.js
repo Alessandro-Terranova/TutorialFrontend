@@ -524,6 +524,8 @@ return true;`,
 .active {
   font-weight: 700;
 }`,
+        solutionExplanation:
+          "Il combinatore `>` in `.menu > li` seleziona solo i `<li>` che sono figli diretti di `.menu`, quindi le voci del sottomenu (che sono figlie del `<ul>` interno) restano senza padding e bordo. Per i link invece serve proprio il selettore discendente `.menu a` (con lo spazio), che raggiunge i link a qualsiasi profondità, anche quelli del sottomenu.",
         validate: `
 const menu = $cssRule(".menu");
 if (menu["list-style"] !== "none" && menu["list-style-type"] !== "none") return "Togli i pallini da \`.menu\` con \`list-style: none\`";
@@ -974,6 +976,8 @@ return true;`,
   padding: 12px;
   flex-grow: 1;
 }`,
+        solutionExplanation:
+          "`display: flex` mette sidebar e contenuto uno accanto all'altro. La sidebar ha una larghezza di partenza di 180px e `flex-shrink: 0` le impedisce di restringersi quando lo spazio scarseggia. `flex-grow: 1` sul contenuto gli assegna tutto lo spazio libero rimasto, qualunque sia la larghezza del contenitore.",
         validate: `
 const layout = $cssRule(".layout");
 if (layout.display !== "flex") return "Rendi \`.layout\` un contenitore flex con \`display: flex\`";
@@ -1034,6 +1038,8 @@ return true;`,
   align-items: center;
   flex: 0 0 100px;
 }`,
+        solutionExplanation:
+          "Senza `flex-wrap: wrap` gli elementi flex restano tutti su una riga e si restringono per starci. Con `wrap` vanno a capo quando la riga è piena. `flex: 0 0 100px` significa `flex-grow: 0` (non crescere), `flex-shrink: 0` (non restringerti) e `flex-basis: 100px` (larghezza di partenza): ogni foto resta quindi larga esattamente 100px.",
         validate: `
 const g = $cssRule(".gallery");
 if (g.display !== "flex") return "Rendi \`.gallery\` un contenitore flex con \`display: flex\`";
@@ -1361,14 +1367,30 @@ body {
           "In un approccio \"mobile first\", quale media query è corretta per applicare stili a partire dalla larghezza tablet (768px)?",
         difficulty: "facile",
         options: [
-          "`@media (max-width: 768px) { ... }`",
           "`@media (min-width: 768px) { ... }`",
+          "`@media (max-width: 768px) { ... }`",
           "`@media (width: 768px) { ... }`",
           "`@media screen and (device-width: 768px) { ... }`",
         ],
-        correct: 1,
+        correct: 0,
         explanation:
-          "Mobile first significa partire dagli stili per schermi piccoli e poi sovrascriverli per schermi più grandi con `min-width`. `max-width` farebbe il contrario (desktop first). `min-width: 768px` significa \"a partire da 768px di larghezza in su\".",
+          "Mobile first significa partire dagli stili per schermi piccoli e poi sovrascriverli per schermi più grandi con `min-width`. `max-width` farebbe il contrario (desktop first). `min-width: 768px` significa \"a partire da 768px di larghezza in su\". `width: 768px` varrebbe solo per una larghezza esattamente di 768px, e `device-width` è una vecchia caratteristica (deprecata) che guarda lo schermo del dispositivo invece della finestra.",
+      },
+      {
+        type: "multiple-choice",
+        title: "Variabili ed ereditarietà",
+        description:
+          "Dato questo CSS:\n`:root { --accent: green; }`\n`.sidebar { --accent: orange; }`\n`.link { color: var(--accent); }`\n\nUn elemento `.link` si trova **dentro** `.sidebar`, un altro `.link` è fuori da `.sidebar`. Di che colore saranno?",
+        difficulty: "medio",
+        options: [
+          "Entrambi verdi: le variabili si leggono sempre da `:root`",
+          "Entrambi arancioni: vince l'ultima definizione scritta nel file",
+          "Quello dentro `.sidebar` arancione, quello fuori verde",
+          "Quello dentro `.sidebar` verde, quello fuori arancione",
+        ],
+        correct: 2,
+        explanation:
+          "Le variabili CSS seguono l'ereditarietà: ogni elemento usa il valore definito sull'antenato più vicino. Il link dentro `.sidebar` trova `--accent: orange` sul suo genitore; il link fuori non ha `.sidebar` tra gli antenati e risale fino a `:root`, dove trova `green`. Non conta l'ordine nel file, perché le due regole si applicano a elementi diversi, e `:root` è solo il punto più alto della catena, non l'unico.",
       },
       {
         type: "code",
@@ -1415,6 +1437,8 @@ body {
 .btn-danger {
   --primary: #d32f2f;
 }`,
+        solutionExplanation:
+          "Il pulsante \"Rimuovi\" ha entrambe le classi, quindi riceve tutte le regole di `.btn`, compreso `background: var(--primary)`. Ridefinendo `--primary` su `.btn-danger`, la variabile assume il nuovo valore solo per quell'elemento (e i suoi figli), e lo sfondo cambia senza riscrivere la proprietà `background`. Se domani cambi lo stile di `.btn`, la variante si aggiorna da sola.",
         validate: `
 const rootVars = $cssRule(":root");
 if ((rootVars["--primary"] || "").toLowerCase() !== "#1976d2") return "Definisci in \`:root\` la variabile \`--primary: #1976d2\`";
@@ -1475,6 +1499,8 @@ return true;`,
     flex: 1;
   }
 }`,
+        solutionExplanation:
+          "Con l'approccio mobile first gli stili fuori dalla media query valgono per tutti gli schermi: le card sono in colonna. La media query `min-width: 600px` si attiva solo da 600px in su e sovrascrive `flex-direction` con `row`. `flex: 1` sulle card fa sì che si dividano lo spazio della riga in parti uguali.",
         validate: `
 const base = $cssRule(".cards");
 if (base.display !== "flex") return "Rendi \`.cards\` un contenitore flex con \`display: flex\` (fuori dalla media query)";

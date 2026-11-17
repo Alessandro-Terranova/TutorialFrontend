@@ -225,6 +225,8 @@ if (!/\\{\\s*children\\s*\\}/.test(c)) return "Mostra le pagine figlie inserendo
 const boxes = c.match(/<Box\\b/g) || [];
 if (boxes.length < 3) return "Servono tre Box: quello esterno, la sidebar e il contenuto principale";
 return true;`,
+        solutionExplanation:
+          "Il Box esterno con `display: \"flex\"` mette i due figli uno accanto all'altro. La sidebar ha una larghezza fissa (240 pixel), mentre il contenuto con `flex: 1` occupa tutto lo spazio rimanente. `{children}` è il punto in cui Next.js inserisce la pagina corrente: navigando tra le pagine dentro `(account)` cambia solo quella parte, mentre la sidebar resta al suo posto.",
       },
     ],
   },
@@ -435,13 +437,45 @@ return true;`,
         difficulty: "medio",
         options: [
           "Perché use() è più veloce di useEffect per leggere i parametri",
-          "Perché nelle versioni recenti di Next.js params è una Promise e use() ne restituisce il valore risolto",
           "Perché use() sostituisce completamente useEffect",
+          "Perché nelle versioni recenti di Next.js params è una Promise e use() ne restituisce il valore risolto",
           "Perché i Server Components richiedono use() per qualsiasi prop",
         ],
-        correct: 1,
+        correct: 2,
         explanation:
-          "Da Next.js 15, i parametri delle route dinamiche (params) vengono passati come Promise. In un Server Component async si usa await params; in un Client Component, dove await non è disponibile nel corpo del componente, si usa l'hook use() di React 19.",
+          "Da Next.js 15, i parametri delle route dinamiche (params) vengono passati come Promise. In un Server Component async si usa await params; in un Client Component, dove await non è disponibile nel corpo del componente, si usa l'hook use() di React 19. use() non ha niente a che vedere con la velocità né sostituisce useEffect, e i Server Components non ne hanno bisogno: possono usare direttamente await.",
+      },
+      {
+        type: "multiple-choice",
+        title: "Trova l'errore",
+        description:
+          "Questo file non ha la direttiva \"use client\":\n``\nimport { useState } from \"react\";\n\nexport default async function ProdottiPage() {\n  const prodotti = await getProdotti();\n  const [filtro, setFiltro] = useState(\"\");\n  return <ListaProdotti prodotti={prodotti} />;\n}\n``\nQual è il modo corretto di sistemarlo?",
+        difficulty: "difficile",
+        options: [
+          "Aggiungere \"use client\" in cima e lasciare tutto com'è",
+          "Togliere async e usare await solo dentro useState",
+          "Spostare tutto in un useEffect",
+          "Lasciare la pagina come Server Component che carica i dati e spostare useState in un Client Component figlio (ad esempio ListaProdotti con \"use client\")",
+        ],
+        correct: 3,
+        explanation:
+          "Una pagina senza \"use client\" è un Server Component: può essere `async` e caricare i dati con await, ma non può usare hook come useState. La soluzione tipica è dividere: la pagina (server) carica i dati e li passa come props a un piccolo Client Component che gestisce lo stato del filtro. Aggiungere solo \"use client\" non basta, perché nel corpo di un Client Component non si può usare await; await dentro useState non ha senso, e useEffect è anch'esso un hook, quindi non risolve il problema in un Server Component.",
+      },
+      {
+        type: "multiple-choice",
+        title: "Server o Client?",
+        description:
+          "Quale di questi componenti può restare un Server Component (senza \"use client\")?",
+        difficulty: "facile",
+        options: [
+          "Una pagina che mostra l'elenco degli articoli letti dal database",
+          "Un campo di ricerca che aggiorna i risultati mentre l'utente scrive",
+          "Un bottone che aggiunge un prodotto al carrello di Redux",
+          "Un componente che salva una preferenza in localStorage",
+        ],
+        correct: 0,
+        explanation:
+          "Mostrare dati senza interattività è il caso ideale per un Server Component: legge i dati sul server e invia al browser solo l'HTML. Il campo di ricerca ha bisogno di stato ed eventi (onChange), il bottone usa useDispatch di Redux e localStorage è un'API del browser: tutti e tre richiedono \"use client\".",
       },
     ],
   },
@@ -646,6 +680,41 @@ export default function MenuProfilo() {
 }`,
       },
       {
+        type: "subheading",
+        content: "redirect(): reindirizzare prima ancora di mostrare la pagina",
+      },
+      {
+        type: "text",
+        content:
+          "A volte una pagina non deve mostrare nulla, ma solo mandare l'utente altrove. La funzione `redirect()` di `next/navigation` fa proprio questo: si può chiamare in un Server Component (pagina o layout) e interrompe il rendering, rispondendo al browser con un reindirizzamento verso il percorso indicato. Come `notFound()`, non serve scrivere `return`: dopo `redirect()` il resto della funzione non viene eseguito.",
+      },
+      {
+        type: "code",
+        language: "javascript",
+        title: "La root \"/\" che reindirizza a \"/prodotti\"",
+        code: `// app/page.js  →  URL "/"
+import { redirect } from "next/navigation";
+
+export default function Home() {
+  // Il negozio non ha una vera home: chi apre "/" finisce sull'elenco dei prodotti
+  redirect("/prodotti");
+}
+
+// app/prodotti/page.js  →  URL "/prodotti"  (la pagina vera e propria)
+// app/carrello/page.js  →  URL "/carrello"
+// app/profilo/page.js   →  URL "/profilo"`,
+      },
+      {
+        type: "text",
+        content:
+          "Perché non mettere direttamente il codice dell'elenco prodotti in `app/page.js`? Funzionerebbe, ma l'elenco avrebbe come indirizzo `/` invece di `/prodotti`. Con il redirect, invece, ogni sezione ha il proprio URL coerente (`/prodotti`, `/carrello`, `/profilo`): il menu può evidenziare la voce attiva confrontando `usePathname()` con `/prodotti`, i link condivisi sono chiari e, se un domani vorrai una vera home, ti basterà sostituire il redirect con una pagina senza spostare nulla.",
+      },
+      {
+        type: "info",
+        content:
+          "`redirect()` va usato nei Server Components (o nel codice che gira sul server). In un Client Component, dopo un'azione dell'utente come il click su un bottone, si usa invece `router.push()` visto sopra.",
+      },
+      {
         type: "tip",
         content:
           "Preferisci `<Link>` per i normali collegamenti tra pagine (è accessibile e Next.js precarica la destinazione) e riserva `router.push()` ai casi in cui la navigazione dipende da un'azione o da una condizione nel codice.",
@@ -666,6 +735,54 @@ export default function MenuProfilo() {
         correct: 1,
         explanation:
           "[id] cattura esattamente un segmento dell'URL (es. /prodotti/42 → id = '42'). [...slug] cattura uno o più segmenti come array (es. /docs/react/hooks → slug = ['react', 'hooks']).",
+      },
+      {
+        type: "multiple-choice",
+        title: "Cosa contiene params?",
+        description:
+          "Il file è `app/prodotti/[categoria]/[id]/page.js` e l'utente apre `/prodotti/libri/42`. Cosa stampa questo codice?\n``\nexport default async function ProdottoPage({ params }) {\n  const { categoria, id } = await params;\n  console.log(categoria, id, typeof id);\n  ...\n}\n``",
+        difficulty: "medio",
+        options: [
+          "libri 42 number",
+          "libri 42 string",
+          "undefined undefined undefined",
+          "[\"libri\", \"42\"] undefined undefined",
+        ],
+        correct: 1,
+        explanation:
+          "Ogni cartella dinamica diventa una proprietà di `params` con lo stesso nome: `categoria` vale \"libri\" e `id` vale \"42\". I valori presi dall'URL sono sempre **stringhe**, anche se sembrano numeri: per usarli come numeri va fatta una conversione (es. `Number(id)`). Non sono undefined, perché si è usato `await params`; un array si ottiene solo con una rotta catch-all `[...slug]`.",
+      },
+      {
+        type: "multiple-choice",
+        title: "Redirect o pagina nella root?",
+        description:
+          "Il tuo negozio ha le sezioni Prodotti, Carrello e Profilo, ma nessuna vera home. Qual è l'approccio migliore per la root `/`?",
+        difficulty: "medio",
+        options: [
+          "Mettere `redirect(\"/prodotti\")` in `app/page.js` e la pagina dell'elenco in `app/prodotti/page.js`",
+          "Copiare il codice dell'elenco prodotti sia in `app/page.js` sia in `app/prodotti/page.js`",
+          "Mettere l'elenco prodotti in `app/page.js`, così l'indirizzo della sezione Prodotti è `/`",
+          "Usare `router.push(\"/prodotti\")` in `app/page.js` senza \"use client\"",
+        ],
+        correct: 0,
+        explanation:
+          "Con `redirect()` chi apre `/` viene mandato subito a `/prodotti` e ogni sezione ha il proprio URL coerente, utile anche per evidenziare la voce attiva del menu. Mettere l'elenco nella root funziona, ma la sezione Prodotti avrebbe l'indirizzo `/`, diverso dallo schema delle altre; duplicare il codice crea due pagine identiche da mantenere. `useRouter` è un hook: senza \"use client\" non si può usare, e comunque in una pagina server il modo corretto è `redirect()`.",
+      },
+      {
+        type: "multiple-choice",
+        title: "Link o router.push?",
+        description:
+          "Quale situazione è più adatta a `router.push()` invece che a `<Link>`?",
+        difficulty: "facile",
+        options: [
+          "Una voce del menu di navigazione verso /profilo",
+          "Il titolo di un articolo che porta alla sua pagina",
+          "Il logo in alto che riporta alla home",
+          "Portare l'utente alla pagina dell'ordine dopo che l'invio del form è andato a buon fine",
+        ],
+        correct: 3,
+        explanation:
+          "La navigazione dopo l'invio di un form dipende da un'azione e dal suo esito: va decisa nel codice, quindi `router.push()`. Le voci di menu, i titoli e il logo sono normali collegamenti: con `<Link>` sono accessibili (si possono aprire in una nuova scheda) e Next.js precarica la destinazione.",
       },
       {
         type: "code",
@@ -721,6 +838,8 @@ if (!tpl && !concat) {
 }
 if (!/onClick=\\{\\s*handleNavigate\\s*\\}/.test(c)) return "Il Button deve chiamare handleNavigate al click (onClick={handleNavigate})";
 return true;`,
+        solutionExplanation:
+          "`useRouter()` restituisce l'oggetto router, e `router.push(percorso)` naviga verso quel percorso senza ricaricare la pagina. Il percorso si costruisce a partire dalle props: con un template literal (`/prodotti/${categoria}/${id}` tra backtick) oppure con `\"/prodotti/\" + categoria + \"/\" + id` ottieni ad esempio `/prodotti/libri/42`, che viene gestito dalla rotta dinamica `app/prodotti/[categoria]/[id]/page.js`.",
       },
       {
         type: "code",
@@ -783,6 +902,8 @@ if (!/const\\s+isActive\\s*=\\s*(\\(?\\s*pathname\\s*===?\\s*href|\\(?\\s*href\\
 if (!/bgcolor\\s*:\\s*isActive\\s*\\?\\s*["']primary\\.main["']\\s*:\\s*["']transparent["']/.test(c)) return 'Imposta bgcolor: isActive ? "primary.main" : "transparent"';
 if (!/color\\s*:\\s*isActive\\s*\\?\\s*["']white["']\\s*:\\s*["']text\\.primary["']/.test(c)) return 'Imposta color: isActive ? "white" : "text.primary"';
 return true;`,
+        solutionExplanation:
+          "`usePathname()` restituisce il percorso della pagina aperta, per esempio `\"/profilo/ordini\"`. Confrontandolo con `href` si ottiene un booleano, `isActive`, che poi guida gli stili con l'operatore ternario: colore primario e testo bianco per il link attivo, sfondo trasparente per gli altri. Poiché `usePathname` è un hook, il componente deve essere un Client Component (\"use client\").",
       },
     ],
   },

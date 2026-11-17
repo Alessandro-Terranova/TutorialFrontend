@@ -208,12 +208,12 @@ function UserCard() {
           "Perché in JSX si usa 'className' invece di 'class' per le classi CSS?",
         difficulty: "facile",
         options: [
-          "È una convenzione di React senza motivo tecnico",
           "Perché 'class' è una parola riservata in JavaScript (usata per le classi ES6)",
+          "È una convenzione di React senza motivo tecnico",
           "Perché className è più veloce da elaborare",
           "Perché funziona solo nei browser moderni",
         ],
-        correct: 1,
+        correct: 0,
         explanation:
           "In JavaScript, 'class' è una parola riservata usata per dichiarare classi ES6. Siccome JSX viene trasformato in JavaScript, si usa 'className' per evitare conflitti. Lo stesso vale per 'htmlFor' al posto di 'for'.",
       },
@@ -241,11 +241,11 @@ function UserCard() {
         difficulty: "medio",
         options: [
           "Perché un componente deve sempre ricevere almeno una prop",
-          "Perché il nome di un componente deve iniziare con la lettera maiuscola: con la minuscola React lo tratta come un tag HTML sconosciuto",
           "Perché i componenti devono essere scritti come arrow function",
+          "Perché il nome di un componente deve iniziare con la lettera maiuscola: con la minuscola React lo tratta come un tag HTML sconosciuto",
           "Perché manca un Fragment attorno al div",
         ],
-        correct: 1,
+        correct: 2,
         explanation:
           "React distingue i componenti dai tag HTML nativi grazie alla maiuscola iniziale. `<movieCard />` viene interpretato come un elemento HTML chiamato \"moviecard\", che non esiste. Rinominandolo `MovieCard` e usando `<MovieCard />`, React chiama la tua funzione.",
       },
@@ -524,11 +524,11 @@ function MovieFilters() {
         difficulty: "facile",
         options: [
           "`function User(name, age, isActive) { ... }`",
-          "`function User({ name, age, isActive }) { ... }`",
-          "`function User([name, age, isActive]) { ... }`",
           "`function User(props.name, props.age, props.isActive) { ... }`",
+          "`function User([name, age, isActive]) { ... }`",
+          "`function User({ name, age, isActive }) { ... }`",
         ],
-        correct: 1,
+        correct: 3,
         explanation:
           "Le props sono un singolo oggetto, quindi si usa il destructuring di oggetto con le graffe {}. La prima opzione tratterebbe name, age e isActive come tre parametri separati, non come proprietà di un oggetto.",
       },
@@ -539,12 +539,12 @@ function MovieFilters() {
           "In questo codice, come fa il componente ProductItem a comunicare al genitore quale prodotto è stato aggiunto?\n\nfunction Shop() {\n  return <ProductItem name=\"Zaino\" onAddToCart={(name) => console.log(name)} />;\n}",
         difficulty: "medio",
         options: [
-          "ProductItem modifica direttamente le variabili di Shop",
           "ProductItem chiama la funzione ricevuta come prop 'onAddToCart', passandole il nome del prodotto",
+          "ProductItem modifica direttamente le variabili di Shop",
           "ProductItem emette un evento DOM personalizzato che Shop ascolta",
           "ProductItem restituisce il nome del prodotto con return",
         ],
-        correct: 1,
+        correct: 0,
         explanation:
           "Il pattern callback è il modo standard per la comunicazione figlio -> genitore in React. Il genitore passa una funzione come prop, e il figlio la invoca quando serve, passando i dati come argomento.",
       },
@@ -606,6 +606,8 @@ if (!/title\\s*=\\s*["']Inception["']/.test(use[0])) return "Passa la prop title
 if (/year\\s*=\\s*["']/.test(use[0])) return "year è un numero: passalo con le graffe, year={2010}.";
 if (!/year\\s*=\\s*\\{\\s*2010\\s*\\}/.test(use[0])) return "Passa la prop year={2010}.";
 return true;`,
+        solutionExplanation:
+          "Le props arrivano come un unico oggetto: con il destructuring nei parametri `{ title, year = 2024 }` si estraggono subito e si assegna un default a `year`, usato solo quando la prop non viene passata. In `App` le stringhe si passano tra virgolette (`title=\"Inception\"`), mentre numeri e altre espressioni JavaScript vanno tra graffe (`year={2010}`): scrivendo `year=\"2010\"` si passerebbe la stringa, non il numero.",
       },
     ],
   },
@@ -902,11 +904,11 @@ function App() {
         difficulty: "difficile",
         options: [
           "Al livello più alto della funzione componente, prima del return",
-          "Dentro un blocco if, per creare stato solo quando serve",
           "Subito dopo un altro useState, sempre al livello più alto",
           "Prima di qualsiasi logica condizionale nel componente",
+          "Dentro un blocco if, per creare stato solo quando serve",
         ],
-        correct: 1,
+        correct: 3,
         explanation:
           "Gli hook (useState, useEffect, ecc.) non possono essere chiamati dentro condizioni, cicli o funzioni annidate. React traccia gli hook per la loro posizione nell'ordine di chiamata: se un hook viene saltato a causa di un if, l'ordine cambia e React non riesce a collegare gli stati correttamente.",
       },
@@ -987,6 +989,8 @@ if (toggled[0] === list[0]) return "Il todo modificato deve essere un nuovo ogge
 if (toggled[1].done !== true || toggled[2].done !== false) return "toggleTodo deve lasciare invariati gli altri todo.";
 if (toggleTodo(make(), 2)[1].done !== false) return "toggleTodo(todos, 2) deve portare done da true a false.";
 return true;`,
+        solutionExplanation:
+          "Ogni funzione restituisce un array nuovo e lascia intatto quello ricevuto, come richiede lo stato di React. Lo spread `[...todos, todo]` copia gli elementi e aggiunge quello nuovo in fondo; `filter` tiene tutti i todo tranne quello da rimuovere; `map` restituisce lo stesso oggetto per i todo che non cambiano e un NUOVO oggetto `{ ...t, done: !t.done }` per quello da modificare, così React vede un riferimento diverso e aggiorna la pagina.",
       },
       {
         type: "code",
@@ -1266,11 +1270,11 @@ function ThemeSwitcher() {
         difficulty: "facile",
         options: [
           "Mai",
-          "Una sola volta, quando il componente viene montato nel DOM",
           "Ad ogni re-rendering del componente",
+          "Una sola volta, quando il componente viene montato nel DOM",
           "Solo quando il componente viene smontato",
         ],
-        correct: 1,
+        correct: 2,
         explanation:
           "Un array di dipendenze vuoto [] dice a React: \"questo effetto non dipende da nessun valore, eseguilo solo al mount\". L'effetto viene eseguito una sola volta dopo il primo rendering.",
       },
@@ -1281,12 +1285,12 @@ function ThemeSwitcher() {
           "Quando viene eseguita la funzione restituita da useEffect (il cleanup)?",
         difficulty: "medio",
         options: [
-          "Solo quando il componente si smonta dal DOM",
           "Prima di ogni esecuzione dell'effetto (tranne la prima) e quando il componente si smonta",
+          "Solo quando il componente si smonta dal DOM",
           "Solo quando cambiano le dipendenze",
           "Subito dopo ogni esecuzione dell'effetto",
         ],
-        correct: 1,
+        correct: 0,
         explanation:
           "Il cleanup viene eseguito in due momenti: (1) prima che l'effetto riesegua con nuove dipendenze (per pulire il vecchio effetto) e (2) quando il componente si smonta dal DOM. Non viene eseguito dopo la prima esecuzione dell'effetto, ma prima della seconda.",
       },
@@ -1343,6 +1347,8 @@ if (!/return\\s*\\(\\s*\\)\\s*=>\\s*\\{?\\s*clearInterval\\(\\s*id\\s*\\)/.test(
 if (!/\\}\\s*,\\s*\\[\\s*\\]\\s*\\)/.test(c)) return "Passa un array di dipendenze vuoto [] come secondo argomento di useEffect.";
 if (!/<p[^>]*>\\s*Secondi:\\s*\\{\\s*seconds\\s*\\}\\s*<\\/p>/.test(c)) return "Mostra i secondi: <p>Secondi: {seconds}</p>.";
 return true;`,
+        solutionExplanation:
+          "L'array vuoto `[]` fa partire l'effetto una sola volta, dopo il primo render. `setInterval` restituisce un id che la funzione di cleanup usa con `clearInterval`: quando il componente viene smontato il timer si ferma, invece di continuare a girare in background. La forma funzionale `setSeconds((prev) => prev + 1)` è indispensabile: l'effetto viene eseguito una volta sola, quindi una variabile `seconds` letta al suo interno resterebbe sempre 0.",
       },
     ],
   },

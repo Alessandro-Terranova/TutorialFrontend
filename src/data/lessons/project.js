@@ -307,6 +307,24 @@ if (!$equal(b, { colore: "blue", impostazioni: { dimensione: 10, opacita: 1 } })
 if (r1 === b || r1.impostazioni === b.impostazioni)
   return "Il risultato deve essere un nuovo oggetto (anche impostazioni deve essere un nuovo oggetto), non lo stesso riferimento di base";
 return true;`,
+        solutionExplanation:
+          "Il primo spread `...base, ...override` copia i campi di primo livello (quelli di override vincono). Poi `impostazioni` viene ricostruito a parte: prima le impostazioni di base, poi quelle di override. `override.impostazioni || {}` gestisce il caso in cui override non abbia impostazioni. Il risultato è un oggetto nuovo, anche al secondo livello, quindi base non viene mai toccato.",
+      },
+      {
+        type: "multiple-choice",
+        title: "Cosa stampa lo spread shallow?",
+        description:
+          "Cosa stampa questo codice?\n\nconst defaults = { tema: \"chiaro\", font: { size: 14, family: \"Arial\" } };\nconst override = { font: { size: 18 } };\nconsole.log({ ...defaults, ...override }.font);",
+        difficulty: "medio",
+        options: [
+          "{ size: 18, family: \"Arial\" }",
+          "{ size: 18 }",
+          "{ size: 14, family: \"Arial\" }",
+          "Un errore, perché non si possono fare due spread nello stesso oggetto",
+        ],
+        correct: 1,
+        explanation:
+          "Lo spread lavora su un solo livello: la chiave `font` di override sostituisce per intero l'oggetto `font` di defaults, quindi `family` si perde e resta `{ size: 18 }`. Per ottenere `{ size: 18, family: \"Arial\" }` bisogna fondere anche `font` separatamente (`font: { ...defaults.font, ...override.font }`). `{ size: 14, ... }` sarebbe il risultato se l'ordine degli spread fosse invertito, e fare più spread nello stesso oggetto è perfettamente lecito.",
       },
       {
         type: "multiple-choice",
@@ -322,7 +340,7 @@ return true;`,
         ],
         correct: 0,
         explanation:
-          "Senza un path dinamico servirebbe un reducer (o una action) diverso per ogni possibile combinazione di livelli annidati. Passando un array di chiavi come dato, la stessa funzione generica gestisce qualsiasi profondità e combinazione, riducendo drasticamente la duplicazione.",
+          "Senza un path dinamico servirebbe un reducer (o una action) diverso per ogni possibile combinazione di livelli annidati. Passando un array di chiavi come dato, la stessa funzione generica gestisce qualsiasi profondità e combinazione, riducendo drasticamente la duplicazione. Non è l'unico modo (si può sempre scrivere lo spread annidato a mano), non rallenta il codice in modo significativo e Redux Toolkit non lo richiede: è solo una scelta di design che riduce il codice ripetuto.",
       },
       {
         type: "multiple-choice",
