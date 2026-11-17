@@ -1240,6 +1240,129 @@ for (const f of ["title", "author", "pages"]) {
 }
 if (!new RegExp("<TableCell[^>]*align=[\\"']right[\\"'][^>]*>\\\\s*\\\\{\\\\s*" + b + "\\\\.pages\\\\s*\\\\}").test(c)) return "Allinea a destra la cella delle pagine: <TableCell align=\\"right\\">{" + b + ".pages}</TableCell>";
 return true;`,
+        solutionExplanation:
+          "L'intestazione è fissa, quindi le sue celle si scrivono a mano; il corpo invece dipende dai dati e si genera con `books.map`, una `TableRow` per libro. La `key={book.id}` permette a React di riconoscere ogni riga quando l'array cambia, `hover` evidenzia la riga sotto il mouse e `align=\"right\"` allinea i numeri a destra, come si fa di solito per le colonne numeriche (anche nell'intestazione, così titolo e valori sono allineati).",
+      },
+      {
+        type: "code",
+        title: "Filtro per generi e durata",
+        description:
+          "Completa il componente `MovieFilters` di un catalogo di film.\n- Un `Autocomplete` con `multiple`, `limitTags={2}`, `options={genres}`, controllato dallo stato `selectedGenres` con `value` e `onChange={(_, newValue) => ...}`.\n- Nel suo `TextField`, un `placeholder` che vale `\"Tutti\"` quando `selectedGenres.length === 0` e `undefined` altrimenti.\n- Uno `Slider` controllato dallo stato `maxMinutes`, con `min={60}`, `max={240}`, `valueLabelDisplay=\"auto\"` e `valueLabelFormat` che aggiunge \" min\" al numero.",
+        difficulty: "difficile",
+        mode: "static",
+        starterCode: `import { useState } from "react";
+import { Autocomplete, TextField, Slider, Stack, Typography } from "@mui/material";
+
+const genres = ["Commedia", "Dramma", "Fantascienza", "Animazione", "Horror"];
+
+export default function MovieFilters() {
+  const [selectedGenres, setSelectedGenres] = useState([]);
+  const [maxMinutes, setMaxMinutes] = useState(180);
+
+  return (
+    <Stack spacing={3} sx={{ width: 280 }}>
+      <Typography variant="body2">Generi</Typography>
+      {/* Autocomplete multiplo qui */}
+
+      <Typography variant="body2">Durata massima</Typography>
+      {/* Slider qui */}
+    </Stack>
+  );
+}`,
+        solution: `import { useState } from "react";
+import { Autocomplete, TextField, Slider, Stack, Typography } from "@mui/material";
+
+const genres = ["Commedia", "Dramma", "Fantascienza", "Animazione", "Horror"];
+
+export default function MovieFilters() {
+  const [selectedGenres, setSelectedGenres] = useState([]);
+  const [maxMinutes, setMaxMinutes] = useState(180);
+
+  return (
+    <Stack spacing={3} sx={{ width: 280 }}>
+      <Typography variant="body2">Generi</Typography>
+      <Autocomplete
+        multiple
+        limitTags={2}
+        size="small"
+        options={genres}
+        value={selectedGenres}
+        onChange={(_, newValue) => setSelectedGenres(newValue)}
+        renderInput={(params) => (
+          <TextField
+            {...params}
+            placeholder={selectedGenres.length === 0 ? "Tutti" : undefined}
+          />
+        )}
+      />
+
+      <Typography variant="body2">Durata massima</Typography>
+      <Slider
+        value={maxMinutes}
+        onChange={(_, newValue) => setMaxMinutes(newValue)}
+        min={60}
+        max={240}
+        valueLabelDisplay="auto"
+        valueLabelFormat={(v) => v + " min"}
+        aria-label="Durata massima"
+      />
+    </Stack>
+  );
+}`,
+        validate: `const c = $codeNoComments;
+const ac = c.match(/<Autocomplete([\\s\\S]*?)renderInput/);
+if (!ac) return "Aggiungi un <Autocomplete> con le sue props e renderInput";
+const a = ac[1];
+if (!/\\bmultiple\\b/.test(a)) return "Aggiungi la prop multiple all'Autocomplete";
+if (!/limitTags=\\{\\s*2\\s*\\}/.test(a)) return "Aggiungi limitTags={2} all'Autocomplete";
+if (!/options=\\{\\s*genres\\s*\\}/.test(a)) return "Passa le opzioni con options={genres}";
+if (!/value=\\{\\s*selectedGenres\\s*\\}/.test(a)) return "Rendi l'Autocomplete controllato con value={selectedGenres}";
+if (!/onChange=\\{\\s*\\(\\s*\\w+\\s*,\\s*(\\w+)\\s*\\)\\s*=>\\s*\\{?\\s*setSelectedGenres\\(\\s*\\1\\s*\\)/.test(a)) return "Nell'onChange usa il SECONDO argomento: onChange={(_, newValue) => setSelectedGenres(newValue)}";
+if (!/\\{\\s*\\.\\.\\.params\\s*\\}/.test(c)) return "Nel renderInput passa i params al TextField: <TextField {...params} />";
+if (!/placeholder=\\{\\s*selectedGenres\\.length\\s*===?\\s*0\\s*\\?\\s*["']Tutti["']\\s*:\\s*undefined\\s*\\}/.test(c)) return "Sul TextField aggiungi placeholder={selectedGenres.length === 0 ? \\"Tutti\\" : undefined}";
+const sl = c.match(/<Slider([\\s\\S]*?)\\/>/);
+if (!sl) return "Aggiungi uno <Slider ... />";
+const s = sl[1];
+if (!/value=\\{\\s*maxMinutes\\s*\\}/.test(s)) return "Collega lo Slider allo stato con value={maxMinutes}";
+if (!/onChange=\\{\\s*\\(\\s*\\w+\\s*,\\s*(\\w+)\\s*\\)\\s*=>\\s*\\{?\\s*setMaxMinutes\\(\\s*\\1\\s*\\)/.test(s)) return "Nell'onChange dello Slider usa il secondo argomento: onChange={(_, newValue) => setMaxMinutes(newValue)}";
+if (!/min=\\{\\s*60\\s*\\}/.test(s) || !/max=\\{\\s*240\\s*\\}/.test(s)) return "Imposta min={60} e max={240} sullo Slider";
+if (!/valueLabelDisplay=["']auto["']/.test(s)) return "Aggiungi valueLabelDisplay=\\"auto\\" allo Slider";
+if (!/valueLabelFormat=\\{[\\s\\S]*min/.test(s)) return "Aggiungi valueLabelFormat con una funzione che aggiunge \\" min\\", es. valueLabelFormat={(v) => v + \\" min\\"}";
+return true;`,
+        solutionExplanation:
+          "Entrambi i componenti sono controllati: il valore vive nello stato e `onChange` lo aggiorna. Sia Autocomplete sia Slider passano il nuovo valore come **secondo** argomento, per questo il primo (l'evento) si chiama `_`. Il `placeholder` condizionale dice all'utente che, senza generi scelti, il filtro non esclude nulla; `limitTags` evita che il campo si allunghi con tanti Chip.",
+      },
+      {
+        type: "multiple-choice",
+        title: "L'onChange di Autocomplete",
+        description:
+          "Questo Autocomplete multiplo non funziona: dopo aver scelto un'opzione, lo stato `tags` non contiene l'array delle scelte. Perché?\n`<Autocomplete multiple options={allTags} value={tags} onChange={(newValue) => setTags(newValue)} ... />`",
+        difficulty: "medio",
+        options: [
+          "Manca `limitTags`, obbligatorio con `multiple`",
+          "`value` deve essere una stringa, non un array",
+          "Il primo argomento di `onChange` è l'evento: il nuovo valore è il secondo, quindi serve `(_, newValue) => setTags(newValue)`",
+          "Bisogna usare `e.target.value` come per il Select",
+        ],
+        correct: 2,
+        explanation:
+          "L'`onChange` di Autocomplete (come quello di Slider) riceve `(event, newValue)`: qui `newValue` è in realtà l'evento, e lo stato riceve un oggetto evento invece dell'array. `limitTags` è facoltativo, con `multiple` il `value` è proprio un array, e `e.target.value` non contiene le opzioni scelte: funziona per Select e TextField, non per Autocomplete.",
+      },
+      {
+        type: "multiple-choice",
+        title: "Quale track?",
+        description:
+          "Uno Slider da 1 a 5 rappresenta la \"valutazione minima\" di un ristorante: con il cursore su 3 vuoi che la barra colorata copra i valori accettati, cioè da 3 a 5. Quale prop usi?",
+        difficulty: "medio",
+        options: [
+          "`track={false}`",
+          "`valueLabelDisplay=\"on\"`",
+          "`track=\"normal\"`",
+          "`track=\"inverted\"`",
+        ],
+        correct: 3,
+        explanation:
+          "`track=\"inverted\"` colora la parte dal cursore fino a `max`, cioè proprio i valori \"da 3 in su\". `track=\"normal\"` (il default) colorerebbe da 1 a 3, `track={false}` non colorerebbe nulla, e `valueLabelDisplay` decide solo quando mostrare l'etichetta con il numero, non la barra.",
       },
     ],
   },

@@ -1971,6 +1971,8 @@ const getRanking = (students) => {
 };
 
 console.log(getRanking(students));`,
+        solutionExplanation:
+          "`filter` restituisce già un **nuovo** array, quindi il `sort` successivo ordina quella copia e non tocca `students`. La funzione di confronto `(a, b) => b.grade - a.grade` restituisce un numero positivo quando `b` ha il voto più alto, mettendolo prima: ordine decrescente. Infine `map` trasforma ogni oggetto nella stringa richiesta. Se si ordinasse prima di filtrare, servirebbe copiare l'array con `[...students]`.",
         validate: `
 if (typeof getRanking !== "function") return "Definisci la funzione getRanking";
 const code = $codeNoComments;
