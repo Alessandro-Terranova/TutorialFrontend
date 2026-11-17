@@ -1366,4 +1366,1360 @@ return true;`,
       },
     ],
   },
+
+  layout: {
+    sections: [
+      {
+        type: "text",
+        content:
+          "Con Box, Stack e Typography sai già costruire qualsiasi interfaccia, ma MUI offre componenti pronti per i blocchi che ritornano in quasi tutte le app: una griglia responsive per dividere la pagina in pannelli, le card, le sezioni che si aprono e chiudono (Accordion), i menu a tendina, gli indicatori di caricamento. In questa lezione li usiamo per costruire la pagina di un'app per gestire le attività di un team: un riepilogo in alto, l'elenco delle attività raggruppate per categoria e un menu per scegliere il progetto.",
+      },
+      {
+        type: "heading",
+        content: "Grid: la griglia responsive a 12 colonne",
+      },
+      {
+        type: "text",
+        content:
+          "Grid divide lo spazio orizzontale in **12 colonne**. Il contenitore si scrive `<Grid container>`; ogni elemento al suo interno è un `<Grid>` con la prop `size`, che dice quante colonne occupa. Come per `sx`, `size` accetta un oggetto di breakpoint: `size={{ xs: 12, md: 4 }}` significa \"12 colonne su 12 (tutta la larghezza) sul telefono, 4 su 12 (un terzo) da `md` in su\". `spacing={2}` mette 16px di spazio tra gli elementi, sia in orizzontale sia in verticale.",
+      },
+      {
+        type: "code",
+        language: "javascript",
+        title: "Tre pannelli affiancati su desktop, impilati su mobile",
+        code: `import { Grid, Paper, Typography } from "@mui/material";
+
+export default function SummaryPanels() {
+  return (
+    <Grid container spacing={2}>
+      {/* Su mobile ogni pannello occupa 12 colonne: uno sotto l'altro.
+          Da md in su ne occupa 4: tre pannelli affiancati (4 + 4 + 4 = 12) */}
+      <Grid size={{ xs: 12, md: 4 }}>
+        <Paper variant="outlined" sx={{ p: 2 }}>
+          <Typography variant="h6">Da fare</Typography>
+          <Typography variant="h4">12</Typography>
+        </Paper>
+      </Grid>
+      <Grid size={{ xs: 12, md: 4 }}>
+        <Paper variant="outlined" sx={{ p: 2 }}>
+          <Typography variant="h6">In corso</Typography>
+          <Typography variant="h4">5</Typography>
+        </Paper>
+      </Grid>
+      <Grid size={{ xs: 12, md: 4 }}>
+        <Paper variant="outlined" sx={{ p: 2 }}>
+          <Typography variant="h6">Completate</Typography>
+          <Typography variant="h4">31</Typography>
+        </Paper>
+      </Grid>
+    </Grid>
+  );
+}`,
+      },
+      {
+        type: "list",
+        items: [
+          "Se la somma delle `size` di una riga supera 12, gli elementi in più vanno a capo nella riga successiva: con `size={{ xs: 6 }}` hai due elementi per riga.",
+          "Puoi combinare più breakpoint: `size={{ xs: 12, sm: 6, lg: 3 }}` dà una colonna sul telefono, due sul tablet e quattro sugli schermi grandi.",
+          "`size=\"grow\"` fa occupare all'elemento tutto lo spazio rimasto nella riga.",
+        ],
+      },
+      {
+        type: "info",
+        content:
+          "Nelle versioni recenti di MUI, `Grid` è la \"Grid v2\": gli elementi si scrivono `<Grid size={...}>`. In tutorial più vecchi trovi `<Grid item xs={12} md={4}>`: è la sintassi della vecchia versione, oggi non più supportata.",
+      },
+      {
+        type: "subheading",
+        content: "Paper outlined, Card e CardContent",
+      },
+      {
+        type: "text",
+        content:
+          "Oltre all'ombra (`elevation`), Paper ha la variante `variant=\"outlined\"`: niente ombra, solo un bordo sottile. È lo stile più usato per i pannelli di una pagina ricca di contenuti, perché risulta più pulito. **Card** è un Paper specializzato per le schede: si compone con `CardContent` (il contenuto, con il padding giusto già impostato) e `CardActions` (la riga dei bottoni in fondo). Anche Card accetta `variant=\"outlined\"`.",
+      },
+      {
+        type: "code",
+        language: "javascript",
+        title: "La card di un'attività",
+        code: `import { Card, CardContent, CardActions, Typography, Button } from "@mui/material";
+
+export default function TaskCard({ title, description }) {
+  return (
+    <Card variant="outlined">
+      <CardContent>
+        <Typography variant="h6">{title}</Typography>
+        <Typography variant="body2" sx={{ color: "text.secondary" }}>
+          {description}
+        </Typography>
+      </CardContent>
+      <CardActions>
+        <Button size="small">Apri</Button>
+        <Button size="small" color="error">Elimina</Button>
+      </CardActions>
+    </Card>
+  );
+}`,
+      },
+      {
+        type: "heading",
+        content: "Allineare gli elementi in una riga",
+      },
+      {
+        type: "subheading",
+        content: "Stack con useFlexGap e flexWrap",
+      },
+      {
+        type: "text",
+        content:
+          "In una riga con tanti elementi (titolo, responsabile, stato, data) su uno schermo stretto lo spazio finisce. Con `sx={{ flexWrap: \"wrap\" }}` gli elementi vanno a capo invece di uscire dal bordo. Aggiungi anche `useFlexGap`: di default Stack crea lo spazio tra gli elementi con dei margini, mentre con `useFlexGap` usa la proprietà CSS `gap`. Il `gap` funziona bene anche quando gli elementi vanno a capo (i margini no) e non interferisce con i margini che imposti tu sui figli.",
+      },
+      {
+        type: "subheading",
+        content: "Il trucco ml: \"auto\"",
+      },
+      {
+        type: "text",
+        content:
+          "In un contenitore flex, un margine `auto` si prende tutto lo spazio libero. Quindi `ml: \"auto\"` (margin-left automatico) su un elemento lo **spinge fino al bordo destro**, lasciando gli altri a sinistra. È il modo più semplice per avere, per esempio, il titolo a sinistra e la data a destra. Qui `useFlexGap` è importante: senza, Stack imposterebbe il proprio margine sui figli, sovrascrivendo il tuo `ml: \"auto\"`.",
+      },
+      {
+        type: "code",
+        language: "javascript",
+        title: "Intestazione di un progetto: titolo a sinistra, data a destra",
+        code: `import { Stack, Typography, Chip } from "@mui/material";
+
+<Stack
+  direction="row"
+  spacing={3}
+  useFlexGap
+  sx={{ alignItems: "center", flexWrap: "wrap", mb: 1 }}
+>
+  <Typography variant="h6">Nuovo sito della biblioteca</Typography>
+  <Chip label="In corso" color="info" size="small" />
+
+  {/* ml: "auto" occupa tutto lo spazio libero a sinistra
+      e spinge la data contro il bordo destro */}
+  <Typography variant="caption" sx={{ ml: "auto", fontStyle: "italic" }}>
+    Ultima modifica: 12/06/2026
+  </Typography>
+</Stack>`,
+      },
+      {
+        type: "subheading",
+        content: "Box con flexGrow: 1 come spaziatore",
+      },
+      {
+        type: "text",
+        content:
+          "Un'alternativa a `ml: \"auto\"` è un Box vuoto con `sx={{ flexGrow: 1 }}`: in un contenitore flex cresce fino a occupare tutto lo spazio libero, separando ciò che sta prima da ciò che sta dopo. È comodo nelle barre in alto (header) per separare il logo dai bottoni. Nello stesso esempio vedi il **Divider verticale**: `orientation=\"vertical\"` lo trasforma in una linea verticale e `flexItem` gli fa prendere l'altezza della riga.",
+      },
+      {
+        type: "code",
+        language: "javascript",
+        title: "Una barra in alto con spaziatore, divisore verticale e Avatar",
+        code: `import { Box, Stack, Typography, Divider, Avatar, Button } from "@mui/material";
+
+<Stack direction="row" spacing={2} sx={{ alignItems: "center", px: 2, py: 1 }}>
+  <Typography variant="h6">TeamBoard</Typography>
+
+  {/* Spaziatore: spinge tutto ciò che segue verso destra */}
+  <Box sx={{ flexGrow: 1 }} />
+
+  <Button variant="text">Attività</Button>
+  <Button variant="text">Calendario</Button>
+
+  <Divider orientation="vertical" flexItem />
+
+  {/* Avatar con le iniziali (o una foto con src) */}
+  <Avatar sx={{ width: 32, height: 32, bgcolor: "secondary.main" }}>GR</Avatar>
+</Stack>`,
+      },
+      {
+        type: "text",
+        content:
+          "**Avatar** mostra l'immagine di un utente in un cerchio: con `src=\"/foto.jpg\"` e `alt=\"Giulia Rossi\"` mostra una foto, mentre se gli passi del testo come figlio mostra le iniziali. Le dimensioni si cambiano con `width` e `height` in `sx`.",
+      },
+      {
+        type: "heading",
+        content: "Chip con il colore preso da una mappa",
+      },
+      {
+        type: "text",
+        content:
+          "Spesso il colore di un Chip dipende da un valore: lo stato di un'attività, la priorità di un ordine. Invece di una catena di `if` o di ternari annidati, scrivi un **oggetto mappa** che associa a ogni valore il colore di MUI, e leggilo con le parentesi quadre. Per i valori che non sono nella mappa, `??` fornisce un colore di riserva (`\"default\"`, il grigio).",
+      },
+      {
+        type: "code",
+        language: "javascript",
+        title: "STATUS_COLORS: una mappa stato → colore",
+        code: `import { Chip } from "@mui/material";
+
+// Fuori dal componente: è una costante, non cambia mai
+const STATUS_COLORS = {
+  "Completato": "success",
+  "In corso": "info",
+  "In ritardo": "error",
+};
+
+export default function StatusChip({ status }) {
+  return (
+    <Chip
+      label={status}
+      // Uno stato sconosciuto (es. "Sospeso") non è nella mappa:
+      // STATUS_COLORS["Sospeso"] è undefined e ?? usa "default"
+      color={STATUS_COLORS[status] ?? "default"}
+      size="small"
+      sx={{ fontWeight: "bold" }}
+    />
+  );
+}`,
+      },
+      {
+        type: "info",
+        content:
+          "I colori accettati dalla prop `color` di Chip (e di Button) sono quelli della palette del tema: `\"default\"`, `\"primary\"`, `\"secondary\"`, `\"success\"`, `\"error\"`, `\"warning\"`, `\"info\"`. Nella prossima lezione vedrai come personalizzarli.",
+      },
+      {
+        type: "subheading",
+        content: "Typography annidate: etichetta in grassetto + valore",
+      },
+      {
+        type: "text",
+        content:
+          "Per mostrare coppie come \"**Responsabile:** Giulia\" puoi mettere una Typography dentro un'altra. Attenzione però: Typography con `variant=\"body1\"` o `\"body2\"` renderizza un paragrafo `<p>`, e un `<p>` dentro un altro `<p>` non è HTML valido (React lo segnala in console). La soluzione è la prop **`component`**, che hai già visto su Box: `component=\"span\"` fa renderizzare alla Typography interna uno `<span>`, che può stare dentro un paragrafo.",
+      },
+      {
+        type: "code",
+        language: "javascript",
+        title: "Un piccolo componente riutilizzabile per etichetta e valore",
+        code: `import { Typography } from "@mui/material";
+
+function InfoRow({ label, value }) {
+  return (
+    <Typography variant="body2">
+      <Typography component="span" variant="body2" color="primary" sx={{ fontWeight: "bold" }}>
+        {label}:{" "}
+      </Typography>
+      {value}
+    </Typography>
+  );
+}
+
+// Uso
+<InfoRow label="Responsabile" value="Giulia Rossi" />
+<InfoRow label="Scadenza" value="30/06/2026" />`,
+      },
+      {
+        type: "text",
+        content:
+          "La prop `component` funziona su quasi tutti i componenti MUI e cambia l'elemento renderizzato mantenendo lo stile: `<Button component=\"a\" href=\"/aiuto\">` è un link con l'aspetto di un bottone, `<TableContainer component={Paper}>` (visto nella lezione precedente) è un Paper. Puoi passare anche un componente React: nel modulo Next.js userai `<Button component={Link} href=\"/attivita\">` per avere un bottone che naviga tra le pagine con il `Link` di Next.js.",
+      },
+      {
+        type: "heading",
+        content: "Accordion: sezioni che si aprono e chiudono",
+      },
+      {
+        type: "text",
+        content:
+          "Accordion mostra un'intestazione cliccabile (`AccordionSummary`) che apre e chiude un contenuto (`AccordionDetails`). È perfetto per elenchi lunghi divisi in gruppi: l'utente apre solo quelli che gli interessano. Le props più utili:",
+      },
+      {
+        type: "list",
+        items: [
+          "`expandIcon={<ExpandMore />}` su AccordionSummary: l'icona a destra, che MUI ruota da sola quando l'Accordion si apre.",
+          "`disableGutters`: di default un Accordion aperto si stacca dagli altri con un margine; con `disableGutters` restano attaccati, come in una lista.",
+          "`variant=\"outlined\"`: bordo al posto dell'ombra, come per Paper.",
+          "`slotProps={{ transition: { unmountOnExit: true } }}`: di default il contenuto di un Accordion chiuso viene comunque creato (solo nascosto). Con `unmountOnExit` viene creato solo quando lo apri e rimosso quando lo chiudi: con tanti Accordion pieni di tabelle la pagina resta veloce.",
+          "Quando è aperto, l'Accordion e l'AccordionSummary ricevono la classe `Mui-expanded`: con `\"&.Mui-expanded\"` in `sx` puoi cambiare lo stile dell'intestazione aperta.",
+        ],
+      },
+      {
+        type: "code",
+        language: "javascript",
+        title: "Un Accordion per ogni categoria di attività",
+        code: `import { Accordion, AccordionSummary, AccordionDetails, Typography, Stack } from "@mui/material";
+import { ExpandMore } from "@mui/icons-material";
+
+export default function CategoryAccordion({ category, tasks }) {
+  return (
+    <Accordion
+      disableGutters
+      variant="outlined"
+      slotProps={{ transition: { unmountOnExit: true } }}
+    >
+      <AccordionSummary
+        expandIcon={<ExpandMore />}
+        sx={{
+          bgcolor: "grey.50",
+          borderLeft: 4,
+          borderLeftColor: "primary.main",
+          "&:hover": { bgcolor: "grey.100" },
+          // Stile dell'intestazione quando l'Accordion è aperto
+          "&.Mui-expanded": { bgcolor: "grey.200" },
+        }}
+      >
+        <Typography color="primary" sx={{ fontWeight: "bold" }}>
+          {category} ({tasks.length})
+        </Typography>
+      </AccordionSummary>
+      <AccordionDetails>
+        <Stack spacing={1}>
+          {tasks.map((task) => (
+            <Typography key={task.id} variant="body2">{task.title}</Typography>
+          ))}
+        </Stack>
+      </AccordionDetails>
+    </Accordion>
+  );
+}`,
+      },
+      {
+        type: "text",
+        content:
+          "Un Accordion si gestisce da solo, ma puoi anche renderlo **controllato** con `expanded` e `onChange`. L'`onChange` riceve `(event, isExpanded)`: come per Autocomplete, il valore utile è il secondo. Così puoi, per esempio, tenere aperto un solo Accordion alla volta salvando nello stato quale è aperto.",
+      },
+      {
+        type: "code",
+        language: "javascript",
+        title: "Un solo Accordion aperto alla volta",
+        code: `const [openCategory, setOpenCategory] = useState(null);
+
+{categories.map((category) => (
+  <Accordion
+    key={category}
+    disableGutters
+    expanded={openCategory === category}
+    onChange={(_, isExpanded) => setOpenCategory(isExpanded ? category : null)}
+  >
+    <AccordionSummary expandIcon={<ExpandMore />}>{category}</AccordionSummary>
+    <AccordionDetails>...</AccordionDetails>
+  </Accordion>
+))}`,
+      },
+      {
+        type: "heading",
+        content: "Menu a tendina con anchorEl",
+      },
+      {
+        type: "text",
+        content:
+          "Il componente Menu mostra un elenco di voci \"agganciato\" a un elemento della pagina (di solito il bottone che lo apre). Per sapere dove mostrarsi, Menu ha bisogno di quell'elemento: lo riceve nella prop `anchorEl` (elemento di ancoraggio). Lo schema è sempre lo stesso:",
+      },
+      {
+        type: "list",
+        items: [
+          "Uno stato `const [anchorEl, setAnchorEl] = useState(null)`: `null` significa \"menu chiuso\".",
+          "Al click sul bottone, `setAnchorEl(event.currentTarget)`: `event.currentTarget` è l'elemento su cui hai messo l'`onClick`, cioè il bottone stesso.",
+          "`const open = Boolean(anchorEl)`: `Boolean(null)` è `false`, `Boolean(elemento)` è `true`. Così lo stesso stato dice sia **se** il menu è aperto sia **dove** mostrarlo.",
+          "`onClose` (click fuori dal menu o tasto Esc) e la scelta di una voce rimettono lo stato a `null`.",
+        ],
+      },
+      {
+        type: "code",
+        language: "javascript",
+        title: "Scegliere il progetto da un menu",
+        code: `import { useState } from "react";
+import { Button, Menu, MenuItem, Divider } from "@mui/material";
+import { KeyboardArrowDown } from "@mui/icons-material";
+
+const projects = ["Sito della biblioteca", "App delle ricette", "Negozio online"];
+
+export default function ProjectSelector() {
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [selected, setSelected] = useState(projects[0]);
+  const open = Boolean(anchorEl);
+
+  const handleOpen = (event) => setAnchorEl(event.currentTarget);
+  const handleClose = () => setAnchorEl(null);
+
+  const handleSelect = (project) => {
+    setSelected(project);
+    handleClose();
+  };
+
+  return (
+    <>
+      <Button onClick={handleOpen} endIcon={<KeyboardArrowDown />}>
+        {selected}
+      </Button>
+
+      <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
+        {projects.map((project) => (
+          <MenuItem
+            key={project}
+            // selected evidenzia la voce attualmente scelta
+            selected={project === selected}
+            onClick={() => handleSelect(project)}
+          >
+            {project}
+          </MenuItem>
+        ))}
+        <Divider />
+        <MenuItem onClick={handleClose}>+ Nuovo progetto</MenuItem>
+      </Menu>
+    </>
+  );
+}`,
+      },
+      {
+        type: "warning",
+        content:
+          "Usa `event.currentTarget`, non `event.target`: se il bottone contiene un'icona e l'utente clicca proprio sull'icona, `event.target` è l'icona (l'elemento cliccato davvero), mentre `event.currentTarget` è sempre il bottone che ha l'`onClick`.",
+      },
+      {
+        type: "heading",
+        content: "CircularProgress: mostrare un caricamento",
+      },
+      {
+        type: "text",
+        content:
+          "Mentre i dati arrivano dal server, mostra una rotella di caricamento invece di una pagina vuota. `CircularProgress` è proprio questo; con `size` ne cambi la dimensione. Lo schema tipico è un'uscita anticipata (*early return*) dal componente: se sta caricando, restituisci subito lo spinner.",
+      },
+      {
+        type: "code",
+        language: "javascript",
+        title: "Spinner centrato durante il caricamento",
+        code: `import { Box, CircularProgress, Grid } from "@mui/material";
+
+export default function TaskBoard({ loading, tasks }) {
+  if (loading) {
+    return (
+      <Box sx={{ display: "flex", justifyContent: "center", py: 6 }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  return (
+    <Grid container spacing={2}>
+      {tasks.map((task) => (
+        <Grid key={task.id} size={{ xs: 12, sm: 6, lg: 4 }}>
+          <TaskCard title={task.title} description={task.description} />
+        </Grid>
+      ))}
+    </Grid>
+  );
+}`,
+      },
+      {
+        type: "tip",
+        content:
+          "Quando un valore (uno stato, una categoria) decide un colore o un'etichetta, raccogli le corrispondenze in un oggetto mappa con un valore di riserva: aggiungere un nuovo caso diventa una riga in più, invece di un altro ramo in un ternario.",
+      },
+    ],
+    exercises: [
+      {
+        type: "multiple-choice",
+        title: "Grid su schermi diversi",
+        description:
+          "Cosa vede l'utente su un telefono e su un monitor largo con questo codice?\n`<Grid container spacing={2}>\n  <Grid size={{ xs: 12, md: 6 }}>A</Grid>\n  <Grid size={{ xs: 12, md: 6 }}>B</Grid>\n  <Grid size={{ xs: 12, md: 6 }}>C</Grid>\n</Grid>`",
+        difficulty: "medio",
+        options: [
+          "Su entrambi: A, B e C affiancati sulla stessa riga",
+          "Telefono: A, B e C uno sotto l'altro. Monitor: A e B affiancati, C sotto da solo a metà larghezza",
+          "Telefono: A, B e C affiancati. Monitor: uno sotto l'altro",
+          "Errore: la somma delle size (18) supera le 12 colonne",
+        ],
+        correct: 1,
+        explanation:
+          "Le colonne sono 12. Su telefono (`xs`) ogni elemento ne occupa 12, cioè tutta la riga: sono impilati. Da `md` in su ognuno ne occupa 6, metà riga: A e B riempiono la prima riga e C, che non ci sta più, va a capo occupando metà della seconda. Superare 12 non è un errore: gli elementi in più vanno semplicemente a capo.",
+      },
+      {
+        type: "multiple-choice",
+        title: "La data a destra",
+        description:
+          "In uno `<Stack direction=\"row\" useFlexGap spacing={2}>` hai un titolo, un Chip e una data. Vuoi che la data stia attaccata al bordo destro, con titolo e Chip a sinistra. Cosa aggiungi alla data?",
+        difficulty: "facile",
+        options: [
+          '`sx={{ textAlign: "right" }}`',
+          '`sx={{ float: "right" }}`',
+          '`sx={{ ml: "auto" }}`',
+          '`sx={{ mr: 0 }}`',
+        ],
+        correct: 2,
+        explanation:
+          "In un contenitore flex, `ml: \"auto\"` assegna all'elemento un margine sinistro che occupa tutto lo spazio libero, spingendolo a destra. `textAlign` allinea il testo *dentro* l'elemento ma non lo sposta, `float` non ha effetto sugli elementi di un contenitore flex, e `mr: 0` toglie un margine che non c'è.",
+      },
+      {
+        type: "multiple-choice",
+        title: "Il colore di riserva",
+        description:
+          "Che cosa stampa questo codice?\n`const STATUS_COLORS = { \"Completato\": \"success\", \"In ritardo\": \"error\" };\nconsole.log(STATUS_COLORS[\"Sospeso\"] ?? \"default\");`",
+        difficulty: "facile",
+        options: [
+          "`\"default\"`",
+          "`undefined`",
+          "`\"error\"`",
+          "Un errore, perché la chiave non esiste",
+        ],
+        correct: 0,
+        explanation:
+          "Leggere una chiave che non esiste in un oggetto non dà errore: restituisce `undefined`. L'operatore `??` restituisce il valore di destra quando quello di sinistra è `null` o `undefined`, quindi il risultato è `\"default\"`. È così che il Chip di uno stato sconosciuto diventa grigio invece di rompere l'interfaccia.",
+      },
+      {
+        type: "multiple-choice",
+        title: "Aprire il menu",
+        description:
+          "Hai `const [anchorEl, setAnchorEl] = useState(null);` e `<Menu anchorEl={anchorEl} open={Boolean(anchorEl)} ...>`. Quale `onClick` sul bottone apre il menu nel punto giusto?",
+        difficulty: "medio",
+        options: [
+          "`onClick={() => setAnchorEl(true)}`",
+          "`onClick={(event) => setAnchorEl(event.target.value)}`",
+          "`onClick={() => setAnchorEl(!anchorEl)}`",
+          "`onClick={(event) => setAnchorEl(event.currentTarget)}`",
+        ],
+        correct: 3,
+        explanation:
+          "Menu ha bisogno dell'elemento a cui agganciarsi: `event.currentTarget` è il bottone che ha l'`onClick`. Con `true` (o `!anchorEl`, che vale `true`) `Boolean(anchorEl)` sarebbe vero e il menu si aprirebbe, ma senza sapere dove mostrarsi. `event.target.value` è il valore di un campo di input: per un bottone non ha senso.",
+      },
+      {
+        type: "multiple-choice",
+        title: "Typography dentro Typography",
+        description:
+          "Perché nella Typography interna si scrive `component=\"span\"`?\n`<Typography variant=\"body2\">\n  <Typography component=\"span\" sx={{ fontWeight: \"bold\" }}>Autore: </Typography>\n  Italo Calvino\n</Typography>`",
+        difficulty: "medio",
+        options: [
+          "Perché senza, entrambe renderizzano un `<p>` e un paragrafo dentro un paragrafo non è HTML valido",
+          "Perché `fontWeight` funziona solo sugli `<span>`",
+          "Perché `component=\"span\"` rende il testo più piccolo",
+          "Non serve: Typography annidate diventano automaticamente degli span",
+        ],
+        correct: 0,
+        explanation:
+          "Typography con varianti di testo come body1/body2 renderizza un `<p>`, e il browser non permette un `<p>` dentro un altro `<p>` (React lo segnala in console). `component=\"span\"` cambia solo l'elemento HTML generato, mantenendo lo stile di Typography. `fontWeight` funziona su qualsiasi elemento e `component` non cambia la dimensione del testo; MUI non converte nulla in automatico.",
+      },
+      {
+        type: "code",
+        title: "Chip colorati da una mappa",
+        description:
+          "Prepara la logica dei Chip di stato di una lista di attività (è JavaScript puro, senza React).\n- Crea l'oggetto `STATUS_COLORS` con `\"Completato\"` → `\"success\"`, `\"In corso\"` → `\"info\"` e `\"In ritardo\"` → `\"error\"`.\n- Scrivi `getChipColor(status)`, che restituisce il colore dalla mappa oppure `\"default\"` se lo stato non c'è (usa `??`).\n- Scrivi `buildChips(tasks)`: riceve un array di attività `{ title, status }` e restituisce un array di oggetti `{ label, color }`, dove `label` è lo stato e `color` il suo colore.",
+        difficulty: "medio",
+        starterCode: `// 1. La mappa stato -> colore
+const STATUS_COLORS = {};
+
+// 2. Il colore di uno stato, con "default" come riserva
+function getChipColor(status) {
+
+}
+
+// 3. Da attività a dati dei Chip
+function buildChips(tasks) {
+
+}
+
+const tasks = [
+  { title: "Scrivere i test", status: "Completato" },
+  { title: "Nuova home page", status: "In ritardo" },
+  { title: "Correggere il login", status: "Sospeso" },
+];
+console.log(buildChips(tasks));`,
+        solution: `// 1. La mappa stato -> colore
+const STATUS_COLORS = {
+  "Completato": "success",
+  "In corso": "info",
+  "In ritardo": "error",
+};
+
+// 2. Il colore di uno stato, con "default" come riserva
+function getChipColor(status) {
+  return STATUS_COLORS[status] ?? "default";
+}
+
+// 3. Da attività a dati dei Chip
+function buildChips(tasks) {
+  return tasks.map((task) => ({
+    label: task.status,
+    color: getChipColor(task.status),
+  }));
+}
+
+const tasks = [
+  { title: "Scrivere i test", status: "Completato" },
+  { title: "Nuova home page", status: "In ritardo" },
+  { title: "Correggere il login", status: "Sospeso" },
+];
+console.log(buildChips(tasks));`,
+        validate: `if (!$equal(STATUS_COLORS, { "Completato": "success", "In corso": "info", "In ritardo": "error" })) return "STATUS_COLORS deve contenere esattamente \\"Completato\\": \\"success\\", \\"In corso\\": \\"info\\" e \\"In ritardo\\": \\"error\\"";
+if (typeof getChipColor !== "function") return "Definisci la funzione getChipColor";
+if (getChipColor("Completato") !== "success") return "getChipColor(\\"Completato\\") dovrebbe restituire \\"success\\"";
+if (getChipColor("In corso") !== "info") return "getChipColor(\\"In corso\\") dovrebbe restituire \\"info\\"";
+if (getChipColor("Sospeso") !== "default") return "Per uno stato non presente nella mappa (es. \\"Sospeso\\") getChipColor deve restituire \\"default\\"";
+if (getChipColor(undefined) !== "default") return "Anche getChipColor(undefined) deve restituire \\"default\\"";
+if (typeof buildChips !== "function") return "Definisci la funzione buildChips";
+const r = buildChips([{ title: "A", status: "In ritardo" }, { title: "B", status: "Bozza" }]);
+if (!Array.isArray(r)) return "buildChips deve restituire un array";
+if (!$equal(r, [{ label: "In ritardo", color: "error" }, { label: "Bozza", color: "default" }])) return "buildChips deve restituire un oggetto { label, color } per ogni attività: con [{ status: \\"In ritardo\\" }, { status: \\"Bozza\\" }] ottieni " + $format(r);
+if (!$equal(buildChips([]), [])) return "Con un array vuoto buildChips deve restituire []";
+return true;`,
+        solutionExplanation:
+          "La mappa sostituisce una catena di `if`: `STATUS_COLORS[status]` legge il colore con la chiave contenuta nella variabile, e `??` interviene quando la chiave non c'è (il risultato è `undefined`). `buildChips` usa `map` per trasformare ogni attività nei dati del suo Chip; le parentesi tonde attorno a `{ ... }` servono perché la arrow function restituisca un oggetto. Nel componente basterà scrivere `<Chip label={chip.label} color={chip.color} />`.",
+      },
+      {
+        type: "code",
+        title: "Tre card in una griglia",
+        description:
+          "Completa `CourseGrid`, che mostra i corsi di una scuola in una griglia.\n- Un `Grid container` con `spacing={2}`.\n- Per ogni corso di `courses` (con `courses.map`), un `Grid` con `key={course.id}` e `size={{ xs: 12, md: 4 }}`.\n- Dentro ogni Grid una `Card` con `variant=\"outlined\"` che contiene un `CardContent` con il nome del corso (`course.name`) in una `Typography variant=\"h6\"`.",
+        difficulty: "medio",
+        mode: "static",
+        starterCode: `import { Grid, Card, CardContent, Typography } from "@mui/material";
+
+export default function CourseGrid({ courses }) {
+  return (
+    // Crea la griglia qui
+    null
+  );
+}`,
+        solution: `import { Grid, Card, CardContent, Typography } from "@mui/material";
+
+export default function CourseGrid({ courses }) {
+  return (
+    <Grid container spacing={2}>
+      {courses.map((course) => (
+        <Grid key={course.id} size={{ xs: 12, md: 4 }}>
+          <Card variant="outlined">
+            <CardContent>
+              <Typography variant="h6">{course.name}</Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+      ))}
+    </Grid>
+  );
+}`,
+        validate: `const c = $codeNoComments;
+if (!/<Grid[^>]*\\bcontainer\\b/.test(c)) return "Crea il contenitore della griglia con <Grid container ...>";
+if (!/<Grid[^>]*\\bcontainer\\b[^>]*spacing=\\{\\s*2\\s*\\}|<Grid[^>]*spacing=\\{\\s*2\\s*\\}[^>]*\\bcontainer\\b/.test(c)) return "Aggiungi spacing={2} al Grid container";
+const m = c.match(/courses\\.map\\(\\s*\\(?\\s*(\\w+)/);
+if (!m) return "Genera un elemento per corso con courses.map((course) => ...)";
+const v = m[1];
+if (/<Grid[^>]*\\bitem\\b/.test(c) || /<Grid[^>]*\\bxs=\\{/.test(c)) return "Questa è la sintassi della vecchia Grid: usa <Grid size={{ xs: 12, md: 4 }}> senza item";
+const items = c.match(/<Grid(?![^>]*\\bcontainer\\b)[^>]*>/g) || [];
+const item = items.find((t) => /size=\\{\\{/.test(t));
+if (!item) return "Dai a ogni Grid interno la prop size={{ xs: 12, md: 4 }}";
+if (!/\\bxs\\s*:\\s*12\\b/.test(item) || !/\\bmd\\s*:\\s*4\\b/.test(item)) return "La size di ogni Grid interno deve essere { xs: 12, md: 4 }";
+if (!new RegExp("key=\\\\{\\\\s*" + v + "\\\\.id\\\\s*\\\\}").test(item)) return "Aggiungi key={" + v + ".id} al Grid generato dal map";
+if (!/<Card[^>]*variant=["']outlined["']/.test(c)) return "Usa una <Card variant=\\"outlined\\"> dentro ogni Grid";
+if (!/<CardContent>/.test(c)) return "Metti il contenuto della card dentro <CardContent>";
+if (!new RegExp("<Typography[^>]*variant=[\\"']h6[\\"'][^>]*>\\\\s*\\\\{\\\\s*" + v + "\\\\.name\\\\s*\\\\}").test(c)) return "Mostra il nome del corso in <Typography variant=\\"h6\\">{" + v + ".name}</Typography>";
+return true;`,
+        solutionExplanation:
+          "Il `Grid container` organizza gli elementi in 12 colonne con 16px di spazio; ogni `Grid` generato da `map` occupa tutta la riga sul telefono (`xs: 12`) e un terzo da `md` in su (`md: 4`), quindi tre card per riga sugli schermi larghi. La `key` va sull'elemento più esterno restituito da `map`, cioè il Grid, non sulla Card.",
+      },
+      {
+        type: "code",
+        title: "Menu per ordinare i film",
+        description:
+          "Completa `SortMenu`, che permette di scegliere come ordinare un catalogo di film.\n- Crea lo stato `anchorEl` con `useState(null)` e calcola `const open = Boolean(anchorEl)`.\n- Il `Button` deve aprire il menu con `setAnchorEl(event.currentTarget)`.\n- Aggiungi un `Menu` con `anchorEl={anchorEl}`, `open={open}` e un `onClose` che rimette `anchorEl` a `null`.\n- Per ogni opzione di `SORT_OPTIONS` un `MenuItem` con `key`, `selected={option === sortBy}` e un `onClick` che chiama `setSortBy(option)` e chiude il menu.",
+        difficulty: "difficile",
+        mode: "static",
+        starterCode: `import { useState } from "react";
+import { Button, Menu, MenuItem } from "@mui/material";
+
+const SORT_OPTIONS = ["Titolo", "Anno", "Valutazione"];
+
+export default function SortMenu() {
+  const [sortBy, setSortBy] = useState("Titolo");
+  // Stato del menu qui
+
+  return (
+    <>
+      <Button>Ordina per: {sortBy}</Button>
+      {/* Menu qui */}
+    </>
+  );
+}`,
+        solution: `import { useState } from "react";
+import { Button, Menu, MenuItem } from "@mui/material";
+
+const SORT_OPTIONS = ["Titolo", "Anno", "Valutazione"];
+
+export default function SortMenu() {
+  const [sortBy, setSortBy] = useState("Titolo");
+  const [anchorEl, setAnchorEl] = useState(null);
+  const open = Boolean(anchorEl);
+
+  const handleClose = () => setAnchorEl(null);
+
+  return (
+    <>
+      <Button onClick={(event) => setAnchorEl(event.currentTarget)}>
+        Ordina per: {sortBy}
+      </Button>
+      <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
+        {SORT_OPTIONS.map((option) => (
+          <MenuItem
+            key={option}
+            selected={option === sortBy}
+            onClick={() => {
+              setSortBy(option);
+              handleClose();
+            }}
+          >
+            {option}
+          </MenuItem>
+        ))}
+      </Menu>
+    </>
+  );
+}`,
+        validate: `const c = $codeNoComments;
+if (!/const\\s*\\[\\s*anchorEl\\s*,\\s*setAnchorEl\\s*\\]\\s*=\\s*useState\\(\\s*null\\s*\\)/.test(c)) return "Crea lo stato del menu: const [anchorEl, setAnchorEl] = useState(null);";
+if (!/const\\s+open\\s*=\\s*Boolean\\(\\s*anchorEl\\s*\\)/.test(c)) return "Calcola se il menu è aperto: const open = Boolean(anchorEl);";
+if (!/setAnchorEl\\(\\s*\\w+\\.currentTarget\\s*\\)/.test(c)) return "Al click sul Button apri il menu con setAnchorEl(event.currentTarget)";
+if (/setAnchorEl\\(\\s*\\w+\\.target\\s*\\)/.test(c)) return "Usa event.currentTarget invece di event.target";
+if (!/<Button[^>]*onClick=/.test(c)) return "Aggiungi l'onClick al Button";
+const menu = c.match(/<Menu\\b([^>]*)>/);
+if (!menu) return "Aggiungi il componente <Menu>";
+if (!/anchorEl=\\{\\s*anchorEl\\s*\\}/.test(menu[1])) return "Passa al Menu anchorEl={anchorEl}";
+if (!/open=\\{\\s*open\\s*\\}/.test(menu[1])) return "Passa al Menu open={open}";
+if (!/onClose=/.test(menu[1])) return "Aggiungi onClose al Menu";
+if ((c.match(/setAnchorEl\\(\\s*null\\s*\\)/g) || []).length < 1) return "Per chiudere il menu rimetti lo stato a null: setAnchorEl(null)";
+if (!/SORT_OPTIONS\\.map\\(/.test(c)) return "Genera le voci con SORT_OPTIONS.map((option) => ...)";
+const item = c.match(/<MenuItem([\\s\\S]*?)<\\/MenuItem>/);
+if (!item) return "Per ogni opzione crea un <MenuItem> che mostra il suo nome";
+if (!/key=\\{/.test(item[1])) return "Aggiungi la key al MenuItem, es. key={option}";
+if (!/selected=\\{\\s*(\\w+)\\s*===\\s*sortBy\\s*\\}|selected=\\{\\s*sortBy\\s*===\\s*\\w+\\s*\\}/.test(item[1])) return "Evidenzia la voce scelta con selected={option === sortBy}";
+if (!/onClick=[\\s\\S]*setSortBy\\(/.test(item[1])) return "Nell'onClick del MenuItem chiama setSortBy(option)";
+const onClick = item[1].slice(item[1].indexOf("onClick"));
+if (!/setAnchorEl\\(\\s*null\\s*\\)|handleClose\\(|\\bclose\\w*\\(/i.test(onClick)) return "Dopo aver scelto un'opzione chiudi il menu (setAnchorEl(null))";
+return true;`,
+        solutionExplanation:
+          "Un unico stato fa tutto: `anchorEl` è `null` quando il menu è chiuso e contiene il bottone quando è aperto, così `Boolean(anchorEl)` dice se mostrare il menu e `anchorEl` dice dove. `event.currentTarget` è sempre il bottone, anche se il click cade sul testo al suo interno. Scegliere una voce fa due cose: aggiorna `sortBy` (e quindi `selected` evidenzia la nuova voce) e chiude il menu.",
+      },
+    ],
+  },
+
+  theme: {
+    sections: [
+      {
+        type: "text",
+        content:
+          "Finora hai personalizzato i componenti uno alla volta con `sx`. Funziona, ma in un'app vera lo stesso stile si ripete ovunque: tutti i bottoni senza maiuscole, tutti con gli angoli più arrotondati, lo stesso blu in cento punti. Il **tema** di MUI è il posto unico in cui decidere colori, caratteri, arrotondamenti e lo stile di default di ogni componente. Lo definisci una volta e tutta l'app lo usa: se cambi il colore primario nel tema, cambiano insieme bottoni, link, Chip e tutto ciò che usa `\"primary.main\"`.",
+      },
+      {
+        type: "heading",
+        content: "createTheme: definire il tema",
+      },
+      {
+        type: "text",
+        content:
+          "`createTheme` riceve un oggetto con le tue scelte e restituisce un tema completo: tutto ciò che non specifichi prende il valore di default di MUI. Le sezioni principali sono `palette` (i colori), `typography` (i caratteri), `shape` (l'arrotondamento degli angoli) e `components` (lo stile dei singoli componenti, che vedremo tra poco). Il tema si scrive di solito in un file a parte, per esempio `theme.js`.",
+      },
+      {
+        type: "code",
+        language: "javascript",
+        title: "theme.js: palette, typography e shape",
+        code: `import { createTheme } from "@mui/material/styles";
+
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: "#2E7D32",        // il colore principale
+      light: "#60AD5E",       // una versione più chiara (hover, sfondi)
+      dark: "#005005",        // una versione più scura
+      contrastText: "#ffffff" // il colore del testo sopra main
+    },
+    secondary: {
+      main: "#F9A825",        // light e dark vengono calcolati da MUI
+    },
+    background: {
+      default: "#F4F6F8",     // lo sfondo della pagina
+      paper: "#ffffff",       // lo sfondo di Paper, Card, Menu...
+    },
+  },
+  typography: {
+    fontFamily: "'Inter', 'Roboto', sans-serif",
+    fontSize: 14,                    // dimensione base in px
+    h4: { fontWeight: 700 },         // personalizza una singola variante
+    button: { textTransform: "none" } // niente MAIUSCOLE nei bottoni
+  },
+  shape: {
+    borderRadius: 8, // default 4: è l'unità di borderRadius nella prop sx
+  },
+});
+
+export default theme;`,
+      },
+      {
+        type: "list",
+        items: [
+          "Ogni colore della palette ha quattro chiavi: `main`, `light`, `dark` e `contrastText`. Se dai solo `main`, MUI calcola le altre tre da solo.",
+          "Oltre a `primary` e `secondary` esistono `error`, `warning`, `info` e `success`: sono i colori che hai usato con `color=\"success\"` su Chip e Button.",
+          "`shape.borderRadius` cambia il significato di `borderRadius: 2` in `sx`: con 8, `borderRadius: 2` vale 16px.",
+        ],
+      },
+      {
+        type: "heading",
+        content: "ThemeProvider e CssBaseline",
+      },
+      {
+        type: "text",
+        content:
+          "Creare il tema non basta: bisogna darlo all'app. `ThemeProvider` funziona come il Provider di un Context (lo hai visto nel modulo React avanzato): avvolge l'app e rende il tema disponibile a tutti i componenti MUI al suo interno. Accanto si mette quasi sempre `CssBaseline`, un componente senza contenuto che applica una base di stili globali coerente con il tema: toglie il margine di default del `<body>`, imposta lo sfondo con `background.default` e il carattere della `typography`.",
+      },
+      {
+        type: "code",
+        language: "javascript",
+        title: "Applicare il tema a tutta l'app",
+        code: `import { ThemeProvider } from "@mui/material/styles";
+import CssBaseline from "@mui/material/CssBaseline";
+import theme from "./theme";
+
+export default function App() {
+  return (
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      {/* Tutti i componenti qui dentro usano il tema */}
+      <TaskBoard />
+    </ThemeProvider>
+  );
+}`,
+      },
+      {
+        type: "info",
+        content:
+          "Senza ThemeProvider i componenti MUI usano il tema di default (il blu `#1976d2` come primario). Nel modulo Next.js vedrai dove mettere ThemeProvider in un'app Next.js: va nel layout principale, così vale per tutte le pagine.",
+      },
+      {
+        type: "heading",
+        content: "Usare i colori del tema in sx",
+      },
+      {
+        type: "text",
+        content:
+          "Hai già scritto `color: \"primary.main\"` o `bgcolor: \"background.paper\"` in `sx`: sono **percorsi** dentro `theme.palette`. Ora sai da dove vengono, e che seguono il tuo tema. Quando ti serve qualcosa di più di un colore pronto, una proprietà di `sx` può essere anche una **funzione** che riceve il tema e restituisce il valore: `bgcolor: (theme) => ...`. Dentro la funzione accedi a tutto: `theme.palette.primary.main`, `theme.shape.borderRadius`, `theme.spacing(2)` (che restituisce \"16px\").",
+      },
+      {
+        type: "subheading",
+        content: "alpha(): colori trasparenti dal tema",
+      },
+      {
+        type: "text",
+        content:
+          "Per uno sfondo leggero che richiami il colore primario (righe evidenziate, intestazioni, hover) serve il colore con una certa trasparenza. Invece di scrivere a mano `rgba(46, 125, 50, 0.1)`, usa `alpha(colore, opacità)` di MUI: riceve un colore e un numero da 0 (trasparente) a 1 (pieno) e restituisce il colore trasparente. Combinato con la funzione `(theme) => ...`, lo sfondo segue il tema anche se un giorno cambi il primario.",
+      },
+      {
+        type: "code",
+        language: "javascript",
+        title: "Funzione del tema e alpha() in sx",
+        code: `import { Box, Typography } from "@mui/material";
+import { alpha } from "@mui/material/styles";
+
+<Box
+  sx={{
+    p: 2,
+    borderLeft: 4,
+    borderLeftColor: "primary.main", // percorso nella palette
+    // Il primario al 8% di opacità: uno sfondo appena colorato
+    bgcolor: (theme) => alpha(theme.palette.primary.main, 0.08),
+    "&:hover": {
+      bgcolor: (theme) => alpha(theme.palette.primary.main, 0.16),
+    },
+    borderRadius: (theme) => theme.shape.borderRadius + "px",
+  }}
+>
+  <Typography color="primary">Attività in evidenza</Typography>
+</Box>`,
+      },
+      {
+        type: "heading",
+        content: "components: lo stile di default dei componenti",
+      },
+      {
+        type: "text",
+        content:
+          "La parte più potente del tema è `components`. Per ogni componente (con il nome preceduto da `Mui`: `MuiButton`, `MuiChip`, `MuiTextField`...) puoi definire:",
+      },
+      {
+        type: "list",
+        items: [
+          "`defaultProps`: le props che il componente riceve se non le scrivi tu. Per esempio `disableRipple: true` toglie a tutti i bottoni l'effetto \"onda\" al click, e `size: \"small\"` li rende tutti piccoli. Se su un bottone scrivi `size=\"large\"`, vince la prop scritta.",
+          "`styleOverrides`: gli stili CSS di una parte del componente. `root` è l'elemento esterno; molti componenti hanno anche altre parti (per Button `startIcon`, per Slider `thumb` e `track`...), con gli stessi nomi delle classi CSS `MuiSlider-thumb` che hai visto nei selettori di `sx`.",
+          "`variants`: nuove varianti, che vedremo tra poco.",
+        ],
+      },
+      {
+        type: "code",
+        language: "javascript",
+        title: "defaultProps e styleOverrides per Button e Chip",
+        code: `const theme = createTheme({
+  palette: { primary: { main: "#2E7D32" } },
+  components: {
+    MuiButton: {
+      defaultProps: {
+        disableRipple: true, // nessun effetto onda al click
+        size: "small",
+      },
+      styleOverrides: {
+        root: {
+          textTransform: "none",
+          borderRadius: 8,
+          fontWeight: 600,
+        },
+      },
+    },
+    MuiChip: {
+      styleOverrides: {
+        root: { fontWeight: "bold" },
+      },
+    },
+  },
+});
+
+// Ora in tutta l'app:
+<Button variant="contained">Salva</Button>
+// è già piccolo, senza maiuscole, arrotondato, in grassetto e senza ripple`,
+      },
+      {
+        type: "subheading",
+        content: "variants: varianti personalizzate",
+      },
+      {
+        type: "text",
+        content:
+          "`variants` è un array di regole: ognuna ha `props` (quando si applica) e `style` (cosa applica). Se le props del componente corrispondono a quelle della regola, lo stile viene aggiunto. Puoi così modificare una combinazione esistente (es. solo i bottoni `variant: \"contained\"` con `color: \"primary\"`) oppure inventare una variante nuova, come `variant: \"toggle\"` per i bottoni di una barra di filtri.",
+      },
+      {
+        type: "code",
+        language: "javascript",
+        title: "Una variante esistente modificata e una nuova",
+        code: `const theme = createTheme({
+  components: {
+    MuiButton: {
+      variants: [
+        {
+          // Solo i bottoni contained e primary
+          props: { variant: "contained", color: "primary" },
+          style: {
+            boxShadow: "none",
+            "&:hover": { boxShadow: "none" },
+          },
+        },
+        {
+          // Una variante tutta nuova
+          props: { variant: "toggle" },
+          style: {
+            height: 30,
+            minWidth: 90,
+            fontWeight: "bold",
+            border: "1px solid",
+            borderColor: "#BDBDBD",
+          },
+        },
+      ],
+    },
+  },
+});
+
+// Uso della nuova variante
+<Button variant="toggle">Oggi</Button>
+<Button variant="toggle">Settimana</Button>`,
+      },
+      {
+        type: "info",
+        content:
+          "Le varianti nuove funzionano subito in JavaScript. Se il progetto usa TypeScript bisogna anche dichiararle (con la cosiddetta *module augmentation*, descritta nella documentazione di MUI), altrimenti `variant=\"toggle\"` viene segnalato come errore di tipo.",
+      },
+      {
+        type: "subheading",
+        content: "styleOverrides come funzione: theme e ownerState",
+      },
+      {
+        type: "text",
+        content:
+          "Al posto di un oggetto, una parte di `styleOverrides` può essere una **funzione** che riceve `{ theme, ownerState }` e restituisce gli stili. `theme` è il tema stesso, utile per riusare i colori della palette. `ownerState` contiene le props e lo stato interno del componente che si sta disegnando: per esempio `ownerState.variant`, `ownerState.size`, oppure per Autocomplete `ownerState.focused` (il campo ha il focus) e `ownerState.value` (il valore scelto). Così uno stile può dipendere dallo stato del componente, in un unico punto per tutta l'app.",
+      },
+      {
+        type: "code",
+        language: "javascript",
+        title: "Stili che dipendono dal tema e dallo stato del componente",
+        code: `import { createTheme, alpha } from "@mui/material/styles";
+
+const theme = createTheme({
+  palette: { primary: { main: "#2E7D32" } },
+  components: {
+    MuiChip: {
+      styleOverrides: {
+        // I Chip outlined hanno uno sfondo leggero del loro colore
+        root: ({ theme, ownerState }) => ({
+          fontWeight: "bold",
+          ...(ownerState.variant === "outlined" &&
+            ownerState.color !== "default" && {
+              backgroundColor: alpha(theme.palette[ownerState.color].main, 0.08),
+            }),
+        }),
+      },
+    },
+    MuiAutocomplete: {
+      styleOverrides: {
+        // Il campo di testo con lo sfondo di Paper e angoli più arrotondati
+        inputRoot: ({ theme }) => ({
+          borderRadius: 12,
+          backgroundColor: theme.palette.background.paper,
+        }),
+        // Bordo colorato solo mentre il campo ha il focus
+        root: ({ theme, ownerState }) => ({
+          "& .MuiOutlinedInput-notchedOutline": {
+            borderColor: ownerState.focused ? theme.palette.primary.main : undefined,
+          },
+        }),
+      },
+    },
+  },
+});`,
+      },
+      {
+        type: "text",
+        content:
+          "Nota `theme.palette[ownerState.color]`: con le parentesi quadre leggi la chiave della palette che corrisponde al colore del Chip (\"success\", \"error\"...), proprio come leggevi `STATUS_COLORS[status]` nella lezione precedente. Lo spread condizionale `...(condizione && { ... })` è lo stesso che hai usato in `sx`.",
+      },
+      {
+        type: "heading",
+        content: "MuiCssBaseline: stili globali",
+      },
+      {
+        type: "text",
+        content:
+          "Alcuni stili non riguardano un componente ma tutta la pagina: la barra di scorrimento, il colore del testo selezionato, i link. Si mettono in `components.MuiCssBaseline.styleOverrides`, che `CssBaseline` applica a tutto il documento. Anche qui puoi usare una funzione che riceve il tema (questa volta direttamente `theme`, senza graffe), così la scrollbar usa i colori della palette.",
+      },
+      {
+        type: "code",
+        language: "javascript",
+        title: "Una scrollbar sottile coerente con il tema",
+        code: `import { createTheme, alpha } from "@mui/material/styles";
+
+const theme = createTheme({
+  palette: { primary: { main: "#2E7D32", light: "#60AD5E" } },
+  components: {
+    MuiCssBaseline: {
+      styleOverrides: (theme) => ({
+        "*::-webkit-scrollbar": { width: "6px", height: "6px" },
+        "*::-webkit-scrollbar-track": { background: "transparent" },
+        "*::-webkit-scrollbar-thumb": {
+          backgroundColor: alpha(theme.palette.primary.light, 0.5),
+          borderRadius: "999px",
+        },
+        "*::-webkit-scrollbar-thumb:hover": {
+          backgroundColor: alpha(theme.palette.primary.main, 0.7),
+        },
+      }),
+    },
+  },
+});`,
+      },
+      {
+        type: "warning",
+        content:
+          "Gli stili di MuiCssBaseline funzionano solo se `<CssBaseline />` è dentro il ThemeProvider: è lui che li applica.",
+      },
+      {
+        type: "heading",
+        content: "Perché centralizzare gli stili nel tema",
+      },
+      {
+        type: "list",
+        items: [
+          "**Coerenza**: ogni bottone, Chip o campo ha lo stesso aspetto senza doverlo ricordare ogni volta.",
+          "**Meno codice ripetuto**: il componente contiene solo ciò che lo rende diverso dagli altri; `sx` resta corto e leggibile.",
+          "**Modifiche in un punto solo**: cambiare il colore primario o l'arrotondamento è una riga nel tema, non una ricerca in cento file.",
+          "**Stili legati al tema**: con `(theme) => ...` e `ownerState`, anche gli stili più complessi seguono la palette e lo stato del componente.",
+        ],
+      },
+      {
+        type: "text",
+        content:
+          "Una buona regola: se scrivi lo stesso `sx` su due o tre componenti dello stesso tipo, spostalo nel tema (`styleOverrides`, o una `variant` se vale solo per alcuni). Usa `sx` per ciò che è davvero specifico di quel punto della pagina, come margini e larghezze.",
+      },
+      {
+        type: "tip",
+        content:
+          "Scrivi i colori in un solo posto, la palette del tema, e altrove riferisciti a loro (`\"primary.main\"`, `theme.palette.error.main`, `alpha(theme.palette.primary.main, 0.1)`) invece di copiare i codici esadecimali: il giorno in cui la grafica cambia, dovrai modificare una riga sola.",
+      },
+    ],
+    exercises: [
+      {
+        type: "multiple-choice",
+        title: "Dove nasce primary.main",
+        description:
+          "Con questo tema, di che colore è lo sfondo del Box?\n`const theme = createTheme({ palette: { primary: { main: \"#6A1B9A\" } } });\n\n<ThemeProvider theme={theme}>\n  <Box sx={{ bgcolor: \"primary.main\", p: 2 }} />\n</ThemeProvider>`",
+        difficulty: "facile",
+        options: [
+          "Il blu di default di MUI, `#1976d2`",
+          "`#6A1B9A`, il viola definito nel tema",
+          "Trasparente: in sx i colori vanno scritti in esadecimale",
+          "Nessuno: `\"primary.main\"` funziona solo sulla prop `color` dei Button",
+        ],
+        correct: 1,
+        explanation:
+          "`\"primary.main\"` è un percorso dentro `theme.palette`: il Box è dentro il ThemeProvider, quindi legge il tema personalizzato e usa `#6A1B9A`. Il blu `#1976d2` è il primario del tema di default, usato solo senza ThemeProvider. In `sx` i percorsi della palette funzionano su qualsiasi componente MUI, per qualsiasi proprietà di colore.",
+      },
+      {
+        type: "multiple-choice",
+        title: "defaultProps o prop scritta?",
+        description:
+          "Nel tema c'è `MuiButton: { defaultProps: { size: \"small\" } }`. Che dimensione hanno questi due bottoni?\n`<Button>Annulla</Button>\n<Button size=\"large\">Conferma</Button>`",
+        difficulty: "medio",
+        options: [
+          "Entrambi small: il tema vince sempre",
+          "Entrambi large: l'ultima prop scritta vale per tutti",
+          "Annulla è small, Conferma è large",
+          "Annulla è medium (il default di MUI), Conferma è large",
+        ],
+        correct: 2,
+        explanation:
+          "`defaultProps` fornisce il valore solo quando la prop non è scritta: Annulla riceve `size=\"small\"` dal tema. Su Conferma la prop `size=\"large\"` è scritta esplicitamente e ha la precedenza. Una prop scritta su un componente non influenza mai gli altri, e il default di MUI (medium) è sostituito dal tema.",
+      },
+      {
+        type: "multiple-choice",
+        title: "Uno sfondo trasparente dal tema",
+        description:
+          "Vuoi che lo sfondo di un'intestazione sia il colore primario del tema al 10% di opacità, e che segua il tema se il primario cambia. Quale `sx` è corretto?",
+        difficulty: "medio",
+        options: [
+          '`sx={{ bgcolor: "rgba(46, 125, 50, 0.1)" }}`',
+          '`sx={{ bgcolor: "primary.main", opacity: 0.1 }}`',
+          '`sx={{ bgcolor: alpha("primary.main", 0.1) }}`',
+          "`sx={{ bgcolor: (theme) => alpha(theme.palette.primary.main, 0.1) }}`",
+        ],
+        correct: 3,
+        explanation:
+          "La funzione riceve il tema, ne legge il colore reale (`theme.palette.primary.main`) e `alpha` lo rende trasparente al 10%. Il valore `rgba` scritto a mano non segue il tema; `opacity: 0.1` rende trasparente l'intero elemento, testo compreso, non solo lo sfondo; `alpha` vuole un vero colore, non il percorso `\"primary.main\"` che solo `sx` sa interpretare.",
+      },
+      {
+        type: "multiple-choice",
+        title: "A cosa serve ownerState",
+        description:
+          "In `styleOverrides: { root: ({ theme, ownerState }) => ({ ... }) }`, che cosa contiene `ownerState`?",
+        difficulty: "medio",
+        options: [
+          "Le props e lo stato interno del componente che si sta disegnando (es. `variant`, `size`, `focused`)",
+          "Lo stato di Redux dell'applicazione",
+          "Il valore di `useState` del componente padre",
+          "Le proprietà CSS già applicate dal tema di default",
+        ],
+        correct: 0,
+        explanation:
+          "`ownerState` descrive il singolo componente che MUI sta disegnando: le sue props (`variant`, `color`, `size`...) e, per alcuni componenti, il loro stato interno (come `focused` per Autocomplete). Per questo permette stili diversi a seconda della variante o dello stato. Non ha accesso a Redux, né allo stato dei componenti padre, né agli stili CSS calcolati.",
+      },
+      {
+        type: "code",
+        title: "Il colore di uno stato dal tema",
+        description:
+          "Il tema è un normale oggetto JavaScript: qui ne usi una versione semplificata. Scrivi `getStatusColor(theme, status)` che restituisce il colore esadecimale da usare per lo stato di un ordine:\n- `\"Consegnato\"` → `theme.palette.success.main`\n- `\"In ritardo\"` → `theme.palette.error.main`\n- `\"In preparazione\"` → `theme.palette.warning.main`\n- qualsiasi altro stato → `theme.palette.grey[500]`\nUsa un oggetto mappa da stato a nome della palette (`\"success\"`, `\"error\"`, `\"warning\"`) e leggi la palette con le parentesi quadre. La funzione deve funzionare con qualsiasi tema con la stessa struttura.",
+        difficulty: "medio",
+        starterCode: `const theme = {
+  palette: {
+    success: { main: "#2E7D32" },
+    error: { main: "#C62828" },
+    warning: { main: "#EF6C00" },
+    grey: { 500: "#9E9E9E" },
+  },
+};
+
+function getStatusColor(theme, status) {
+  // Scrivi qui la tua soluzione
+}
+
+console.log(getStatusColor(theme, "Consegnato"));
+console.log(getStatusColor(theme, "Annullato"));`,
+        solution: `const theme = {
+  palette: {
+    success: { main: "#2E7D32" },
+    error: { main: "#C62828" },
+    warning: { main: "#EF6C00" },
+    grey: { 500: "#9E9E9E" },
+  },
+};
+
+const STATUS_PALETTE = {
+  "Consegnato": "success",
+  "In ritardo": "error",
+  "In preparazione": "warning",
+};
+
+function getStatusColor(theme, status) {
+  const key = STATUS_PALETTE[status];
+  if (!key) return theme.palette.grey[500];
+  return theme.palette[key].main;
+}
+
+console.log(getStatusColor(theme, "Consegnato"));
+console.log(getStatusColor(theme, "Annullato"));`,
+        validate: `if (typeof getStatusColor !== "function") return "Definisci la funzione getStatusColor(theme, status)";
+const other = {
+  palette: {
+    success: { main: "#00AA00" },
+    error: { main: "#FF0000" },
+    warning: { main: "#FFAA00" },
+    grey: { 500: "#777777" },
+  },
+};
+const cases = [
+  ["Consegnato", "#00AA00"],
+  ["In ritardo", "#FF0000"],
+  ["In preparazione", "#FFAA00"],
+  ["Annullato", "#777777"],
+  [undefined, "#777777"],
+];
+for (const [status, expected] of cases) {
+  const got = getStatusColor(other, status);
+  if (got === undefined) return "getStatusColor(theme, " + $format(status) + ") restituisce undefined: ricordati il return (e il grigio per gli stati sconosciuti)";
+  if (got !== expected) return "Con un tema diverso, getStatusColor(theme, " + $format(status) + ") dovrebbe restituire " + expected + " ma restituisce " + $format(got) + ". Leggi i colori dal parametro theme, non da valori scritti a mano";
+}
+if (getStatusColor(theme, "In ritardo") !== "#C62828") return "getStatusColor(theme, \\"In ritardo\\") dovrebbe restituire theme.palette.error.main";
+return true;`,
+        solutionExplanation:
+          "La mappa `STATUS_PALETTE` traduce lo stato nel nome di un colore della palette, e `theme.palette[key].main` legge il colore con una chiave contenuta in una variabile. Se lo stato non è nella mappa, `key` è `undefined` e si restituisce il grigio. Poiché i colori vengono sempre letti dal parametro `theme`, la funzione segue qualsiasi tema: è lo stesso principio di `theme.palette[ownerState.color]` negli styleOverrides.",
+      },
+      {
+        type: "code",
+        title: "Unire un tema base con delle modifiche",
+        description:
+          "Molte app hanno un tema base e piccole varianti (per esempio per una sezione). Scrivi `mergeTheme(base, overrides)` che restituisce un **nuovo** oggetto tema:\n- `palette`: per ogni colore, unisci le chiavi di `base` e `overrides` (es. se `overrides` cambia solo `primary.main`, `primary.light` e `primary.dark` restano quelle della base). I colori presenti solo in uno dei due vanno mantenuti.\n- `shape`: unisci le chiavi con lo spread.\n- se `overrides` non ha `palette` o `shape`, restano quelli della base.\nNon modificare `base`.",
+        difficulty: "difficile",
+        starterCode: `const base = {
+  palette: {
+    primary: { main: "#1565C0", light: "#5E92F3", dark: "#003C8F" },
+    secondary: { main: "#F9A825" },
+  },
+  shape: { borderRadius: 4 },
+};
+
+function mergeTheme(base, overrides) {
+  // Scrivi qui la tua soluzione
+}
+
+const dark = mergeTheme(base, {
+  palette: { primary: { main: "#0D47A1" }, background: { default: "#121212" } },
+});
+console.log(dark);`,
+        solution: `const base = {
+  palette: {
+    primary: { main: "#1565C0", light: "#5E92F3", dark: "#003C8F" },
+    secondary: { main: "#F9A825" },
+  },
+  shape: { borderRadius: 4 },
+};
+
+function mergeTheme(base, overrides) {
+  const basePalette = base.palette ?? {};
+  const overridePalette = overrides.palette ?? {};
+
+  // Tutti i nomi di colore, della base e delle modifiche
+  const colorNames = [
+    ...Object.keys(basePalette),
+    ...Object.keys(overridePalette),
+  ];
+
+  const palette = {};
+  for (const name of colorNames) {
+    palette[name] = { ...basePalette[name], ...overridePalette[name] };
+  }
+
+  return {
+    ...base,
+    ...overrides,
+    palette,
+    shape: { ...base.shape, ...overrides.shape },
+  };
+}
+
+const dark = mergeTheme(base, {
+  palette: { primary: { main: "#0D47A1" }, background: { default: "#121212" } },
+});
+console.log(dark);`,
+        validate: `if (typeof mergeTheme !== "function") return "Definisci la funzione mergeTheme(base, overrides)";
+const b = {
+  palette: {
+    primary: { main: "#111111", light: "#222222", dark: "#000000" },
+    secondary: { main: "#333333" },
+  },
+  shape: { borderRadius: 4 },
+};
+const snapshot = JSON.stringify(b);
+const r = mergeTheme(b, { palette: { primary: { main: "#999999" }, error: { main: "#FF0000" } }, shape: { borderRadius: 10 } });
+if (!r || typeof r !== "object") return "mergeTheme deve restituire un oggetto";
+if (JSON.stringify(b) !== snapshot) return "mergeTheme non deve modificare il tema base: crea nuovi oggetti con lo spread";
+if (!r.palette || !r.palette.primary) return "Il risultato deve avere palette.primary";
+if (r.palette.primary.main !== "#999999") return "palette.primary.main deve prendere il valore delle modifiche (#999999)";
+if (r.palette.primary.light !== "#222222" || r.palette.primary.dark !== "#000000") return "palette.primary.light e dark devono restare quelli della base: unisci le chiavi di ogni colore con { ...base.palette.primary, ...overrides.palette.primary }";
+if (!$equal(r.palette.secondary, { main: "#333333" })) return "I colori presenti solo nella base (secondary) devono restare nel risultato";
+if (!$equal(r.palette.error, { main: "#FF0000" })) return "I colori presenti solo nelle modifiche (error) devono essere aggiunti al risultato";
+if (!$equal(r.shape, { borderRadius: 10 })) return "shape.borderRadius deve prendere il valore delle modifiche (10)";
+if (r.palette === b.palette || r.palette.primary === b.palette.primary) return "Crea nuovi oggetti per palette e per ogni colore, invece di riusare quelli della base";
+const r2 = mergeTheme(b, {});
+if (!r2 || !$equal(r2.palette, b.palette) || !$equal(r2.shape, b.shape)) return "Con overrides vuoto ({}), il risultato deve avere la stessa palette e la stessa shape della base";
+const r3 = mergeTheme(b, { shape: { borderRadius: 0 } });
+if (!$equal(r3.palette, b.palette) || r3.shape.borderRadius !== 0) return "Se overrides ha solo shape, la palette deve restare quella della base (e borderRadius: 0 va rispettato)";
+return true;`,
+        solutionExplanation:
+          "Uno spread semplice `{ ...base, ...overrides }` non basta: sostituirebbe l'intero oggetto `palette` (e con lui `primary.light` e `primary.dark`). Per questo si scende di un livello: si raccolgono tutti i nomi di colore di entrambe le palette e, per ognuno, si uniscono le chiavi con `{ ...basePalette[name], ...overridePalette[name] }` (lo spread di `undefined` non aggiunge nulla). `?? {}` gestisce i casi in cui una palette manca. Ogni oggetto del risultato è nuovo, quindi la base resta intatta. `createTheme` di MUI fa un'unione profonda simile, a ogni livello.",
+      },
+      {
+        type: "code",
+        title: "Il tema dei bottoni",
+        description:
+          "Completa il tema in modo che tutti i bottoni dell'app abbiano lo stesso stile:\n- in `components.MuiButton.defaultProps` imposta `disableRipple: true`;\n- in `styleOverrides.root` imposta `textTransform: \"none\"` e `borderRadius: 8`;\n- in `variants` aggiungi una regola con `props: { variant: \"toggle\" }` e uno `style` con `fontWeight: \"bold\"`.",
+        difficulty: "medio",
+        mode: "static",
+        starterCode: `import { createTheme } from "@mui/material/styles";
+
+const theme = createTheme({
+  palette: {
+    primary: { main: "#2E7D32" },
+  },
+  components: {
+    // Personalizza MuiButton qui
+  },
+});
+
+export default theme;`,
+        solution: `import { createTheme } from "@mui/material/styles";
+
+const theme = createTheme({
+  palette: {
+    primary: { main: "#2E7D32" },
+  },
+  components: {
+    MuiButton: {
+      defaultProps: {
+        disableRipple: true,
+      },
+      styleOverrides: {
+        root: {
+          textTransform: "none",
+          borderRadius: 8,
+        },
+      },
+      variants: [
+        {
+          props: { variant: "toggle" },
+          style: {
+            fontWeight: "bold",
+          },
+        },
+      ],
+    },
+  },
+});
+
+export default theme;`,
+        validate: `const c = $codeNoComments;
+if (!/createTheme\\(/.test(c)) return "Il tema va creato con createTheme({ ... })";
+if (!/MuiButton\\s*:\\s*\\{/.test(c)) return "Dentro components aggiungi la chiave MuiButton: { ... }";
+if (!/defaultProps\\s*:\\s*\\{[^}]*disableRipple\\s*:\\s*true/.test(c)) return "In MuiButton aggiungi defaultProps: { disableRipple: true }";
+const so = c.match(/styleOverrides\\s*:\\s*\\{\\s*root\\s*:\\s*\\{([^}]*)\\}/);
+if (!so) return "In MuiButton aggiungi styleOverrides: { root: { ... } }";
+if (!/textTransform\\s*:\\s*["']none["']/.test(so[1])) return "In styleOverrides.root imposta textTransform: \\"none\\"";
+if (!/borderRadius\\s*:\\s*8\\b/.test(so[1])) return "In styleOverrides.root imposta borderRadius: 8";
+if (!/variants\\s*:\\s*\\[/.test(c)) return "In MuiButton aggiungi l'array variants: [ ... ]";
+if (!/props\\s*:\\s*\\{\\s*variant\\s*:\\s*["']toggle["']\\s*\\}/.test(c)) return "Nella regola di variants usa props: { variant: \\"toggle\\" }";
+if (!/style\\s*:\\s*\\{[^}]*fontWeight\\s*:\\s*["']bold["']/.test(c)) return "Nella regola della variante toggle aggiungi style: { fontWeight: \\"bold\\" }";
+return true;`,
+        solutionExplanation:
+          "`defaultProps` dà a ogni Button la prop `disableRipple` senza doverla scrivere, `styleOverrides.root` cambia lo stile dell'elemento esterno di tutti i bottoni, e la regola in `variants` si applica solo ai bottoni con `variant=\"toggle\"`. Da qui in poi `<Button variant=\"toggle\">Oggi</Button>` ha tutti e tre gli effetti, senza nessun `sx`.",
+      },
+    ],
+  },
 };

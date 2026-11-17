@@ -44,7 +44,7 @@ const allLessons = {
 function Section({ section }) {
   if (section.type === "text") {
     return (
-      <Typography variant="body1" sx={{ mb: 2, lineHeight: 1.8 }}>
+      <Typography variant="body1" sx={{ mb: 2, lineHeight: 1.8, whiteSpace: "pre-line" }}>
         <RichText text={section.content} />
       </Typography>
     );

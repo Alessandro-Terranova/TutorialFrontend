@@ -366,6 +366,8 @@ const t0 = Date.now();
 await attendi(150, "x");
 if (Date.now() - t0 < 120) return "La Promise si risolve troppo presto: usa setTimeout con ms millisecondi";
 return true;`,
+        solutionExplanation:
+          "`new Promise` riceve una funzione con `resolve`: chiamandolo dentro `setTimeout` la Promise si risolve solo dopo `ms` millisecondi, con il valore passato a `resolve`.",
       },
       {
         type: "code",
@@ -428,6 +430,8 @@ try {
 if (ko !== "Prodotto non trovato") return "nomeProdotto(-1) dovrebbe restituire \\"Prodotto non trovato\\", invece restituisce " + $format(ko);
 if (!/try\\s*\\{/.test($codeNoComments) || !/catch\\s*\\(/.test($codeNoComments)) return "Usa un blocco try/catch";
 return true;`,
+        solutionExplanation:
+          "`await` dentro `try` trasforma una Promise rifiutata in un errore lanciato: il `catch` lo intercetta e restituisce il messaggio di ripiego, così chi chiama `nomeProdotto` riceve sempre una stringa.",
       },
       {
         type: "code",
@@ -474,6 +478,8 @@ if (!$equal(r2, ["Up", "Matrix"])) return "caricaTitoli([4, 1]) dovrebbe restitu
 const r3 = await caricaTitoli([]);
 if (!$equal(r3, [])) return "caricaTitoli([]) dovrebbe restituire un array vuoto";
 return true;`,
+        solutionExplanation:
+          "`ids.map(...)` avvia subito tutte le richieste e produce un array di Promise; `Promise.all` le aspetta insieme e restituisce i risultati nello stesso ordine degli id. Il tempo totale è quello della richiesta più lenta, non la somma.",
       },
       {
         type: "multiple-choice",
@@ -753,6 +759,8 @@ if (!$equal(unisci([], ["a", "a"]), ["a"])) return "unisci([], [\\"a\\", \\"a\\"
 if (!$equal(unisci([1, 2], [2, 3]), [1, 2, 3])) return "unisci([1, 2], [2, 3]) dovrebbe restituire [1, 2, 3]";
 if (!$codeNoComments.includes("new Set")) return "Usa new Set per eliminare i duplicati";
 return true;`,
+        solutionExplanation:
+          "Lo spread `[...a, ...b]` concatena i due array mantenendo l'ordine; il Set scarta i valori già visti (tenendo la prima apparizione) e lo spread esterno lo riconverte in array.",
       },
       {
         type: "code",
@@ -786,6 +794,8 @@ if (!$equal(r2, new Map([["a", 3], ["b", 1], ["c", 1]]))) return "Con [\\"a\\", 
 const r3 = contaParole([]);
 if (!(r3 instanceof Map) || r3.size !== 0) return "Con un array vuoto contaParole deve restituire una Map vuota";
 return true;`,
+        solutionExplanation:
+          "Per ogni parola si legge il conteggio attuale (0 se la chiave non esiste ancora) e si salva il valore incrementato con `set`, che sovrascrive la coppia esistente.",
       },
       {
         type: "multiple-choice",
@@ -813,6 +823,22 @@ return true;`,
         correct: 1,
         explanation:
           "`set` con una chiave già esistente sovrascrive il valore invece di aggiungere una nuova coppia: la Map contiene ancora 2 chiavi e `get(\"a\")` restituisce 5.",
+      },
+      {
+        type: "multiple-choice",
+        title: "Set con oggetti",
+        description:
+          "Cosa stampa questo codice?\n\nconst carrello = new Set();\ncarrello.add({ id: 1 });\ncarrello.add({ id: 1 });\nconst p = { id: 2 };\ncarrello.add(p);\ncarrello.add(p);\nconsole.log(carrello.size);",
+        difficulty: "difficile",
+        options: [
+          "`2` - gli oggetti con lo stesso contenuto vengono considerati uguali",
+          "`4` - un Set non elimina mai gli oggetti duplicati",
+          "`1` - tutti gli oggetti vengono considerati lo stesso valore",
+          "`3` - i due `{ id: 1 }` sono oggetti distinti, mentre `p` è lo stesso oggetto aggiunto due volte",
+        ],
+        correct: 3,
+        explanation:
+          "Set confronta come `===`: due oggetti scritti separatamente sono due oggetti diversi anche se hanno lo stesso contenuto, quindi `{ id: 1 }` viene conservato due volte. La variabile `p`, invece, punta sempre allo stesso oggetto: la seconda `add(p)` viene ignorata. Totale: 3. Non è 2 (il contenuto non conta), né 4 (i riferimenti identici vengono scartati), né 1.",
       },
     ],
   },
@@ -1144,6 +1170,8 @@ if (/export\\s+default\\s+(function\\s+)?somma\\b/.test(c)) return "somma deve e
 if (!/export\\s+default\\s+(function\\s+)?moltiplica\\b/.test(c)) return "Esporta moltiplica come default: export default function moltiplica(a, b) { ... }";
 if (!/import\\s+moltiplica\\s*,\\s*\\{\\s*somma\\s*\\}\\s*from\\s*["']\\.\\/matematica(\\.js)?["']/.test(c)) return "Importa entrambe in una sola riga: il default senza graffe, il named tra graffe (import moltiplica, { somma } from \\"./matematica.js\\")";
 return true;`,
+        solutionExplanation:
+          "Il default export si importa senza graffe (con un nome a scelta), i named export tra graffe con il loro nome: nella stessa riga il default viene sempre per primo, seguito dalla virgola e dalle graffe.",
       },
       {
         type: "multiple-choice",
@@ -1160,6 +1188,1475 @@ return true;`,
         correct: 3,
         explanation:
           "Un default export si importa senza graffe (opzione 2) oppure con `{ default as nomeAScelta }` (opzione 3). Entrambe le sintassi sono valide. La prima opzione è sbagliata perché tratta `hello` come un named export.",
+      },
+      {
+        type: "multiple-choice",
+        title: "Optional chaining e array",
+        description:
+          "Cosa stampa questo codice?\n\nconst utente = { nome: \"Anna\", ordini: [] };\nconsole.log(utente.ordini?.[0]?.totale ?? \"Nessun ordine\");",
+        difficulty: "medio",
+        options: [
+          "`\"Nessun ordine\"`",
+          "`undefined`",
+          "Un TypeError, perché l'array è vuoto",
+          "`[]`",
+        ],
+        correct: 0,
+        explanation:
+          "`utente.ordini` esiste ed è un array vuoto, quindi `[0]` vale `undefined`; il secondo `?.` si ferma senza errori e restituisce `undefined`, e `??` lo sostituisce con \"Nessun ordine\". Non viene stampato `undefined` grazie a `??`, non c'è alcun TypeError grazie a `?.`, e `[]` non è mai il risultato perché si legge un elemento, non l'array.",
+      },
+    ],
+  },
+
+  "dates-json": {
+    sections: [
+      {
+        type: "text",
+        content:
+          "Quasi ogni applicazione lavora con delle date: la scadenza di un'attività, il giorno di un evento in calendario, la data di un ordine. Dal server le date arrivano quasi sempre come **stringhe** dentro dati in formato **JSON**, e tocca a noi mostrarle, ordinarle e validarle. In questa lezione vediamo l'oggetto `Date` di JavaScript e i suoi limiti, come lavorare comodamente con le date in formato stringa, come usare JSON e qualche tecnica per trasformare e raggruppare oggetti. Infine scopriamo cos'è **npm** e usiamo la nostra prima libreria esterna: **dayjs**.",
+      },
+      {
+        type: "heading",
+        content: "L'oggetto Date",
+      },
+      {
+        type: "text",
+        content:
+          "`Date` è l'oggetto nativo di JavaScript per rappresentare un istante nel tempo. `new Date()` crea la data e l'ora attuali; `new Date(\"2026-06-01\")` crea una data partendo da una stringa; `new Date(anno, mese, giorno)` la crea partendo dai numeri. Per leggerne le parti si usano metodi come `getFullYear()`, `getMonth()`, `getDate()` (il giorno del mese) e `getDay()` (il giorno della settimana, da 0 = domenica a 6 = sabato).",
+      },
+      {
+        type: "code",
+        language: "javascript",
+        title: "Creare e leggere una Date",
+        code: `const adesso = new Date(); // data e ora di questo momento
+
+const concerto = new Date(2026, 5, 20); // 20 giugno 2026 (attenzione al mese!)
+console.log(concerto.getFullYear()); // 2026
+console.log(concerto.getMonth());    // 5  -> i mesi partono da 0: 5 = giugno
+console.log(concerto.getDate());     // 20
+console.log(concerto.getDay());      // 6  -> sabato
+
+// Confrontare due date: getTime() restituisce i millisecondi dal 1/1/1970
+const inizio = new Date(2026, 5, 1);
+console.log(concerto.getTime() > inizio.getTime()); // true
+
+// Differenza in giorni
+const giorni = (concerto.getTime() - inizio.getTime()) / (1000 * 60 * 60 * 24);
+console.log(giorni); // 19`,
+      },
+      {
+        type: "warning",
+        content:
+          "Nel costruttore `new Date(anno, mese, giorno)` e in `getMonth()` i mesi vanno da **0 (gennaio) a 11 (dicembre)**, mentre i giorni partono da 1. È una delle fonti di bug più comuni: per scrivere \"giugno\" devi passare 5.",
+      },
+      {
+        type: "subheading",
+        content: "I limiti di Date",
+      },
+      {
+        type: "text",
+        content:
+          "`Date` ha alcuni comportamenti che sorprendono. Se gli passi un giorno che non esiste, non segnala nessun errore: \"corregge\" la data in silenzio spostandosi nel mese successivo. Se la stringa non è una data, crea una *Invalid Date*, il cui `getTime()` vale `NaN`. Inoltre lavora sempre con un orario e un fuso orario, anche quando a te interessa solo il giorno.",
+      },
+      {
+        type: "code",
+        language: "javascript",
+        title: "Comportamenti da conoscere",
+        code: `// Il 31 febbraio non esiste: Date lo trasforma nel 3 marzo, senza errori
+const d = new Date(2026, 1, 31);
+console.log(d.getMonth(), d.getDate()); // 2 3  -> 3 marzo
+
+// Una stringa che non è una data produce una "Invalid Date"
+const sbagliata = new Date("ciao");
+console.log(sbagliata.getTime());        // NaN
+console.log(isNaN(sbagliata.getTime())); // true -> così si riconosce
+
+// Le Date sono oggetti: === confronta il riferimento, non il giorno
+console.log(new Date(2026, 0, 1) === new Date(2026, 0, 1)); // false`,
+      },
+      {
+        type: "info",
+        content:
+          "`new Date(\"2026-06-01\")` interpreta la stringa come mezzanotte nel fuso orario UTC (quello di riferimento di Greenwich). Mostrata in un fuso orario \"indietro\", come quello di New York, la stessa data diventa il 31 maggio. Per questo molte applicazioni conservano le date che non hanno bisogno dell'ora come semplici stringhe e le trasformano solo quando devono mostrarle.",
+      },
+      {
+        type: "heading",
+        content: "Date come stringhe ISO",
+      },
+      {
+        type: "text",
+        content:
+          "Il formato standard per scambiare date è **ISO 8601**: `\"yyyy-MM-dd\"`, cioè anno di 4 cifre, mese di 2 cifre e giorno di 2 cifre, separati da trattini (es. `\"2026-06-01\"`). Ha una proprietà preziosa: siccome va dall'unità più grande (l'anno) alla più piccola (il giorno) e ogni parte ha sempre lo stesso numero di cifre, **l'ordine alfabetico delle stringhe coincide con l'ordine cronologico**. Puoi quindi confrontarle con `<` e `>` e ordinarle come normali stringhe, senza creare nessuna Date.",
+      },
+      {
+        type: "code",
+        language: "javascript",
+        title: "Confrontare e ordinare stringhe ISO",
+        code: `console.log("2026-03-15" < "2026-11-02"); // true: marzo viene prima di novembre
+console.log("2025-12-31" < "2026-01-01"); // true: conta prima l'anno
+
+const scadenze = ["2026-11-02", "2026-03-15", "2025-12-31"];
+const ordinate = [...scadenze].sort();
+console.log(ordinate); // ["2025-12-31", "2026-03-15", "2026-11-02"]
+
+// Le attività scadute: la data di scadenza viene prima di oggi
+const oggi = "2026-06-01";
+const scadute = scadenze.filter((data) => data < oggi);
+console.log(scadute); // ["2026-03-15", "2025-12-31"]`,
+      },
+      {
+        type: "warning",
+        content:
+          "Il trucco funziona solo se tutte le stringhe hanno lo stesso formato con gli zeri iniziali. `\"2026-6-1\"` contro `\"2026-10-01\"` dà un risultato sbagliato, e il formato italiano `\"dd/MM/yyyy\"` non si ordina mai correttamente come stringa: `\"02/03/2027\" < \"10/01/2026\"` è true, anche se il 2027 viene dopo!",
+      },
+      {
+        type: "subheading",
+        content: "Formattare una data per l'utente",
+      },
+      {
+        type: "text",
+        content:
+          "All'utente italiano vogliamo mostrare `\"01/06/2026\"`, non `\"2026-06-01\"`. Con una stringa ISO basta dividerla con `split(\"-\")` e ricomporre le parti in un altro ordine. Partendo invece da una Date, si leggono le parti con i metodi `get...` e si aggiungono gli zeri mancanti con `padStart`.",
+      },
+      {
+        type: "code",
+        language: "javascript",
+        title: "Da ISO a gg/mm/aaaa e viceversa",
+        code: `// Da "2026-06-01" a "01/06/2026"
+function formatDate(iso) {
+  if (!iso) return ""; // nessuna data: stringa vuota
+  const [anno, mese, giorno] = iso.split("-");
+  return giorno + "/" + mese + "/" + anno;
+}
+console.log(formatDate("2026-06-01")); // "01/06/2026"
+
+// Da "15/05/2026" a "2026-05-15" (per esempio prima di inviarla al server)
+function toIsoDate(testo) {
+  const [giorno, mese, anno] = testo.split("/");
+  return anno + "-" + mese + "-" + giorno;
+}
+console.log(toIsoDate("15/05/2026")); // "2026-05-15"
+
+// Da una Date alla stringa ISO del giorno
+function dateToIso(data) {
+  const mese = String(data.getMonth() + 1).padStart(2, "0"); // +1 perché parte da 0
+  const giorno = String(data.getDate()).padStart(2, "0");
+  return \`\${data.getFullYear()}-\${mese}-\${giorno}\`;
+}
+console.log(dateToIso(new Date(2026, 0, 5))); // "2026-01-05"`,
+      },
+      {
+        type: "heading",
+        content: "Ordinare stringhe con localeCompare",
+      },
+      {
+        type: "text",
+        content:
+          "Senza funzione di confronto, `sort()` confronta i codici dei caratteri: tutte le maiuscole vengono prima delle minuscole e le lettere accentate finiscono in fondo. Per ordinare testi in modo naturale si usa `a.localeCompare(b)`, che restituisce un numero negativo se `a` viene prima di `b`, positivo se viene dopo e 0 se sono equivalenti: proprio ciò che si aspetta la funzione di confronto di `sort`. Funziona anche con le stringhe ISO.",
+      },
+      {
+        type: "code",
+        language: "javascript",
+        title: "sort() contro localeCompare",
+        code: `const titoli = ["zucchine al forno", "Arancini", "éclair", "biscotti"];
+
+console.log([...titoli].sort());
+// ["Arancini", "biscotti", "zucchine al forno", "éclair"]  -> "é" finisce in fondo
+
+console.log([...titoli].sort((a, b) => a.localeCompare(b)));
+// ["Arancini", "biscotti", "éclair", "zucchine al forno"]  -> ordine naturale
+
+// Array di oggetti: si confronta la proprietà che interessa
+const eventi = [
+  { titolo: "Mostra", data: "2026-07-10" },
+  { titolo: "Concerto", data: "2026-06-20" },
+];
+const perData = [...eventi].sort((a, b) => a.data.localeCompare(b.data));
+console.log(perData.map((e) => e.titolo)); // ["Concerto", "Mostra"]
+
+// Ordine decrescente: basta invertire a e b
+const piuRecenti = [...eventi].sort((a, b) => b.data.localeCompare(a.data));`,
+      },
+      {
+        type: "subheading",
+        content: "Valori mancanti nell'ordinamento",
+      },
+      {
+        type: "text",
+        content:
+          "Se a un elemento manca la proprietà, `a.data.localeCompare(...)` lancia un errore perché `undefined` non ha metodi. La soluzione è sostituire il valore mancante con un **default** grazie a `??`. Il default si sceglie in base a dove vuoi mettere gli elementi incompleti: `\"9999\"` viene dopo qualsiasi data ISO (quindi in fondo), `\"\"` viene prima di tutto (quindi in cima).",
+      },
+      {
+        type: "code",
+        language: "javascript",
+        title: "Default per i valori mancanti",
+        code: `const attivita = [
+  { titolo: "Pagare le bollette", scadenza: "2026-06-30" },
+  { titolo: "Riordinare la cantina" }, // nessuna scadenza
+  { titolo: "Rinnovare l'abbonamento", scadenza: "2026-06-05" },
+];
+
+// Le attività senza scadenza finiscono in fondo
+const ordinate = [...attivita].sort((a, b) =>
+  (a.scadenza ?? "9999").localeCompare(b.scadenza ?? "9999")
+);
+console.log(ordinate.map((a) => a.titolo));
+// ["Rinnovare l'abbonamento", "Pagare le bollette", "Riordinare la cantina"]
+
+// Per i nomi mancanti, invece, una stringa vuota li porta in cima
+const contatti = [{ nome: "Luca" }, {}, { nome: "Anna" }];
+contatti.sort((a, b) => (a.nome ?? "").localeCompare(b.nome ?? ""));`,
+      },
+      {
+        type: "heading",
+        content: "JSON: stringify e parse",
+      },
+      {
+        type: "text",
+        content:
+          "**JSON** (*JavaScript Object Notation*) è un formato di testo per rappresentare dati: assomiglia molto agli oggetti JavaScript, ma le chiavi sono sempre tra virgolette doppie e i valori possono essere solo stringhe, numeri, booleani, `null`, array e oggetti. È il formato con cui client e server si scambiano i dati. `JSON.stringify(valore)` trasforma un valore in testo JSON; `JSON.parse(testo)` fa il contrario e ricostruisce il valore.",
+      },
+      {
+        type: "code",
+        language: "javascript",
+        title: "Da oggetto a testo e ritorno",
+        code: `const ordine = { id: 7, prodotti: ["penna", "quaderno"], pagato: false };
+
+const testo = JSON.stringify(ordine);
+console.log(testo); // '{"id":7,"prodotti":["penna","quaderno"],"pagato":false}'
+console.log(typeof testo); // "string"
+
+// Il terzo argomento indenta il risultato: comodo per leggerlo
+console.log(JSON.stringify(ordine, null, 2));
+
+const copia = JSON.parse(testo);
+console.log(copia.prodotti[1]); // "quaderno"
+
+// Cosa si perde: undefined e funzioni spariscono, le Date diventano stringhe
+const evento = { titolo: "Festa", note: undefined, quando: new Date("2026-06-01") };
+console.log(JSON.stringify(evento)); // '{"titolo":"Festa","quando":"2026-06-01T00:00:00.000Z"}'
+
+// Un testo non valido fa lanciare un errore a JSON.parse
+try {
+  JSON.parse("{ id: 7 }"); // chiave senza virgolette: non è JSON
+} catch (error) {
+  console.log("JSON non valido");
+}`,
+      },
+      {
+        type: "subheading",
+        content: "Confrontare due oggetti con JSON.stringify",
+      },
+      {
+        type: "text",
+        content:
+          "Due oggetti diversi non sono mai `===`, anche con lo stesso contenuto. Per sapere se due oggetti *semplici* (solo stringhe, numeri, booleani, array e oggetti annidati) contengono gli stessi dati, un trucco veloce è confrontare le loro versioni in JSON. Si usa spesso per capire se l'utente ha davvero modificato una riga prima di salvarla.",
+      },
+      {
+        type: "code",
+        language: "javascript",
+        title: "È cambiato qualcosa?",
+        code: `const originale = { titolo: "Spesa", fatto: false };
+const modificato = { titolo: "Spesa", fatto: false };
+
+console.log(originale === modificato); // false: due oggetti distinti
+console.log(JSON.stringify(originale) === JSON.stringify(modificato)); // true
+
+function isCambiato(prima, dopo) {
+  return JSON.stringify(prima) !== JSON.stringify(dopo);
+}
+console.log(isCambiato(originale, { titolo: "Spesa", fatto: true })); // true`,
+      },
+      {
+        type: "warning",
+        content:
+          "Il trucco ha dei limiti: dipende dall'**ordine delle chiavi** (`{ a: 1, b: 2 }` e `{ b: 2, a: 1 }` danno stringhe diverse), ignora le proprietà con valore `undefined` (quindi `{ a: undefined }` risulta uguale a `{}`) e non gestisce Map, Set e funzioni. Usalo solo per oggetti semplici costruiti sempre nello stesso modo.",
+      },
+      {
+        type: "heading",
+        content: "Trasformare oggetti con Object.fromEntries",
+      },
+      {
+        type: "text",
+        content:
+          "Gli array hanno `map` e `filter`, gli oggetti no. Ma possiamo passare per un array: `Object.entries(obj)` restituisce le coppie `[chiave, valore]`, su cui usiamo `map` o `filter`, e poi `Object.fromEntries(coppie)` ricostruisce un oggetto. `Object.fromEntries` accetta qualsiasi array di coppie, quindi si può usare anche per costruire un oggetto partendo da un elenco di chiavi.",
+      },
+      {
+        type: "code",
+        language: "javascript",
+        title: "entries, map, fromEntries",
+        code: `const prezzi = { penna: 1.5, quaderno: 3, zaino: 25 };
+
+// Applicare uno sconto del 10% a tutti i prezzi
+const scontati = Object.fromEntries(
+  Object.entries(prezzi).map(([prodotto, prezzo]) => [prodotto, prezzo * 0.9])
+);
+console.log(scontati); // { penna: 1.35, quaderno: 2.7, zaino: 22.5 }
+
+// Tenere solo i prodotti sotto i 10 euro
+const economici = Object.fromEntries(
+  Object.entries(prezzi).filter(([, prezzo]) => prezzo < 10)
+);
+console.log(economici); // { penna: 1.5, quaderno: 3 }
+
+// Costruire un oggetto da un elenco di campi: i campi vuoti del form diventano null
+const CAMPI = ["nome", "email", "telefono"];
+const form = { nome: "Anna", email: "anna@example.com", telefono: "", extra: "x" };
+const body = Object.fromEntries(CAMPI.map((campo) => [campo, form[campo] === "" ? null : form[campo]]));
+console.log(body); // { nome: "Anna", email: "anna@example.com", telefono: null }`,
+      },
+      {
+        type: "subheading",
+        content: "Raggruppare con ??=",
+      },
+      {
+        type: "text",
+        content:
+          "Un'operazione frequente è raggruppare gli elementi di un array per una loro proprietà: gli eventi per mese, i libri per autore, gli ordini per stato. L'operatore `??=` (visto nella lezione sui moduli) lo rende molto compatto: `gruppi[chiave] ??= []` crea l'array solo se non esiste ancora, e l'intera espressione **restituisce il valore della proprietà**, quindi possiamo chiamarci sopra subito `.push(...)`.",
+      },
+      {
+        type: "code",
+        language: "javascript",
+        title: "Eventi raggruppati per mese",
+        code: `const eventi = [
+  { titolo: "Concerto", data: "2026-06-20" },
+  { titolo: "Mostra", data: "2026-07-10" },
+  { titolo: "Cinema all'aperto", data: "2026-06-28" },
+];
+
+const perMese = {};
+for (const evento of eventi) {
+  const mese = evento.data.slice(0, 7); // "2026-06"
+  (perMese[mese] ??= []).push(evento.titolo);
+}
+console.log(perMese);
+// { "2026-06": ["Concerto", "Cinema all'aperto"], "2026-07": ["Mostra"] }
+
+// Lo stesso schema funziona con un Set, per evitare i doppioni
+const luoghiPerCitta = {};
+(luoghiPerCitta["Roma"] ??= new Set()).add("Auditorium");
+
+// E con Object.fromEntries si ottiene un riepilogo
+const conteggio = Object.fromEntries(
+  Object.entries(perMese).map(([mese, titoli]) => [mese, titoli.length])
+);
+console.log(conteggio); // { "2026-06": 2, "2026-07": 1 }`,
+      },
+      {
+        type: "heading",
+        content: "npm e i pacchetti",
+      },
+      {
+        type: "text",
+        content:
+          "Non serve scrivere tutto da zero: esistono migliaia di **pacchetti** (o librerie), cioè moduli scritti da altri sviluppatori e pubblicati online. **npm** (*Node Package Manager*) è lo strumento che li scarica e li tiene aggiornati. Si usa dal terminale, nella cartella del progetto: `npm install nome-pacchetto` scarica il pacchetto nella cartella `node_modules` e lo annota nel file `package.json`, l'elenco delle dipendenze del progetto. Da quel momento lo si usa con un normale `import` (come visto nella lezione sui moduli), indicando il nome del pacchetto al posto del percorso di un file.",
+      },
+      {
+        type: "code",
+        language: "bash",
+        title: "Installare un pacchetto (nel terminale)",
+        code: `npm install dayjs
+
+# package.json ora contiene, tra le dipendenze:
+#   "dependencies": { "dayjs": "^1.11.13" }
+
+# Su un altro computer, per installare tutte le dipendenze elencate:
+npm install`,
+      },
+      {
+        type: "info",
+        content:
+          "La cartella `node_modules` può diventare enorme e non va condivisa né salvata nel controllo di versione: basta `package.json`, perché chiunque può ricreare `node_modules` con `npm install`.",
+      },
+      {
+        type: "heading",
+        content: "La libreria dayjs",
+      },
+      {
+        type: "text",
+        content:
+          "**dayjs** è una libreria piccola e molto diffusa che rende semplici le operazioni sulle date. `dayjs()` crea la data attuale, `dayjs(\"2026-06-01\")` interpreta una stringa ISO; il risultato ha metodi come `format`, `add`, `subtract`, `isBefore`, `isAfter`, `diff` e `isValid`. Gli oggetti dayjs sono **immutabili**: `add` non modifica la data originale, ne restituisce una nuova. Nel formato i segnaposto sono `YYYY` (anno), `MM` (mese), `DD` (giorno), `HH` (ore) e `mm` (minuti).",
+      },
+      {
+        type: "code",
+        language: "javascript",
+        title: "dayjs in pratica (illustrativo)",
+        code: `import dayjs from "dayjs";
+
+const concerto = dayjs("2026-06-20");
+
+console.log(concerto.format("DD/MM/YYYY"));       // "20/06/2026"
+console.log(concerto.format("YYYY-MM-DD HH:mm")); // "2026-06-20 00:00"
+
+const promemoria = concerto.subtract(7, "day");   // una settimana prima
+console.log(promemoria.format("DD/MM/YYYY"));     // "13/06/2026"
+console.log(concerto.format("DD/MM/YYYY"));       // "20/06/2026": non è cambiata
+
+console.log(concerto.isBefore("2026-07-01"));     // true
+console.log(concerto.diff("2026-06-01", "day"));  // 19
+
+// Utile per mostrare una data che potrebbe mancare
+const formatDate = (value) => (value ? dayjs(value).format("DD/MM/YYYY") : "");`,
+      },
+      {
+        type: "subheading",
+        content: "Validare una data con il parsing stretto",
+      },
+      {
+        type: "text",
+        content:
+          "Per interpretare date in un formato diverso da ISO, come quello italiano scritto dall'utente in un form, serve il **plugin** `customParseFormat`: si importa e si registra una volta con `dayjs.extend(...)`. Poi si passa il formato come secondo argomento: `dayjs(\"15/05/2026\", \"DD/MM/YYYY\")`. Il terzo argomento `true` attiva il **parsing stretto**: la stringa deve rispettare esattamente il formato e la data deve esistere. Senza di esso dayjs si comporta come Date e trasforma il 31/02 nel 3 marzo.",
+      },
+      {
+        type: "code",
+        language: "javascript",
+        title: "isValidDate con dayjs (illustrativo)",
+        code: `import dayjs from "dayjs";
+import customParseFormat from "dayjs/plugin/customParseFormat";
+
+dayjs.extend(customParseFormat); // una sola volta, in cima al file
+
+// Senza parsing stretto: la data impossibile viene "corretta"
+console.log(dayjs("31/02/2026", "DD/MM/YYYY").isValid()); // true (diventa il 3 marzo!)
+
+// Con parsing stretto: la data impossibile viene rifiutata
+const isValidDate = (value) => dayjs(value, "DD/MM/YYYY", true).isValid();
+
+console.log(isValidDate("15/05/2026")); // true
+console.log(isValidDate("31/02/2026")); // false
+console.log(isValidDate("5/5/2026"));   // false: mancano gli zeri
+console.log(isValidDate("ciao"));       // false`,
+      },
+      {
+        type: "info",
+        content:
+          "Gli esercizi di questo tutorial vengono eseguiti senza librerie esterne: per questo gli esempi con dayjs sono illustrativi, e negli esercizi realizzerai le stesse funzioni in JavaScript puro. In un vero progetto, dopo `npm install dayjs`, il codice qui sopra funziona così com'è.",
+      },
+      {
+        type: "tip",
+        content:
+          "Conserva e confronta le date nel formato ISO `\"yyyy-MM-dd\"` e trasformale nel formato dell'utente solo nel momento in cui le mostri. Fai il contrario quando l'utente le inserisce: valida subito il testo e convertilo in ISO prima di salvarlo o inviarlo al server.",
+      },
+    ],
+    exercises: [
+      {
+        type: "multiple-choice",
+        title: "Il mese di una Date",
+        description:
+          "Cosa stampa questo codice?\n\nconst d = new Date(2026, 0, 15);\nconsole.log(d.getMonth(), d.getDate());",
+        difficulty: "facile",
+        options: ["`1 15`", "`0 15`", "`1 14`", "`0 14`"],
+        correct: 1,
+        explanation:
+          "In `Date` i mesi partono da 0: il secondo argomento `0` indica gennaio e `getMonth()` restituisce di nuovo `0`. I giorni, invece, partono da 1, quindi `getDate()` restituisce 15. Le opzioni con `1` confondono il mese con il numero \"umano\" di gennaio, quelle con `14` applicano per sbaglio lo stesso spostamento ai giorni.",
+      },
+      {
+        type: "multiple-choice",
+        title: "Ordinare le date",
+        description:
+          "Quale di questi array viene ordinato in ordine cronologico da un semplice `.sort()`?",
+        difficulty: "medio",
+        options: [
+          "`[\"10/01/2026\", \"02/03/2027\", \"25/12/2025\"]`",
+          "`[\"2026-6-1\", \"2026-10-15\", \"2026-2-3\"]`",
+          "`[\"1 marzo 2026\", \"15 gennaio 2026\", \"3 febbraio 2026\"]`",
+          "`[\"2026-10-15\", \"2026-02-03\", \"2025-12-25\"]`",
+        ],
+        correct: 3,
+        explanation:
+          "Solo il formato ISO `yyyy-MM-dd` con gli zeri iniziali ha l'ordine alfabetico uguale a quello cronologico, perché va dall'anno al giorno con parti di lunghezza fissa. Il formato `dd/MM/yyyy` confronta prima i giorni, le date senza zeri fanno finire `\"2026-10-15\"` prima di `\"2026-2-3\"` (il carattere \"1\" viene prima di \"2\"), e i nomi dei mesi vengono ordinati alfabeticamente.",
+      },
+      {
+        type: "multiple-choice",
+        title: "Confronto con JSON.stringify",
+        description:
+          "Cosa stampa questo codice?\n\nconst a = { nome: \"Anna\", eta: 30 };\nconst b = { eta: 30, nome: \"Anna\" };\nconsole.log(a === b, JSON.stringify(a) === JSON.stringify(b));",
+        difficulty: "medio",
+        options: ["`false false`", "`false true`", "`true true`", "`true false`"],
+        correct: 0,
+        explanation:
+          "`a === b` è false perché sono due oggetti distinti. Anche il confronto in JSON è false: `JSON.stringify` scrive le chiavi nell'ordine in cui sono state create, quindi produce `'{\"nome\":\"Anna\",\"eta\":30}'` e `'{\"eta\":30,\"nome\":\"Anna\"}'`, due stringhe diverse. È proprio uno dei limiti del trucco: funziona solo se gli oggetti sono costruiti con le chiavi nello stesso ordine.",
+      },
+      {
+        type: "multiple-choice",
+        title: "Raggruppare con ??=",
+        description:
+          "Cosa stampa questo codice?\n\nconst gruppi = {};\nfor (const libro of [\"Dune\", \"Emma\", \"Dracula\"]) {\n  (gruppi[libro[0]] ??= []).push(libro);\n}\nconsole.log(gruppi);",
+        difficulty: "difficile",
+        options: [
+          "`{ D: [\"Dracula\"], E: [\"Emma\"] }`",
+          "`{ D: \"Dracula\", E: \"Emma\" }`",
+          "`{ D: [\"Dune\", \"Dracula\"], E: [\"Emma\"] }`",
+          "Un errore, perché `gruppi.D` all'inizio è undefined",
+        ],
+        correct: 2,
+        explanation:
+          "`gruppi[libro[0]] ??= []` crea l'array vuoto solo la prima volta che incontra una lettera e, in ogni caso, restituisce l'array salvato in quella proprietà: `push` aggiunge quindi il libro all'array giusto. \"Dune\" e \"Dracula\" finiscono entrambi sotto `D`. Non viene sovrascritto nulla (`??=` assegna solo se il valore è null o undefined), i valori sono array e non stringhe, e non c'è errore proprio perché `??=` crea l'array mancante.",
+      },
+      {
+        type: "multiple-choice",
+        title: "Validare con dayjs",
+        description:
+          "Vuoi che `isValid` rifiuti le date impossibili scritte dall'utente, come `\"31/02/2026\"`. Dopo aver registrato il plugin `customParseFormat`, quale istruzione usi?",
+        difficulty: "medio",
+        options: [
+          "`dayjs(\"31/02/2026\").isValid()`",
+          "`dayjs(\"31/02/2026\", \"DD/MM/YYYY\").isValid()`",
+          "`dayjs(\"31/02/2026\", \"DD/MM/YYYY\", true).isValid()`",
+          "`dayjs(\"31/02/2026\").format(\"DD/MM/YYYY\") !== \"\"`",
+        ],
+        correct: 2,
+        explanation:
+          "Solo con il terzo argomento `true` (parsing stretto) dayjs controlla che la stringa rispetti esattamente il formato e che la data esista, restituendo `false`. Senza `true` la data viene \"corretta\" nel 3 marzo e risulta valida; senza formato dayjs non sa interpretare `gg/mm/aaaa`; e `format` restituisce sempre una stringa non vuota (al massimo \"Invalid Date\"), quindi non serve a validare.",
+      },
+      {
+        type: "code",
+        title: "Formattare una data",
+        description:
+          "Scrivi una funzione `formatDate(iso)` che riceve una data in formato ISO `\"yyyy-MM-dd\"` e la restituisce nel formato italiano `\"dd/MM/yyyy\"`.\n\nSe la data manca (`null`, `undefined` o stringa vuota) deve restituire una stringa vuota `\"\"`.\n\nEsempio: `formatDate(\"2026-06-01\")` → `\"01/06/2026\"`.",
+        difficulty: "facile",
+        starterCode: `function formatDate(iso) {
+  // scrivi qui
+}
+
+console.log(formatDate("2026-06-01")); // "01/06/2026"
+console.log(formatDate(null));         // ""`,
+        solution: `function formatDate(iso) {
+  if (!iso) return "";
+  const [anno, mese, giorno] = iso.split("-");
+  return giorno + "/" + mese + "/" + anno;
+}
+
+console.log(formatDate("2026-06-01")); // "01/06/2026"
+console.log(formatDate(null));         // ""`,
+        validate: `if (typeof formatDate !== "function") return "Definisci la funzione formatDate";
+const casi = [["2026-06-01", "01/06/2026"], ["2025-12-31", "31/12/2025"], ["2026-02-09", "09/02/2026"]];
+for (const [input, atteso] of casi) {
+  const r = formatDate(input);
+  if (r !== atteso) return "formatDate(" + $format(input) + ") dovrebbe restituire " + $format(atteso) + ", invece restituisce " + $format(r) + ". Suggerimento: split(\\"-\\") e ricomponi le parti";
+}
+for (const vuoto of [null, undefined, ""]) {
+  let r;
+  try {
+    r = formatDate(vuoto);
+  } catch (e) {
+    return "formatDate(" + $format(vuoto) + ") lancia un errore: controlla prima se la data manca";
+  }
+  if (r !== "") return "formatDate(" + $format(vuoto) + ") dovrebbe restituire una stringa vuota, invece restituisce " + $format(r);
+}
+return true;`,
+      },
+      {
+        type: "code",
+        title: "Validare una data gg/mm/aaaa",
+        description:
+          "Scrivi una funzione `isValidDate(testo)` che restituisce `true` se `testo` è una data esistente nel formato `\"gg/mm/aaaa\"` (giorno e mese di 2 cifre, anno di 4), altrimenti `false`.\n\nSuggerimenti:\n1. dividi il testo con `split(\"/\")` e controlla che ci siano 3 parti con le lunghezze giuste\n2. converti le parti in numeri e crea `new Date(anno, mese - 1, giorno)`\n3. la data esiste solo se `getFullYear()`, `getMonth()` e `getDate()` restituiscono gli stessi numeri: per il 31/02 Date si sposta a marzo e il controllo fallisce.\n\nEsempi: `\"15/05/2026\"` → true, `\"31/02/2026\"` → false, `\"ciao\"` → false.",
+        difficulty: "medio",
+        starterCode: `function isValidDate(testo) {
+  // scrivi qui
+  return true;
+}
+
+console.log(isValidDate("15/05/2026")); // true
+console.log(isValidDate("31/02/2026")); // false
+console.log(isValidDate("ciao"));       // false`,
+        solution: `function isValidDate(testo) {
+  const parti = testo.split("/");
+  if (parti.length !== 3) return false;
+  const [g, m, a] = parti;
+  if (g.length !== 2 || m.length !== 2 || a.length !== 4) return false;
+
+  const giorno = Number(g);
+  const mese = Number(m);
+  const anno = Number(a);
+  const data = new Date(anno, mese - 1, giorno);
+
+  return (
+    data.getFullYear() === anno &&
+    data.getMonth() === mese - 1 &&
+    data.getDate() === giorno
+  );
+}
+
+console.log(isValidDate("15/05/2026")); // true
+console.log(isValidDate("31/02/2026")); // false
+console.log(isValidDate("ciao"));       // false`,
+        validate: `if (typeof isValidDate !== "function") return "Definisci la funzione isValidDate";
+const casi = [
+  ["15/05/2026", true, ""],
+  ["01/01/2025", true, ""],
+  ["31/12/2026", true, ""],
+  ["29/02/2024", true, " (il 2024 è bisestile)"],
+  ["31/02/2026", false, " (febbraio non ha 31 giorni)"],
+  ["29/02/2026", false, " (il 2026 non è bisestile)"],
+  ["31/04/2026", false, " (aprile ha 30 giorni)"],
+  ["00/01/2026", false, " (il giorno 0 non esiste)"],
+  ["12/13/2026", false, " (il mese 13 non esiste)"],
+  ["ciao", false, ""],
+  ["", false, ""],
+  ["5/05/2026", false, " (il giorno deve avere 2 cifre)"],
+  ["2026-05-15", false, " (il formato deve essere gg/mm/aaaa)"],
+  ["ab/cd/efgh", false, ""],
+];
+for (const [input, atteso, nota] of casi) {
+  let r;
+  try {
+    r = isValidDate(input);
+  } catch (e) {
+    return "isValidDate(" + $format(input) + ") lancia un errore: " + e.message;
+  }
+  if (r !== atteso) return "isValidDate(" + $format(input) + ") dovrebbe restituire " + atteso + nota + ", invece restituisce " + $format(r);
+}
+return true;`,
+        solutionExplanation:
+          "Il controllo sulle lunghezze scarta i formati sbagliati. Poi si sfrutta proprio il limite di Date: per una data impossibile, come il 31/02, Date non dà errore ma si sposta nel mese successivo, quindi giorno e mese letti con `getDate()` e `getMonth()` non coincidono più con quelli scritti. Se le parti non sono numeri, `Number` restituisce `NaN`, la data non è valida e anche `getFullYear()` vale `NaN`, che non è uguale a nessun numero.",
+      },
+      {
+        type: "code",
+        title: "Eventi raggruppati per mese",
+        description:
+          "Scrivi due funzioni:\n1. `raggruppaPerMese(eventi)`: riceve un array di eventi `{ titolo, data }` (data in formato `\"yyyy-MM-dd\"`) e restituisce un oggetto che ha come chiavi i mesi (`\"yyyy-MM\"`, cioè i primi 7 caratteri della data) e come valori gli array dei titoli di quel mese, nell'ordine originale. Usa `??=`.\n2. `contaPerMese(gruppi)`: riceve l'oggetto prodotto dalla prima funzione e restituisce un oggetto con gli stessi mesi e, come valore, il numero di eventi. Usa `Object.entries`, `map` e `Object.fromEntries`.",
+        difficulty: "difficile",
+        starterCode: `const eventi = [
+  { titolo: "Concerto", data: "2026-06-20" },
+  { titolo: "Mostra", data: "2026-07-10" },
+  { titolo: "Cinema all'aperto", data: "2026-06-28" },
+];
+
+function raggruppaPerMese(eventi) {
+  const gruppi = {};
+  // scrivi qui
+  return gruppi;
+}
+
+function contaPerMese(gruppi) {
+  // scrivi qui
+}
+
+const gruppi = raggruppaPerMese(eventi);
+console.log(gruppi);
+console.log(contaPerMese(gruppi));`,
+        solution: `const eventi = [
+  { titolo: "Concerto", data: "2026-06-20" },
+  { titolo: "Mostra", data: "2026-07-10" },
+  { titolo: "Cinema all'aperto", data: "2026-06-28" },
+];
+
+function raggruppaPerMese(eventi) {
+  const gruppi = {};
+  for (const evento of eventi) {
+    const mese = evento.data.slice(0, 7);
+    (gruppi[mese] ??= []).push(evento.titolo);
+  }
+  return gruppi;
+}
+
+function contaPerMese(gruppi) {
+  return Object.fromEntries(
+    Object.entries(gruppi).map(([mese, titoli]) => [mese, titoli.length])
+  );
+}
+
+const gruppi = raggruppaPerMese(eventi);
+console.log(gruppi);
+console.log(contaPerMese(gruppi));`,
+        validate: `if (typeof raggruppaPerMese !== "function") return "Definisci la funzione raggruppaPerMese";
+if (typeof contaPerMese !== "function") return "Definisci la funzione contaPerMese";
+const input = [
+  { titolo: "Concerto", data: "2026-06-20" },
+  { titolo: "Mostra", data: "2026-07-10" },
+  { titolo: "Cinema all'aperto", data: "2026-06-28" },
+  { titolo: "Capodanno", data: "2025-12-31" },
+];
+const g = raggruppaPerMese(input);
+const atteso = { "2026-06": ["Concerto", "Cinema all'aperto"], "2026-07": ["Mostra"], "2025-12": ["Capodanno"] };
+if (!$equal(g, atteso)) return "raggruppaPerMese con 4 eventi dovrebbe restituire " + $format(atteso) + ", invece restituisce " + $format(g);
+if (!$equal(raggruppaPerMese([]), {})) return "Con un array vuoto raggruppaPerMese deve restituire {}";
+if (!/\\?\\?=/.test($codeNoComments)) return "Usa ??= per creare l'array del mese solo quando serve";
+const c = contaPerMese(atteso);
+if (!$equal(c, { "2026-06": 2, "2026-07": 1, "2025-12": 1 })) return "contaPerMese dovrebbe restituire { \\"2026-06\\": 2, \\"2026-07\\": 1, \\"2025-12\\": 1 }, invece restituisce " + $format(c);
+if (!$equal(contaPerMese({ "2026-01": ["a", "b", "c"] }), { "2026-01": 3 })) return "contaPerMese({ \\"2026-01\\": [\\"a\\", \\"b\\", \\"c\\"] }) dovrebbe restituire { \\"2026-01\\": 3 }";
+if (!$equal(contaPerMese({}), {})) return "contaPerMese({}) dovrebbe restituire {}";
+if (!/Object\\.fromEntries\\(/.test($codeNoComments)) return "In contaPerMese usa Object.fromEntries per ricostruire l'oggetto";
+return true;`,
+        solutionExplanation:
+          "`(gruppi[mese] ??= [])` crea l'array solo la prima volta che si incontra un mese e restituisce comunque l'array di quel mese, su cui si fa `push`. In `contaPerMese` l'oggetto diventa un array di coppie `[mese, titoli]`, `map` trasforma ogni coppia in `[mese, numero]` e `Object.fromEntries` ricostruisce l'oggetto.",
+      },
+      {
+        type: "code",
+        title: "Ordinare gli eventi per data",
+        description:
+          "Scrivi una funzione `ordinaEventi(eventi)` che restituisce un **nuovo** array (senza modificare quello originale) con gli eventi ordinati per `data` crescente, usando `localeCompare`.\n\nAlcuni eventi non hanno ancora una data: devono finire **in fondo**. Se due eventi hanno la stessa data (o sono entrambi senza data), ordinali per `titolo` in ordine alfabetico.",
+        difficulty: "medio",
+        starterCode: `const eventi = [
+  { titolo: "Mostra", data: "2026-07-10" },
+  { titolo: "Torneo di scacchi" },
+  { titolo: "Concerto", data: "2026-06-20" },
+  { titolo: "Aperitivo", data: "2026-06-20" },
+];
+
+function ordinaEventi(eventi) {
+  // scrivi qui
+  return eventi;
+}
+
+console.log(ordinaEventi(eventi).map((e) => e.titolo));`,
+        solution: `const eventi = [
+  { titolo: "Mostra", data: "2026-07-10" },
+  { titolo: "Torneo di scacchi" },
+  { titolo: "Concerto", data: "2026-06-20" },
+  { titolo: "Aperitivo", data: "2026-06-20" },
+];
+
+function ordinaEventi(eventi) {
+  return [...eventi].sort((a, b) => {
+    const perData = (a.data ?? "9999").localeCompare(b.data ?? "9999");
+    if (perData !== 0) return perData;
+    return a.titolo.localeCompare(b.titolo);
+  });
+}
+
+console.log(ordinaEventi(eventi).map((e) => e.titolo));`,
+        validate: `if (typeof ordinaEventi !== "function") return "Definisci la funzione ordinaEventi";
+const input = [
+  { titolo: "Mostra", data: "2026-07-10" },
+  { titolo: "Torneo di scacchi" },
+  { titolo: "Concerto", data: "2026-06-20" },
+  { titolo: "Biblioteca aperta" },
+  { titolo: "Aperitivo", data: "2026-06-20" },
+  { titolo: "Capodanno", data: "2025-12-31" },
+];
+const copia = input.map((e) => ({ ...e }));
+let r;
+try {
+  r = ordinaEventi(input);
+} catch (e) {
+  return "ordinaEventi lancia un errore (" + e.message + "): per gli eventi senza data usa un default con ??";
+}
+if (!Array.isArray(r)) return "ordinaEventi deve restituire un array";
+if (!$equal(input, copia)) return "Non modificare l'array originale: ordina una copia ([...eventi])";
+const titoli = r.map((e) => e.titolo);
+const atteso = ["Capodanno", "Aperitivo", "Concerto", "Mostra", "Biblioteca aperta", "Torneo di scacchi"];
+if (!$equal(titoli, atteso)) return "Mi aspetto i titoli in quest'ordine: " + $format(atteso) + ", invece ottengo " + $format(titoli);
+if (!$equal(ordinaEventi([]), [])) return "Con un array vuoto ordinaEventi deve restituire []";
+if (!/localeCompare\\(/.test($codeNoComments)) return "Usa localeCompare per confrontare le stringhe";
+return true;`,
+        solutionExplanation:
+          "`[...eventi]` crea una copia, così `sort` non modifica l'array originale. Il default `\"9999\"` viene dopo qualsiasi data ISO, quindi gli eventi senza data finiscono in fondo. Quando `localeCompare` sulle date restituisce 0 (date uguali, o entrambe mancanti) si passa al confronto sui titoli.",
+      },
+      {
+        type: "code",
+        mode: "static",
+        title: "Le stesse funzioni con dayjs",
+        description:
+          "In un progetto reale useresti dayjs (questo codice non viene eseguito, viene solo controllato).\n\n1. Importa `dayjs` da `\"dayjs\"` e il plugin `customParseFormat` da `\"dayjs/plugin/customParseFormat\"`\n2. Registra il plugin con `dayjs.extend`\n3. Completa `formatDate(value)`: restituisce la data nel formato `\"DD/MM/YYYY\"`, oppure `\"\"` se `value` manca\n4. Completa `isValidDate(value)`: usa il parsing stretto con il formato `\"DD/MM/YYYY\"` e `isValid()`",
+        difficulty: "medio",
+        starterCode: `// importa qui dayjs e il plugin
+
+// registra qui il plugin
+
+const formatDate = (value) => {
+  // scrivi qui
+};
+
+const isValidDate = (value) => {
+  // scrivi qui
+};`,
+        solution: `import dayjs from "dayjs";
+import customParseFormat from "dayjs/plugin/customParseFormat";
+
+dayjs.extend(customParseFormat);
+
+const formatDate = (value) => (value ? dayjs(value).format("DD/MM/YYYY") : "");
+
+const isValidDate = (value) => dayjs(value, "DD/MM/YYYY", true).isValid();`,
+        validate: `const c = $codeNoComments;
+if (!/import\\s+dayjs\\s+from\\s+["']dayjs["']/.test(c)) return "Importa dayjs: import dayjs from \\"dayjs\\";";
+const plugin = /import\\s+(\\w+)\\s+from\\s+["']dayjs\\/plugin\\/customParseFormat(\\.js)?["']/.exec(c);
+if (!plugin) return "Importa il plugin: import customParseFormat from \\"dayjs/plugin/customParseFormat\\";";
+if (!new RegExp("dayjs\\\\.extend\\\\(\\\\s*" + plugin[1] + "\\\\s*\\\\)").test(c)) return "Registra il plugin con dayjs.extend(" + plugin[1] + ")";
+if (!/\\.format\\(\\s*["']DD\\/MM\\/YYYY["']\\s*\\)/.test(c)) return "In formatDate usa .format(\\"DD/MM/YYYY\\")";
+if (!/["']{2}/.test(c)) return "formatDate deve restituire \\"\\" quando value manca (es. con un ternario: value ? ... : \\"\\")";
+if (!/dayjs\\(\\s*\\w+\\s*,\\s*["']DD\\/MM\\/YYYY["']\\s*,\\s*true\\s*\\)/.test(c)) return "In isValidDate passa il formato e true per il parsing stretto: dayjs(value, \\"DD/MM/YYYY\\", true)";
+if (!/\\.isValid\\(\\s*\\)/.test(c)) return "Chiama .isValid() per sapere se la data è valida";
+return true;`,
+      },
+    ],
+  },
+
+  http: {
+    sections: [
+      {
+        type: "text",
+        content:
+          "Quasi tutti i dati che un'applicazione mostra, come i prodotti di un negozio, i libri di una biblioteca o le attività di un team, vivono su un **server**. Il frontend li chiede e li modifica tramite **richieste HTTP**. In questa lezione vediamo come è fatta una richiesta, come costruire gli URL con i parametri, come usare `fetch` e la libreria **axios**, e come organizzare le chiamate in piccole funzioni riutilizzabili che gestiscono bene gli errori.",
+      },
+      {
+        type: "heading",
+        content: "Cos'è HTTP",
+      },
+      {
+        type: "text",
+        content:
+          "**HTTP** è il protocollo con cui un *client* (il browser, la nostra app) e un *server* si parlano: il client invia una **richiesta** e il server risponde con una **risposta**. Una richiesta contiene un **metodo** (cosa vogliamo fare), un **URL** (su quale risorsa), degli **header** (informazioni aggiuntive, come il formato dei dati) e, a volte, un **body** con i dati da inviare. La risposta contiene uno **status code** (com'è andata), degli header e un body con i dati richiesti.",
+      },
+      {
+        type: "subheading",
+        content: "I metodi principali",
+      },
+      {
+        type: "list",
+        items: [
+          "**GET**: leggere dati, senza modificarli (es. l'elenco dei prodotti). Non ha body: i parametri vanno nell'URL",
+          "**POST**: creare una nuova risorsa (es. un nuovo ordine), i dati vanno nel body",
+          "**PUT**: aggiornare una risorsa esistente (es. modificare il prezzo di un prodotto), i dati vanno nel body. Esiste anche **PATCH**, pensato per aggiornare solo alcuni campi",
+          "**DELETE**: eliminare una risorsa (es. togliere un prodotto dal catalogo)",
+        ],
+      },
+      {
+        type: "subheading",
+        content: "Gli status code",
+      },
+      {
+        type: "text",
+        content:
+          "Lo status code è un numero di tre cifre: la prima cifra indica la categoria. **2xx** significa successo, **4xx** un errore nella richiesta (colpa del client), **5xx** un errore del server.",
+      },
+      {
+        type: "list",
+        items: [
+          "`200 OK`: tutto bene, nel body ci sono i dati",
+          "`201 Created`: risorsa creata (tipico risultato di una POST)",
+          "`204 No Content`: tutto bene, ma senza body (tipico di una DELETE)",
+          "`400 Bad Request`: dati inviati non validi",
+          "`401 Unauthorized` / `403 Forbidden`: non sei autenticato / non hai i permessi",
+          "`404 Not Found`: la risorsa non esiste",
+          "`500 Internal Server Error`: qualcosa si è rotto sul server",
+        ],
+      },
+      {
+        type: "code",
+        language: "http",
+        title: "Com'è fatta una richiesta e la sua risposta",
+        code: `POST /api/ordini HTTP/1.1
+Host: shop.example.com
+Content-Type: application/json
+
+{ "prodottoId": 7, "quantita": 2 }
+
+--- risposta del server ---
+
+HTTP/1.1 201 Created
+Content-Type: application/json
+
+{ "id": 1042, "prodottoId": 7, "quantita": 2, "stato": "in preparazione" }`,
+      },
+      {
+        type: "info",
+        content:
+          "Il body viaggia come testo, e il formato più usato è JSON (visto nella lezione precedente): il client trasforma l'oggetto in testo con `JSON.stringify` e indica il formato con l'header `Content-Type: application/json`; chi riceve lo ritrasforma in oggetto con `JSON.parse`.",
+      },
+      {
+        type: "heading",
+        content: "URL e query string",
+      },
+      {
+        type: "text",
+        content:
+          "Le richieste GET non hanno body: i parametri, come filtri, ricerca o pagina, si aggiungono all'URL nella **query string**, la parte dopo il `?`, formata da coppie `chiave=valore` separate da `&`. Es. `/prodotti?categoria=libri&page=2`. Spazi e caratteri speciali vanno codificati, quindi scriverla a mano è scomodo e facile da sbagliare. `URLSearchParams` lo fa per noi.",
+      },
+      {
+        type: "code",
+        language: "javascript",
+        title: "Costruire una query string con URLSearchParams",
+        code: `const params = new URLSearchParams({ q: "harry potter", page: 2 });
+console.log(params.toString()); // "q=harry+potter&page=2" -> lo spazio è codificato
+
+// Si possono aggiungere, modificare e togliere parametri
+params.append("ordine", "prezzo");
+params.set("page", 3);
+params.delete("q");
+console.log(params.toString()); // "page=3&ordine=prezzo"
+
+// Leggere da una query string esistente
+const letti = new URLSearchParams("categoria=libri&page=2");
+console.log(letti.get("categoria")); // "libri"
+console.log(letti.get("autore"));    // null: il parametro non c'è
+console.log(letti.has("page"));      // true
+
+const url = "/prodotti?" + new URLSearchParams({ categoria: "libri" });
+console.log(url); // "/prodotti?categoria=libri"`,
+      },
+      {
+        type: "code",
+        language: "javascript",
+        title: "Leggere un URL completo con new URL",
+        code: `const url = new URL("https://shop.example.com/prodotti?categoria=libri&page=3");
+
+console.log(url.hostname); // "shop.example.com"
+console.log(url.pathname); // "/prodotti"
+console.log(url.searchParams.get("categoria")); // "libri"
+
+// searchParams.get restituisce sempre una stringa (o null)
+const pagina = Number(url.searchParams.get("page") ?? 1);
+console.log(pagina + 1); // 4
+
+// searchParams si può anche modificare
+url.searchParams.set("page", 4);
+console.log(url.toString()); // "https://shop.example.com/prodotti?categoria=libri&page=4"`,
+      },
+      {
+        type: "warning",
+        content:
+          "`searchParams.get` restituisce sempre una **stringa**, oppure `null` se il parametro manca. `\"3\" + 1` dà `\"31\"`: converti con `Number(...)` prima di fare calcoli, e usa `??` per un valore di default.",
+      },
+      {
+        type: "heading",
+        content: "fetch",
+      },
+      {
+        type: "text",
+        content:
+          "Nella lezione sull'asincronia abbiamo visto `fetch`, la funzione nativa del browser per le richieste HTTP. Ricapitolando: `await fetch(url)` restituisce un oggetto *Response*; `response.ok` è `true` se lo status è 2xx; `response.status` contiene lo status code; `await response.json()` legge il body e lo trasforma da JSON a oggetto. Per inviare dati si passano `method`, `headers` e `body` (trasformato in testo con `JSON.stringify`).",
+      },
+      {
+        type: "code",
+        language: "javascript",
+        title: "GET e PUT con fetch (illustrativo)",
+        code: `async function getProducts(categoria) {
+  const query = new URLSearchParams({ categoria });
+  const response = await fetch("https://shop.example.com/api/prodotti?" + query);
+
+  if (!response.ok) {
+    // fetch non lancia errori per 404 o 500: lo facciamo noi
+    throw new Error("Errore HTTP " + response.status);
+  }
+  return response.json();
+}
+
+async function updateProduct(id, modifiche) {
+  const response = await fetch("https://shop.example.com/api/prodotti/" + id, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(modifiche),
+  });
+  if (!response.ok) throw new Error("Errore HTTP " + response.status);
+  return response.json();
+}`,
+      },
+      {
+        type: "warning",
+        content:
+          "La Promise di `fetch` viene rifiutata solo se la richiesta non arriva al server (rete assente, indirizzo sbagliato). Con una risposta 404 o 500 viene **risolta** normalmente: se non controlli `response.ok`, il tuo codice proverà a usare il messaggio d'errore del server come se fossero i dati.",
+      },
+      {
+        type: "heading",
+        content: "La libreria axios",
+      },
+      {
+        type: "text",
+        content:
+          "**axios** è una libreria (si installa con `npm install axios`) che semplifica le richieste HTTP. Rispetto a `fetch`: trasforma automaticamente il body in JSON e la risposta in oggetto; i dati della risposta si trovano in `response.data`; i parametri della query string si passano nell'opzione `params`; e, soprattutto, **la Promise viene rifiutata anche quando lo status non è 2xx**, quindi gli errori finiscono sempre nel `catch`.",
+      },
+      {
+        type: "code",
+        language: "javascript",
+        title: "I metodi di axios (illustrativo)",
+        code: `import axios from "axios";
+
+// GET con parametri: axios costruisce "/api/prodotti?categoria=libri&page=2"
+const response = await axios.get("/api/prodotti", {
+  params: { categoria: "libri", page: 2 },
+});
+console.log(response.status); // 200
+console.log(response.data);   // l'array dei prodotti, già trasformato da JSON
+
+// POST: il secondo argomento è il body (axios lo trasforma in JSON)
+const creato = await axios.post("/api/ordini", { prodottoId: 7, quantita: 2 });
+console.log(creato.data.id); // 1042
+
+// PUT e DELETE
+await axios.put("/api/prodotti/7", { prezzo: 12.5 });
+await axios.delete("/api/prodotti/7");`,
+      },
+      {
+        type: "subheading",
+        content: "Gestire gli errori con axios",
+      },
+      {
+        type: "text",
+        content:
+          "Quando la richiesta fallisce, l'errore ricevuto nel `catch` ha una proprietà `response` **solo se il server ha risposto**: in quel caso `error.response.status` contiene lo status code e `error.response.data` il body inviato dal server (spesso con un messaggio d'errore). Se invece il server non è raggiungibile, `error.response` è `undefined`. Per questo si legge con l'optional chaining: `error.response?.status`.",
+      },
+      {
+        type: "code",
+        language: "javascript",
+        title: "Leggere un errore di axios (illustrativo)",
+        code: `try {
+  const response = await axios.get("/api/prodotti/999");
+  console.log(response.data);
+} catch (error) {
+  const status = error.response?.status; // 404, oppure undefined se la rete non c'è
+  const messaggioServer = error.response?.data?.error; // es. "Prodotto non trovato"
+
+  if (status === 404) {
+    console.log("Il prodotto non esiste");
+  } else if (status === undefined) {
+    console.log("Server non raggiungibile: " + error.message);
+  } else {
+    console.log("Errore " + status + ": " + (messaggioServer ?? error.message));
+  }
+}`,
+      },
+      {
+        type: "subheading",
+        content: "Un'istanza con axios.create",
+      },
+      {
+        type: "text",
+        content:
+          "Ripetere l'indirizzo del server in ogni chiamata è scomodo. `axios.create({ baseURL })` crea un'**istanza** di axios già configurata: gli URL delle chiamate diventano relativi a `baseURL`. Di solito la si crea una volta in un file dedicato e la si esporta.",
+      },
+      {
+        type: "code",
+        language: "javascript",
+        title: "api.js: un'istanza condivisa (illustrativo)",
+        code: `// --- api.js ---
+import axios from "axios";
+
+const api = axios.create({
+  baseURL: "https://shop.example.com/api",
+  timeout: 10000, // dopo 10 secondi la richiesta viene considerata fallita
+});
+
+export default api;
+
+// --- in un altro file ---
+import api from "./api.js";
+
+const response = await api.get("/prodotti"); // -> https://shop.example.com/api/prodotti`,
+      },
+      {
+        type: "heading",
+        content: "Organizzare le chiamate in funzioni dedicate",
+      },
+      {
+        type: "text",
+        content:
+          "Invece di spargere chiamate ad axios in tutta l'applicazione, conviene scrivere una piccola funzione per ogni operazione: `getProducts`, `updateProduct`, `deleteProduct`... Ognuna sa quale URL e quale metodo usare, restituisce direttamente i dati (`response.data`) e, in caso di errore, **rilancia un errore con un messaggio leggibile**. Chi la chiama non deve sapere nulla di HTTP: riceve i dati oppure un errore, e decide lui cosa mostrare all'utente.",
+      },
+      {
+        type: "code",
+        language: "javascript",
+        title: "lib/products.js (illustrativo)",
+        code: `import api from "../api.js";
+
+export async function getProducts(categoria) {
+  try {
+    const response = await api.get("/prodotti", { params: { categoria } });
+    return response.data;
+  } catch (error) {
+    // Il messaggio del server, se c'è, altrimenti quello generico dell'errore
+    const message = error.response?.data?.error ?? error.message;
+    throw new Error("Caricamento fallito: " + message);
+  }
+}
+
+export async function updateProduct(id, modifiche) {
+  try {
+    const response = await api.put("/prodotti/" + id, modifiche);
+    return response.data;
+  } catch (error) {
+    const message = error.response?.data?.error ?? error.message;
+    throw new Error("Aggiornamento fallito: " + message);
+  }
+}`,
+      },
+      {
+        type: "code",
+        language: "javascript",
+        title: "Chi chiama decide cosa mostrare",
+        code: `import { getProducts } from "./lib/products.js";
+
+async function mostraCatalogo() {
+  let caricamento = true;
+  try {
+    const prodotti = await getProducts("libri");
+    console.log("Trovati " + prodotti.length + " prodotti");
+  } catch (error) {
+    // error.message è già leggibile: "Caricamento fallito: Server non disponibile"
+    console.log(error.message);
+  } finally {
+    caricamento = false;
+  }
+}`,
+      },
+      {
+        type: "info",
+        content:
+          "Negli esercizi non possiamo contattare server reali e axios non è disponibile: per questo useremo `fakeAxios` e `fakeFetch`, piccole funzioni già scritte che si comportano come quelle vere restituendo una Promise risolta (o rifiutata) dopo qualche millisecondo con `setTimeout`.",
+      },
+      {
+        type: "tip",
+        content:
+          "Tieni ogni chiamata HTTP in una funzione con un nome chiaro e un messaggio d'errore comprensibile. Se l'indirizzo o il formato di una risposta cambiano, modificherai un solo punto, e potrai mostrare all'utente un messaggio utile invece di un generico \"Request failed with status code 500\".",
+      },
+    ],
+    exercises: [
+      {
+        type: "multiple-choice",
+        title: "fetch e il 404",
+        description:
+          "Il server risponde con status 404. Cosa succede con questo codice?\n\nconst response = await fetch(\"/api/prodotti/999\");\nconst dati = await response.json();\nconsole.log(dati);",
+        difficulty: "medio",
+        options: [
+          "`fetch` viene rifiutata e l'errore va gestito con try/catch",
+          "`fetch` restituisce `null` e viene stampato `null`",
+          "`fetch` viene risolta normalmente: `response.ok` è false e viene stampato il body d'errore del server come se fossero i dati",
+          "`response.json()` lancia sempre un errore se lo status è 404",
+        ],
+        correct: 2,
+        explanation:
+          "`fetch` viene rifiutata solo per problemi di rete: una risposta 404 è comunque una risposta, quindi la Promise si risolve con `response.ok === false` e `response.status === 404`. Se non lo controlli, usi il body d'errore (per esempio `{ error: \"Non trovato\" }`) come se fossero i dati. `fetch` non restituisce mai `null`, e `response.json()` funziona anche con un 404, purché il body sia JSON.",
+      },
+      {
+        type: "multiple-choice",
+        title: "Metodo e status",
+        description:
+          "L'utente compila il form \"Nuovo ordine\" e lo invia. Quale coppia metodo/status descrive una richiesta andata a buon fine?",
+        difficulty: "facile",
+        options: [
+          "`POST` e `201 Created`",
+          "`GET` e `200 OK`",
+          "`PUT` e `404 Not Found`",
+          "`DELETE` e `204 No Content`",
+        ],
+        correct: 0,
+        explanation:
+          "Per creare una nuova risorsa si usa `POST`, e il server risponde tipicamente `201 Created`. `GET` serve a leggere (e non ha body per inviare l'ordine), `PUT` aggiorna una risorsa esistente e 404 indica comunque un errore, `DELETE` elimina.",
+      },
+      {
+        type: "multiple-choice",
+        title: "Leggere i parametri dell'URL",
+        description:
+          "Cosa stampa questo codice?\n\nconst url = new URL(\"https://shop.example.com/prodotti?page=3\");\nconst page = url.searchParams.get(\"page\");\nconsole.log(page + 1, url.searchParams.get(\"ordine\"));",
+        difficulty: "medio",
+        options: [
+          "`4 undefined`",
+          "`4 null`",
+          "`\"31\" undefined`",
+          "`31 null`",
+        ],
+        correct: 3,
+        explanation:
+          "`searchParams.get` restituisce sempre una stringa: `\"3\" + 1` è una concatenazione e dà `\"31\"` (la console stampa la stringa senza virgolette). Per un parametro assente restituisce `null`, non `undefined`. Per ottenere 4 bisognerebbe convertire prima: `Number(page) + 1`.",
+      },
+      {
+        type: "multiple-choice",
+        title: "Errori di axios",
+        description:
+          "Il computer dell'utente è offline e una chiamata `axios.get(...)` fallisce. Nel `catch`, quale istruzione legge lo status senza rischiare un nuovo errore?",
+        difficulty: "medio",
+        options: [
+          "`error.status`",
+          "`error.response?.status`",
+          "`error.response.status`",
+          "`response.status`",
+        ],
+        correct: 1,
+        explanation:
+          "Se il server non ha risposto, `error.response` è `undefined`: `error.response.status` lancerebbe un TypeError dentro il catch, mentre `error.response?.status` restituisce semplicemente `undefined`. Lo status non è una proprietà diretta dell'errore, e `response` non esiste nel catch perché l'assegnamento `const response = await ...` non è mai avvenuto.",
+      },
+      {
+        type: "code",
+        title: "Costruire e leggere gli URL",
+        description:
+          "Scrivi due funzioni:\n1. `costruisciUrl(filtri)`: riceve un oggetto di filtri e restituisce `\"/prodotti\"` seguito dalla query string costruita con `URLSearchParams`. I filtri con valore `null`, `undefined` o stringa vuota vanno **esclusi**; se non resta nessun filtro restituisce solo `\"/prodotti\"` (senza `?`).\n   Es. `costruisciUrl({ categoria: \"libri\", autore: \"\", page: 2 })` → `\"/prodotti?categoria=libri&page=2\"`\n2. `leggiPagina(indirizzo)`: riceve un URL completo e restituisce il parametro `page` come **numero**, oppure `1` se manca. Usa `new URL(...)` e `searchParams.get`.\n   Es. `leggiPagina(\"https://shop.example.com/prodotti?page=3\")` → `3`",
+        difficulty: "medio",
+        starterCode: `function costruisciUrl(filtri) {
+  // scrivi qui
+  return "/prodotti";
+}
+
+function leggiPagina(indirizzo) {
+  // scrivi qui
+}
+
+console.log(costruisciUrl({ categoria: "libri", autore: "", page: 2 }));
+console.log(leggiPagina("https://shop.example.com/prodotti?page=3"));`,
+        solution: `function costruisciUrl(filtri) {
+  const validi = Object.fromEntries(
+    Object.entries(filtri).filter(([, valore]) => valore !== null && valore !== undefined && valore !== "")
+  );
+  const query = new URLSearchParams(validi).toString();
+  return query ? "/prodotti?" + query : "/prodotti";
+}
+
+function leggiPagina(indirizzo) {
+  const url = new URL(indirizzo);
+  return Number(url.searchParams.get("page") ?? 1);
+}
+
+console.log(costruisciUrl({ categoria: "libri", autore: "", page: 2 }));
+console.log(leggiPagina("https://shop.example.com/prodotti?page=3"));`,
+        validate: `if (typeof costruisciUrl !== "function") return "Definisci la funzione costruisciUrl";
+if (typeof leggiPagina !== "function") return "Definisci la funzione leggiPagina";
+const casi = [
+  [{ categoria: "libri", autore: "", page: 2 }, "/prodotti?categoria=libri&page=2"],
+  [{ q: "harry potter" }, "/prodotti?q=harry+potter"],
+  [{ categoria: null, page: undefined }, "/prodotti"],
+  [{}, "/prodotti"],
+  [{ page: 0, disponibile: false }, "/prodotti?page=0&disponibile=false"],
+];
+for (const [input, atteso] of casi) {
+  const r = costruisciUrl(input);
+  if (r !== atteso) return "costruisciUrl(" + $format(input) + ") dovrebbe restituire " + $format(atteso) + ", invece restituisce " + $format(r);
+}
+if (!/URLSearchParams/.test($codeNoComments)) return "Usa URLSearchParams per costruire la query string";
+const pagine = [
+  ["https://shop.example.com/prodotti?page=3", 3],
+  ["https://shop.example.com/prodotti?categoria=libri&page=12", 12],
+  ["https://shop.example.com/prodotti?categoria=libri", 1],
+  ["https://shop.example.com/prodotti", 1],
+];
+for (const [input, atteso] of pagine) {
+  const r = leggiPagina(input);
+  if (r !== atteso) return "leggiPagina(" + $format(input) + ") dovrebbe restituire il numero " + atteso + ", invece restituisce " + $format(r) + (typeof r === "string" ? " (una stringa: convertila con Number)" : "");
+}
+if (!/new\\s+URL\\(/.test($codeNoComments)) return "In leggiPagina usa new URL(indirizzo) e searchParams.get";
+return true;`,
+        solutionExplanation:
+          "Con `Object.entries`, `filter` e `Object.fromEntries` si tolgono i filtri vuoti (attenzione: `0` e `false` sono valori validi, quindi non basta un controllo truthy). `URLSearchParams` codifica la query string; se è vuota non si aggiunge il `?`. In `leggiPagina`, `searchParams.get` restituisce una stringa o `null`: `?? 1` fornisce il default e `Number` converte.",
+      },
+      {
+        type: "code",
+        title: "Un prodotto con fakeFetch",
+        description:
+          "`fakeFetch(url)` (già scritta) si comporta come `fetch`: dopo 200 ms si risolve con un oggetto `{ ok, status, json() }`. Per `\"/api/prodotti/1\"` e `\"/api/prodotti/2\"` lo status è 200, per gli altri id è 404.\n\nScrivi una funzione async `getProduct(id)` che:\n- chiama `fakeFetch(\"/api/prodotti/\" + id)`\n- se `response.ok` è false lancia `new Error(\"Errore HTTP \" + status)` (es. `\"Errore HTTP 404\"`)\n- altrimenti restituisce il prodotto letto con `await response.json()`",
+        difficulty: "medio",
+        starterCode: `const catalogo = {
+  1: { id: 1, nome: "Penna", prezzo: 1.5 },
+  2: { id: 2, nome: "Quaderno", prezzo: 3 },
+};
+
+function fakeFetch(url) {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const id = url.split("/").pop();
+      const prodotto = catalogo[id];
+      const status = prodotto ? 200 : 404;
+      resolve({
+        ok: status === 200,
+        status: status,
+        json: () => Promise.resolve(prodotto ?? { error: "Prodotto non trovato" }),
+      });
+    }, 200);
+  });
+}
+
+async function getProduct(id) {
+  const response = await fakeFetch("/api/prodotti/" + id);
+  // scrivi qui
+}
+
+getProduct(1).then((p) => console.log(p));
+getProduct(99).catch((error) => console.log(error.message));`,
+        solution: `const catalogo = {
+  1: { id: 1, nome: "Penna", prezzo: 1.5 },
+  2: { id: 2, nome: "Quaderno", prezzo: 3 },
+};
+
+function fakeFetch(url) {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const id = url.split("/").pop();
+      const prodotto = catalogo[id];
+      const status = prodotto ? 200 : 404;
+      resolve({
+        ok: status === 200,
+        status: status,
+        json: () => Promise.resolve(prodotto ?? { error: "Prodotto non trovato" }),
+      });
+    }, 200);
+  });
+}
+
+async function getProduct(id) {
+  const response = await fakeFetch("/api/prodotti/" + id);
+  if (!response.ok) {
+    throw new Error("Errore HTTP " + response.status);
+  }
+  return response.json();
+}
+
+getProduct(1).then((p) => console.log(p));
+getProduct(99).catch((error) => console.log(error.message));`,
+        validate: `if (typeof getProduct !== "function") return "Definisci la funzione async getProduct";
+const p1 = await getProduct(1);
+if (!$equal(p1, { id: 1, nome: "Penna", prezzo: 1.5 })) return "getProduct(1) dovrebbe restituire il prodotto { id: 1, nome: \\"Penna\\", prezzo: 1.5 }, invece restituisce " + $format(p1) + ". Hai usato await response.json()?";
+const p2 = await getProduct(2);
+if (!$equal(p2, { id: 2, nome: "Quaderno", prezzo: 3 })) return "getProduct(2) dovrebbe restituire il Quaderno";
+for (const id of [99, 7]) {
+  let errore = null;
+  let risultato;
+  try {
+    risultato = await getProduct(id);
+  } catch (e) {
+    errore = e;
+  }
+  if (!errore) return "getProduct(" + id + ") dovrebbe lanciare un errore (status 404), invece restituisce " + $format(risultato) + ". Controlla response.ok";
+  if (errore.message !== "Errore HTTP 404") return "Il messaggio dell'errore dovrebbe essere \\"Errore HTTP 404\\", invece è " + $format(errore.message);
+}
+return true;`,
+        solutionExplanation:
+          "Come `fetch`, `fakeFetch` si risolve anche con un 404: tocca a noi controllare `response.ok` e lanciare un errore con `throw`. Dentro una funzione async, `throw` rifiuta la Promise restituita, quindi chi chiama `getProduct` può gestire il problema con `catch`.",
+      },
+      {
+        type: "code",
+        title: "Funzioni dedicate con fakeAxios",
+        description:
+          "`fakeAxios` (già scritto) imita axios: `fakeAxios.get(url, { params })` e `fakeAxios.put(url, body)` restituiscono una Promise che si risolve con `{ status, data }`, oppure viene rifiutata con un errore che, se il server ha risposto, ha `error.response = { status, data: { error } }`. Con la categoria `\"offline\"` simula invece un server irraggiungibile: l'errore ha solo `message` (`\"Network Error\"`) e nessun `response`.\n\nScrivi due funzioni async:\n1. `getProducts(categoria)`: chiama `fakeAxios.get(\"/prodotti\", { params: { categoria } })` e restituisce `response.data`\n2. `updateProduct(id, modifiche)`: chiama `fakeAxios.put(\"/prodotti/\" + id, modifiche)` e restituisce `response.data`\n\nIn caso di errore devono rilanciare un nuovo errore con messaggio `\"Caricamento fallito: \" + message` (per getProducts) o `\"Aggiornamento fallito: \" + message` (per updateProduct), dove `message` è il messaggio del server (`error.response?.data?.error`) oppure, se manca, `error.message`.",
+        difficulty: "difficile",
+        starterCode: `const prodotti = [
+  { id: 1, nome: "Dune", categoria: "libri", prezzo: 12 },
+  { id: 2, nome: "Cuffie", categoria: "elettronica", prezzo: 49 },
+  { id: 3, nome: "Emma", categoria: "libri", prezzo: 9 },
+];
+
+function httpError(status, messaggio) {
+  const error = new Error("Request failed with status code " + status);
+  error.response = { status: status, data: { error: messaggio } };
+  return error;
+}
+
+const fakeAxios = {
+  get(url, config) {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        const categoria = config?.params?.categoria;
+        if (categoria === "offline") return reject(new Error("Network Error"));
+        if (url !== "/prodotti") return reject(httpError(404, "Indirizzo inesistente"));
+        if (categoria === "errore") return reject(httpError(500, "Server non disponibile"));
+        const data = prodotti.filter((p) => !categoria || p.categoria === categoria);
+        resolve({ status: 200, data: data });
+      }, 200);
+    });
+  },
+  put(url, body) {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        const id = Number(url.split("/").pop());
+        const prodotto = prodotti.find((p) => p.id === id);
+        if (!prodotto) return reject(httpError(404, "Prodotto " + id + " non trovato"));
+        if (body.prezzo !== undefined && body.prezzo < 0) return reject(httpError(400, "Il prezzo non può essere negativo"));
+        resolve({ status: 200, data: { ...prodotto, ...body } });
+      }, 200);
+    });
+  },
+};
+
+async function getProducts(categoria) {
+  // scrivi qui
+}
+
+async function updateProduct(id, modifiche) {
+  // scrivi qui
+}
+
+getProducts("libri").then((lista) => console.log(lista));
+updateProduct(99, { prezzo: 10 }).catch((error) => console.log(error.message));`,
+        solution: `const prodotti = [
+  { id: 1, nome: "Dune", categoria: "libri", prezzo: 12 },
+  { id: 2, nome: "Cuffie", categoria: "elettronica", prezzo: 49 },
+  { id: 3, nome: "Emma", categoria: "libri", prezzo: 9 },
+];
+
+function httpError(status, messaggio) {
+  const error = new Error("Request failed with status code " + status);
+  error.response = { status: status, data: { error: messaggio } };
+  return error;
+}
+
+const fakeAxios = {
+  get(url, config) {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        const categoria = config?.params?.categoria;
+        if (categoria === "offline") return reject(new Error("Network Error"));
+        if (url !== "/prodotti") return reject(httpError(404, "Indirizzo inesistente"));
+        if (categoria === "errore") return reject(httpError(500, "Server non disponibile"));
+        const data = prodotti.filter((p) => !categoria || p.categoria === categoria);
+        resolve({ status: 200, data: data });
+      }, 200);
+    });
+  },
+  put(url, body) {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        const id = Number(url.split("/").pop());
+        const prodotto = prodotti.find((p) => p.id === id);
+        if (!prodotto) return reject(httpError(404, "Prodotto " + id + " non trovato"));
+        if (body.prezzo !== undefined && body.prezzo < 0) return reject(httpError(400, "Il prezzo non può essere negativo"));
+        resolve({ status: 200, data: { ...prodotto, ...body } });
+      }, 200);
+    });
+  },
+};
+
+async function getProducts(categoria) {
+  try {
+    const response = await fakeAxios.get("/prodotti", { params: { categoria } });
+    return response.data;
+  } catch (error) {
+    const message = error.response?.data?.error ?? error.message;
+    throw new Error("Caricamento fallito: " + message);
+  }
+}
+
+async function updateProduct(id, modifiche) {
+  try {
+    const response = await fakeAxios.put("/prodotti/" + id, modifiche);
+    return response.data;
+  } catch (error) {
+    const message = error.response?.data?.error ?? error.message;
+    throw new Error("Aggiornamento fallito: " + message);
+  }
+}
+
+getProducts("libri").then((lista) => console.log(lista));
+updateProduct(99, { prezzo: 10 }).catch((error) => console.log(error.message));`,
+        validate: `if (typeof getProducts !== "function") return "Definisci la funzione async getProducts";
+if (typeof updateProduct !== "function") return "Definisci la funzione async updateProduct";
+async function errore(promessa) {
+  try {
+    const r = await promessa;
+    return { ok: true, r: r };
+  } catch (e) {
+    return { ok: false, e: e };
+  }
+}
+const libri = await errore(getProducts("libri"));
+if (!libri.ok) return "getProducts(\\"libri\\") non dovrebbe fallire, invece lancia: " + libri.e.message + ". Hai passato { params: { categoria } } come secondo argomento?";
+if (!Array.isArray(libri.r) || !$equal(libri.r.map((p) => p.nome), ["Dune", "Emma"])) return "getProducts(\\"libri\\") dovrebbe restituire i due libri (response.data), invece restituisce " + $format(libri.r);
+const elettr = await errore(getProducts("elettronica"));
+if (!elettr.ok || !$equal(elettr.r.map((p) => p.nome), ["Cuffie"])) return "getProducts(\\"elettronica\\") dovrebbe restituire solo le Cuffie: passa la categoria in params";
+const e500 = await errore(getProducts("errore"));
+if (e500.ok) return "getProducts(\\"errore\\") dovrebbe lanciare un errore";
+if (e500.e.message !== "Caricamento fallito: Server non disponibile") return "Con il server in errore mi aspetto il messaggio \\"Caricamento fallito: Server non disponibile\\", invece è " + $format(e500.e.message) + ". Usa error.response?.data?.error";
+const off = await errore(getProducts("offline"));
+if (off.ok) return "getProducts(\\"offline\\") dovrebbe lanciare un errore";
+if (off.e.message !== "Caricamento fallito: Network Error") return "Senza rete error.response non esiste: mi aspetto \\"Caricamento fallito: Network Error\\", invece è " + $format(off.e.message) + ". Usa ?. e ?? error.message";
+const upd = await errore(updateProduct(3, { prezzo: 7 }));
+if (!upd.ok) return "updateProduct(3, { prezzo: 7 }) non dovrebbe fallire, invece lancia: " + upd.e.message;
+if (!$equal(upd.r, { id: 3, nome: "Emma", categoria: "libri", prezzo: 7 })) return "updateProduct(3, { prezzo: 7 }) dovrebbe restituire il prodotto aggiornato (response.data), invece restituisce " + $format(upd.r);
+const u404 = await errore(updateProduct(99, { prezzo: 10 }));
+if (u404.ok) return "updateProduct(99, ...) dovrebbe lanciare un errore";
+if (u404.e.message !== "Aggiornamento fallito: Prodotto 99 non trovato") return "Mi aspetto \\"Aggiornamento fallito: Prodotto 99 non trovato\\", invece è " + $format(u404.e.message);
+const u400 = await errore(updateProduct(1, { prezzo: -5 }));
+if (u400.ok || u400.e.message !== "Aggiornamento fallito: Il prezzo non può essere negativo") return "updateProduct(1, { prezzo: -5 }) dovrebbe fallire con \\"Aggiornamento fallito: Il prezzo non può essere negativo\\"";
+return true;`,
+        solutionExplanation:
+          "Ogni funzione nasconde i dettagli di HTTP: restituisce direttamente `response.data` e, nel `catch`, costruisce un messaggio leggibile. `error.response?.data?.error` legge il messaggio del server senza errori anche quando `response` non esiste (rete assente); in quel caso `??` ripiega su `error.message`. Rilanciando con `throw new Error(...)`, chi chiama la funzione riceve un errore chiaro e decide cosa mostrare.",
       },
     ],
   },
