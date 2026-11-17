@@ -5,6 +5,7 @@ import AppShell from "@/components/AppShell";
 import LessonLayout from "@/components/LessonLayout";
 import CodeBlock from "@/components/CodeBlock";
 import Exercise from "@/components/Exercise";
+import RichText from "@/components/RichText";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Alert from "@mui/material/Alert";
@@ -36,7 +37,7 @@ function Section({ section }) {
   if (section.type === "text") {
     return (
       <Typography variant="body1" sx={{ mb: 2, lineHeight: 1.8 }}>
-        {section.content}
+        <RichText text={section.content} />
       </Typography>
     );
   }
@@ -46,35 +47,35 @@ function Section({ section }) {
   if (section.type === "heading") {
     return (
       <Typography variant="h5" fontWeight={600} sx={{ mt: 4, mb: 2 }}>
-        {section.content}
+        <RichText text={section.content} />
       </Typography>
     );
   }
   if (section.type === "subheading") {
     return (
       <Typography variant="h6" fontWeight={600} sx={{ mt: 3, mb: 1.5 }}>
-        {section.content}
+        <RichText text={section.content} />
       </Typography>
     );
   }
   if (section.type === "info") {
     return (
       <Alert severity="info" sx={{ my: 2 }}>
-        {section.content}
+        <RichText text={section.content} />
       </Alert>
     );
   }
   if (section.type === "warning") {
     return (
       <Alert severity="warning" sx={{ my: 2 }}>
-        {section.content}
+        <RichText text={section.content} />
       </Alert>
     );
   }
   if (section.type === "tip") {
     return (
       <Alert severity="success" sx={{ my: 2 }}>
-        <strong>Tip dal progetto:</strong> {section.content}
+        <strong>Consiglio pratico:</strong> <RichText text={section.content} />
       </Alert>
     );
   }
@@ -83,7 +84,7 @@ function Section({ section }) {
       <Box component="ul" sx={{ pl: 3, mb: 2, "& li": { mb: 0.5, lineHeight: 1.8 } }}>
         {section.items.map((item, i) => (
           <li key={i}>
-            <Typography variant="body1">{item}</Typography>
+            <Typography variant="body1"><RichText text={item} /></Typography>
           </li>
         ))}
       </Box>
@@ -134,7 +135,7 @@ export default function LessonPage({ params }) {
               Esercizi
             </Typography>
             {lessonContent.exercises.map((ex, i) => (
-              <Exercise key={i} exercise={ex} index={i + 1} />
+              <Exercise key={`${moduleId}/${lessonId}/${i}`} exercise={ex} index={i + 1} />
             ))}
           </Box>
         )}

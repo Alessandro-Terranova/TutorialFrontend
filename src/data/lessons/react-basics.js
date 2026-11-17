@@ -65,42 +65,30 @@ function App() {
 }`,
       },
       {
-        type: "heading",
-        content: "\"use client\" in Next.js",
-      },
-      {
         type: "text",
         content:
-          "In Next.js con App Router, i componenti sono Server Components per default. Se un componente ha bisogno di interattività (useState, useEffect, onClick, etc.), deve dichiarare \"use client\" in cima al file. Senza questa direttiva, React non permetterà l'uso degli hook.",
+          "Di solito ogni componente vive in un proprio file e viene esportato con `export default`, così da poterlo importare dove serve (come visto nella lezione sui moduli).",
       },
       {
         type: "code",
         language: "javascript",
-        title: "Componente interattivo con \"use client\"",
-        code: `"use client";
-
-import { useState } from "react";
-
-export default function Counter() {
-  const [count, setCount] = useState(0);
-
-  return (
-    <div>
-      <p>Contatore: {count}</p>
-      <button onClick={() => setCount(count + 1)}>
-        Incrementa
-      </button>
-    </div>
-  );
+        title: "Un componente per file",
+        code: `// File: Welcome.js
+export default function Welcome() {
+  return <h1>Benvenuto nell'applicazione!</h1>;
 }
 
-// Senza "use client" in cima, questo componente darebbe errore
-// perché useState è un hook che richiede il client.`,
+// File: App.js
+import Welcome from "./Welcome";
+
+export default function App() {
+  return <Welcome />;
+}`,
       },
       {
-        type: "tip",
+        type: "info",
         content:
-          "In un progetto React reale con Next.js App Router, ogni componente interattivo inizia con 'use client'.",
+          "Nel modulo Next.js vedrai che alcuni componenti richiedono la direttiva `\"use client\"` in cima al file. Per ora non serve: concentrati su React.",
       },
       {
         type: "heading",
@@ -132,16 +120,17 @@ function Info() {
   );
 }
 
-// Soluzione 2: Fragment con key (utile nelle liste)
+// Soluzione 2: Fragment esplicito
+// (accetta l'attributo key, utile nelle liste che vedremo tra poco)
 import { Fragment } from "react";
 
-function ItemList({ items }) {
-  return items.map((item) => (
-    <Fragment key={item.id}>
-      <dt>{item.term}</dt>
-      <dd>{item.description}</dd>
+function Recipe() {
+  return (
+    <Fragment>
+      <h2>Pasta al pomodoro</h2>
+      <p>Pronta in 20 minuti</p>
     </Fragment>
-  ));
+  );
 }`,
       },
       {
@@ -157,8 +146,21 @@ function ItemList({ items }) {
         type: "code",
         language: "javascript",
         title: "Espressioni dentro JSX",
-        code: `function UserCard({ user }) {
+        code: `const user = {
+  name: "Giulia",
+  role: "admin",
+  joinYear: 2020,
+  email: "giulia@example.com",
+  tags: ["libri", "musica", "viaggi"],
+};
+
+function formatName(name) {
+  return name.toUpperCase();
+}
+
+function UserCard() {
   const isAdmin = user.role === "admin";
+  const currentYear = 2025;
 
   return (
     <div>
@@ -166,7 +168,7 @@ function ItemList({ items }) {
       <h2>{user.name}</h2>
 
       {/* Espressione */}
-      <p>Registrato da {new Date().getFullYear() - user.joinYear} anni</p>
+      <p>Registrata da {currentYear - user.joinYear} anni</p>
 
       {/* Ternario per rendering condizionale */}
       <span>{isAdmin ? "Amministratore" : "Utente"}</span>
@@ -175,9 +177,9 @@ function ItemList({ items }) {
       {user.email && <p>Email: {user.email}</p>}
 
       {/* Chiamata a funzione */}
-      <p>{formatDate(user.createdAt)}</p>
+      <p>{formatName(user.name)}</p>
 
-      {/* Array.map per liste */}
+      {/* map per le liste */}
       <ul>
         {user.tags.map((tag) => (
           <li key={tag}>{tag}</li>
@@ -217,22 +219,6 @@ function ItemList({ items }) {
       },
       {
         type: "multiple-choice",
-        title: "\"use client\" e Server Components",
-        description:
-          "In un progetto Next.js con App Router, quando è necessario aggiungere \"use client\" in cima a un file componente?",
-        difficulty: "medio",
-        options: [
-          "Sempre, in ogni componente",
-          "Solo quando il componente usa hook (useState, useEffect) o gestori di eventi (onClick, onChange)",
-          "Solo quando il componente fa chiamate API",
-          "Solo quando il componente importa altri componenti",
-        ],
-        correct: 1,
-        explanation:
-          "In Next.js App Router, i componenti sono Server Components per default: vengono renderizzati sul server e non possono usare hook o interattività. \"use client\" li rende Client Components, abilitando hook, eventi e API del browser.",
-      },
-      {
-        type: "multiple-choice",
         title: "Rendering condizionale in JSX",
         description:
           "Qual è il modo corretto di mostrare un messaggio solo se 'errore' è diverso da null?",
@@ -246,6 +232,50 @@ function ItemList({ items }) {
         correct: 1,
         explanation:
           "In JSX non si possono usare statement come if. L'operatore && è il pattern standard per il rendering condizionale: se 'errore' è truthy, React renderizza il <p>, altrimenti non mostra nulla.",
+      },
+      {
+        type: "multiple-choice",
+        title: "Nome dei componenti",
+        description:
+          "Hai scritto `function movieCard() { return <div>Film</div>; }` e lo usi come `<movieCard />`, ma sulla pagina non compare nulla di ciò che ti aspetti. Perché?",
+        difficulty: "medio",
+        options: [
+          "Perché un componente deve sempre ricevere almeno una prop",
+          "Perché il nome di un componente deve iniziare con la lettera maiuscola: con la minuscola React lo tratta come un tag HTML sconosciuto",
+          "Perché i componenti devono essere scritti come arrow function",
+          "Perché manca un Fragment attorno al div",
+        ],
+        correct: 1,
+        explanation:
+          "React distingue i componenti dai tag HTML nativi grazie alla maiuscola iniziale. `<movieCard />` viene interpretato come un elemento HTML chiamato \"moviecard\", che non esiste. Rinominandolo `MovieCard` e usando `<MovieCard />`, React chiama la tua funzione.",
+      },
+      {
+        type: "code",
+        mode: "static",
+        title: "Il tuo primo componente",
+        description:
+          "Crea un componente `BookCard` che restituisce un `<div>` con classe CSS `book-card` contenente:\n- un `<h2>` con il titolo \"Il piccolo principe\"\n- un `<p>` con l'autore \"Antoine de Saint-Exupéry\"\n\nRicorda: in JSX la classe si scrive con `className` e serve un unico elemento radice.",
+        difficulty: "facile",
+        starterCode: `function BookCard() {
+  // restituisci qui il JSX
+}`,
+        solution: `function BookCard() {
+  return (
+    <div className="book-card">
+      <h2>Il piccolo principe</h2>
+      <p>Antoine de Saint-Exupéry</p>
+    </div>
+  );
+}`,
+        validate: `const c = $codeNoComments;
+if (!/function\\s+BookCard\\s*\\(|const\\s+BookCard\\s*=/.test(c)) return "Definisci un componente chiamato BookCard (con la B maiuscola).";
+if (!/\\breturn\\b/.test(c)) return "Il componente deve restituire il JSX con return.";
+if (/<div[^>]*\\sclass\\s*=/.test(c)) return "In JSX non si usa class: usa className.";
+if (!/<div[^>]*className\\s*=\\s*["']book-card["'][^>]*>/.test(c)) return "Il div radice deve avere className=\\"book-card\\".";
+if (!/<h2[^>]*>\\s*Il piccolo principe\\s*<\\/h2>/.test(c)) return "Aggiungi un <h2> con il testo \\"Il piccolo principe\\".";
+if (!/<p[^>]*>\\s*Antoine de Saint-Exup[ée]ry\\s*<\\/p>/.test(c)) return "Aggiungi un <p> con il testo \\"Antoine de Saint-Exupéry\\".";
+if (!/<\\/div>/.test(c)) return "Ricordati di chiudere il <div> con </div>.";
+return true;`,
       },
     ],
   },
@@ -401,71 +431,70 @@ function App() {
         language: "javascript",
         title: "Callback props per comunicazione figlio -> genitore",
         code: `// Componente figlio: riceve una funzione come prop
-function SearchBar({ onSearch }) {
-  const [query, setQuery] = useState("");
-
+function ProductItem({ name, price, onAddToCart }) {
   return (
     <div>
-      <input
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-      />
-      <button onClick={() => onSearch(query)}>
-        Cerca
+      <h3>{name}</h3>
+      <p>{price} €</p>
+      {/* onClick riceve una funzione che React chiama al click */}
+      <button onClick={() => onAddToCart(name)}>
+        Aggiungi al carrello
       </button>
     </div>
   );
 }
 
-// Componente genitore: passa la funzione
-function App() {
-  const handleSearch = (searchText) => {
-    console.log("Ricerca:", searchText);
-    // qui si potrebbe fare una chiamata API
+// Componente genitore: decide cosa fare quando si clicca
+function Shop() {
+  const handleAddToCart = (productName) => {
+    console.log("Aggiunto al carrello:", productName);
   };
 
-  return <SearchBar onSearch={handleSearch} />;
+  return (
+    <>
+      <ProductItem name="Maglietta" price={15} onAddToCart={handleAddToCart} />
+      <ProductItem name="Zaino" price={40} onAddToCart={handleAddToCart} />
+    </>
+  );
 }`,
       },
       {
         type: "heading",
-        content: "Passare action creator Redux come props",
+        content: "Componenti riutilizzabili: il genitore decide cosa fare",
       },
       {
         type: "text",
         content:
-          "Un pattern avanzato molto comune nei progetti reali è passare action creator di Redux come props. Questo rende il componente figlio riutilizzabile: non ha bisogno di sapere quale azione specifica dispatchare, lo decide il genitore.",
+          "Le callback props rendono un componente davvero riutilizzabile: il figlio si occupa solo di mostrare l'interfaccia e di avvisare quando succede qualcosa, mentre è il genitore a decidere cosa fare. Lo stesso componente può così essere usato in contesti diversi. Nel gestore `onChange` di un `<select>` o di un `<input>`, React passa un oggetto evento: il valore scelto si legge con `e.target.value`.",
       },
       {
         type: "code",
         language: "javascript",
-        title: "Redux action creator come prop",
-        code: `// Il componente riceve l'action creator come prop
-function SiteFilter({ options, selectedValue, reduxAction }) {
-  const dispatch = useDispatch();
-
-  const handleChange = (newValue) => {
-    dispatch(reduxAction(newValue));
-  };
-
+        title: "Un menu a tendina generico",
+        code: `// Il componente non sa COSA succederà quando l'utente sceglie:
+// si limita a chiamare onSelect con il valore scelto
+function SelectMenu({ label, options, onSelect }) {
   return (
-    <select value={selectedValue} onChange={(e) => handleChange(e.target.value)}>
-      {options.map((opt) => (
-        <option key={opt} value={opt}>{opt}</option>
-      ))}
-    </select>
+    <label>
+      {label}
+      <select onChange={(e) => onSelect(e.target.value)}>
+        {options.map((opt) => (
+          <option key={opt} value={opt}>{opt}</option>
+        ))}
+      </select>
+    </label>
   );
 }
 
-// Il genitore decide QUALE azione Redux usare
-import { setSelectedSite } from "@/redux/filtersSlice";
-import { setSelectedRegion } from "@/redux/filtersSlice";
+// Il genitore decide cosa fare in ciascun caso
+function MovieFilters() {
+  const handleGenre = (genre) => console.log("Genere scelto:", genre);
+  const handleYear = (year) => console.log("Anno scelto:", year);
 
-function Filters() {
   return (
     <>
-      <SiteFilter reduxAction={setSelectedSite} />
-      <SiteFilter reduxAction={setSelectedRegion} />
+      <SelectMenu label="Genere" options={["Commedia", "Drammatico", "Animazione"]} onSelect={handleGenre} />
+      <SelectMenu label="Anno" options={["2023", "2024", "2025"]} onSelect={handleYear} />
     </>
   );
 }`,
@@ -473,7 +502,7 @@ function Filters() {
       {
         type: "tip",
         content:
-          "Nel progetto, il componente HomeFilter riceve un'action creator Redux come prop: `reduxAction={setSelectedSite}`.",
+          "Dai alle callback props nomi che iniziano con `on` (onSelect, onSave, onDelete): rende subito chiaro che si tratta di funzioni da chiamare quando accade qualcosa.",
       },
       {
         type: "warning",
@@ -507,13 +536,13 @@ function Filters() {
         type: "multiple-choice",
         title: "Il pattern callback",
         description:
-          "In questo codice, come fa il componente SearchBar a comunicare al genitore cosa ha cercato l'utente?\n\nfunction App() {\n  return <SearchBar onSearch={(text) => console.log(text)} />;\n}",
+          "In questo codice, come fa il componente ProductItem a comunicare al genitore quale prodotto è stato aggiunto?\n\nfunction Shop() {\n  return <ProductItem name=\"Zaino\" onAddToCart={(name) => console.log(name)} />;\n}",
         difficulty: "medio",
         options: [
-          "SearchBar modifica direttamente lo state di App",
-          "SearchBar chiama la funzione ricevuta come prop 'onSearch', passandole il testo cercato",
-          "SearchBar emette un evento DOM personalizzato che App ascolta",
-          "SearchBar usa useContext per condividere i dati con App",
+          "ProductItem modifica direttamente le variabili di Shop",
+          "ProductItem chiama la funzione ricevuta come prop 'onAddToCart', passandole il nome del prodotto",
+          "ProductItem emette un evento DOM personalizzato che Shop ascolta",
+          "ProductItem restituisce il nome del prodotto con return",
         ],
         correct: 1,
         explanation:
@@ -535,6 +564,49 @@ function Filters() {
         explanation:
           "Le props in React sono read-only. Modificarle direttamente viola il principio del flusso unidirezionale dei dati e può causare bug difficili da trovare. Per valori che cambiano, si usa lo state.",
       },
+      {
+        type: "code",
+        mode: "static",
+        title: "Un componente con props",
+        description:
+          "Completa il componente `MovieCard`:\n- ricevi le props `title` e `year` con il destructuring nei parametri, dando a `year` il valore di default `2024`\n- restituisci un `<div>` con un `<h3>` che mostra `{title}` e un `<p>` che mostra `{year}`\n\nPoi, in `App`, usa `<MovieCard />` passando `title=\"Inception\"` e `year={2010}`.",
+        difficulty: "medio",
+        starterCode: `function MovieCard(props) {
+  return <div></div>;
+}
+
+function App() {
+  return <div>{/* usa MovieCard qui */}</div>;
+}`,
+        solution: `function MovieCard({ title, year = 2024 }) {
+  return (
+    <div>
+      <h3>{title}</h3>
+      <p>{year}</p>
+    </div>
+  );
+}
+
+function App() {
+  return (
+    <div>
+      <MovieCard title="Inception" year={2010} />
+    </div>
+  );
+}`,
+        validate: `const c = $codeNoComments;
+if (!/function\\s+MovieCard\\s*\\(\\s*\\{[^}]*\\}\\s*\\)|MovieCard\\s*=\\s*\\(\\s*\\{[^}]*\\}\\s*\\)\\s*=>/.test(c)) return "Usa il destructuring nei parametri: function MovieCard({ title, year = 2024 }).";
+if (!/\\{[^}]*\\btitle\\b[^}]*\\}\\s*\\)/.test(c)) return "Estrai la prop title nel destructuring dei parametri.";
+if (!/\\byear\\s*=\\s*2024\\b/.test(c)) return "Dai a year il valore di default 2024: year = 2024.";
+if (!/<h3[^>]*>\\s*\\{\\s*title\\s*\\}\\s*<\\/h3>/.test(c)) return "Mostra il titolo dentro un <h3>: <h3>{title}</h3>.";
+if (!/<p[^>]*>\\s*\\{\\s*year\\s*\\}\\s*<\\/p>/.test(c)) return "Mostra l'anno dentro un <p>: <p>{year}</p>.";
+const use = c.match(/<MovieCard\\b[^>]*\\/?>/);
+if (!use) return "In App usa il componente: <MovieCard ... />.";
+if (!/title\\s*=\\s*["']Inception["']/.test(use[0])) return "Passa la prop title=\\"Inception\\" (stringa tra virgolette).";
+if (/year\\s*=\\s*["']/.test(use[0])) return "year è un numero: passalo con le graffe, year={2010}.";
+if (!/year\\s*=\\s*\\{\\s*2010\\s*\\}/.test(use[0])) return "Passa la prop year={2010}.";
+return true;`,
+      },
     ],
   },
 
@@ -543,7 +615,7 @@ function Filters() {
       {
         type: "text",
         content:
-          "useState è il hook fondamentale di React per gestire lo stato locale di un componente. Lo stato è un dato che, quando cambia, causa il re-rendering del componente per riflettere il nuovo valore nell'interfaccia.",
+          "useState è l'hook fondamentale di React per gestire lo stato locale di un componente. Lo stato è un dato che, quando cambia, causa il re-rendering del componente per riflettere il nuovo valore nell'interfaccia.",
       },
       {
         type: "heading",
@@ -553,8 +625,7 @@ function Filters() {
         type: "code",
         language: "javascript",
         title: "Sintassi base di useState",
-        code: `"use client";
-import { useState } from "react";
+        code: `import { useState } from "react";
 
 function Counter() {
   // useState restituisce un array di 2 elementi:
@@ -601,8 +672,9 @@ function Counter() {
   const increment = () => setCount((prev) => prev + 1);
 
   // Perché la funzione è importante?
-  // Se clicchi molto velocemente con il valore diretto, puoi perdere aggiornamenti.
-  // Con la funzione, ogni aggiornamento parte dall'ultimo valore reale.
+  // React non aggiorna 'count' subito: il nuovo valore sarà disponibile
+  // solo al rendering successivo. Con la funzione, ogni aggiornamento
+  // parte dall'ultimo valore reale.
 
   // Esempio: questo potrebbe NON dare +3
   const addThreeBuggy = () => {
@@ -657,6 +729,7 @@ function Counter() {
 
   return (
     <form>
+      {/* e.target.value contiene il testo digitato nell'input */}
       <input
         value={user.name}
         onChange={(e) => updateName(e.target.value)}
@@ -681,6 +754,7 @@ function Counter() {
   const [todos, setTodos] = useState([]);
 
   // Aggiungere un elemento
+  // (Date.now() restituisce un numero sempre diverso: lo usiamo come id)
   const addTodo = (text) => {
     setTodos((prev) => [...prev, { id: Date.now(), text, done: false }]);
   };
@@ -717,24 +791,28 @@ function Counter() {
         type: "code",
         language: "javascript",
         title: "Stato multiplo in un componente",
-        code: `function Dashboard() {
+        code: `function MusicPlayer() {
   // Ogni useState è indipendente
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [selectedPoint, setSelectedPoint] = useState(null);
-  const [zoomRange, setZoomRange] = useState({ min: 0, max: 100 });
-  const [isLoading, setIsLoading] = useState(true);
+  const [isPlaylistOpen, setIsPlaylistOpen] = useState(false);
+  const [currentSong, setCurrentSong] = useState(null);
+  const [volume, setVolume] = useState(50);
+  const [isPlaying, setIsPlaying] = useState(false);
 
-  const toggleSidebar = () => {
-    setIsSidebarOpen((prev) => !prev); // toggle booleano
+  const togglePlaylist = () => {
+    setIsPlaylistOpen((prev) => !prev); // toggle booleano
   };
 
   return (
     <div>
-      <button onClick={toggleSidebar}>
-        {isSidebarOpen ? "Chiudi" : "Apri"} sidebar
+      <button onClick={togglePlaylist}>
+        {isPlaylistOpen ? "Chiudi" : "Apri"} playlist
       </button>
-      {isSidebarOpen && <Sidebar />}
-      {isLoading ? <Spinner /> : <Chart data={data} />}
+      {isPlaylistOpen && <ul><li>Canzone 1</li><li>Canzone 2</li></ul>}
+      <p>{currentSong ? "In ascolto: " + currentSong : "Nessun brano selezionato"}</p>
+      <p>Volume: {volume}</p>
+      <button onClick={() => setIsPlaying(!isPlaying)}>
+        {isPlaying ? "Pausa" : "Play"}
+      </button>
     </div>
   );
 }`,
@@ -742,7 +820,7 @@ function Counter() {
       {
         type: "tip",
         content:
-          "Nel progetto, useState gestisce lo stato locale: sidebar aperta/chiusa, punto selezionato nel grafico, range di zoom.",
+          "Usa useState per lo stato locale dell'interfaccia: un pannello aperto o chiuso, l'elemento selezionato, il testo di un campo. Tieni ogni variabile di stato il più semplice possibile.",
       },
       {
         type: "subheading",
@@ -825,12 +903,119 @@ function App() {
         options: [
           "Al livello più alto della funzione componente, prima del return",
           "Dentro un blocco if, per creare stato solo quando serve",
-          "In un custom hook, al livello più alto del hook",
+          "Subito dopo un altro useState, sempre al livello più alto",
           "Prima di qualsiasi logica condizionale nel componente",
         ],
         correct: 1,
         explanation:
-          "Gli hook (useState, useEffect, etc.) non possono essere chiamati dentro condizioni, cicli o funzioni annidate. React traccia gli hook per la loro posizione nell'ordine di chiamata: se un hook viene saltato a causa di un if, l'ordine cambia e React non riesce a collegare gli stati correttamente.",
+          "Gli hook (useState, useEffect, ecc.) non possono essere chiamati dentro condizioni, cicli o funzioni annidate. React traccia gli hook per la loro posizione nell'ordine di chiamata: se un hook viene saltato a causa di un if, l'ordine cambia e React non riesce a collegare gli stati correttamente.",
+      },
+      {
+        type: "code",
+        title: "Aggiornamenti immutabili di una lista di cose da fare",
+        description:
+          "Scrivi tre funzioni che aggiornano una lista di todo SENZA modificare l'array originale (come si fa con lo stato di React). Ogni todo è un oggetto `{ id, text, done }`.\n\n- `addTodo(todos, todo)`: restituisce un nuovo array con `todo` aggiunto in fondo (usa lo spread)\n- `removeTodo(todos, id)`: restituisce un nuovo array senza il todo con quell'id (usa filter)\n- `toggleTodo(todos, id)`: restituisce un nuovo array in cui il todo con quell'id ha `done` invertito; il todo modificato deve essere un NUOVO oggetto (usa map e lo spread)\n\nNon usare push, splice o assegnamenti come `todo.done = ...`.",
+        difficulty: "medio",
+        starterCode: `const todos = [
+  { id: 1, text: "Fare la spesa", done: false },
+  { id: 2, text: "Studiare React", done: true },
+];
+
+function addTodo(todos, todo) {
+  // restituisci un nuovo array
+}
+
+function removeTodo(todos, id) {
+  // restituisci un nuovo array
+}
+
+function toggleTodo(todos, id) {
+  // restituisci un nuovo array
+}
+
+console.log(toggleTodo(todos, 1));`,
+        solution: `const todos = [
+  { id: 1, text: "Fare la spesa", done: false },
+  { id: 2, text: "Studiare React", done: true },
+];
+
+function addTodo(todos, todo) {
+  return [...todos, todo];
+}
+
+function removeTodo(todos, id) {
+  return todos.filter((t) => t.id !== id);
+}
+
+function toggleTodo(todos, id) {
+  return todos.map((t) => (t.id === id ? { ...t, done: !t.done } : t));
+}
+
+console.log(toggleTodo(todos, 1));`,
+        validate: `if (typeof addTodo !== "function") return "Definisci la funzione addTodo.";
+if (typeof removeTodo !== "function") return "Definisci la funzione removeTodo.";
+if (typeof toggleTodo !== "function") return "Definisci la funzione toggleTodo.";
+const make = () => [
+  { id: 1, text: "A", done: false },
+  { id: 2, text: "B", done: true },
+  { id: 3, text: "C", done: false },
+];
+const snapshot = JSON.stringify(make());
+
+let list = make();
+const nuovo = { id: 4, text: "D", done: false };
+const added = addTodo(list, nuovo);
+if (!Array.isArray(added)) return "addTodo deve restituire un array.";
+if (added === list) return "addTodo deve restituire un NUOVO array, non quello originale.";
+if (JSON.stringify(list) !== snapshot) return "addTodo non deve modificare l'array originale (niente push).";
+if (!$equal(added, [...make(), nuovo])) return "addTodo deve aggiungere il nuovo todo in fondo alla lista.";
+if (!$equal(addTodo([], nuovo), [nuovo])) return "addTodo su una lista vuota deve restituire [todo].";
+
+list = make();
+const removed = removeTodo(list, 2);
+if (!Array.isArray(removed)) return "removeTodo deve restituire un array.";
+if (removed === list || JSON.stringify(list) !== snapshot) return "removeTodo non deve modificare l'array originale: usa filter.";
+if (!$equal(removed, [make()[0], make()[2]])) return "removeTodo(todos, 2) deve togliere solo il todo con id 2.";
+if (!$equal(removeTodo(make(), 99), make())) return "Se l'id non esiste, removeTodo deve restituire tutti i todo.";
+
+list = make();
+const toggled = toggleTodo(list, 1);
+if (!Array.isArray(toggled)) return "toggleTodo deve restituire un array.";
+if (toggled === list || JSON.stringify(list) !== snapshot) return "toggleTodo non deve modificare l'array o gli oggetti originali: crea un nuovo oggetto con { ...todo, done: !todo.done }.";
+if (toggled.length !== 3 || toggled[0].done !== true || toggled[0].text !== "A") return "toggleTodo(todos, 1) deve invertire done del todo con id 1 (da false a true).";
+if (toggled[0] === list[0]) return "Il todo modificato deve essere un nuovo oggetto (usa lo spread).";
+if (toggled[1].done !== true || toggled[2].done !== false) return "toggleTodo deve lasciare invariati gli altri todo.";
+if (toggleTodo(make(), 2)[1].done !== false) return "toggleTodo(todos, 2) deve portare done da true a false.";
+return true;`,
+      },
+      {
+        type: "code",
+        mode: "static",
+        title: "Un interruttore con useState",
+        description:
+          "Completa il componente `LikeButton`:\n- importa `useState` da \"react\"\n- crea uno stato `liked` con valore iniziale `false` (setter `setLiked`)\n- al click sul `<button>` inverti il valore usando la forma funzionale: `setLiked((prev) => !prev)`\n- dentro il bottone mostra \"Mi piace\" se `liked` è true, altrimenti \"Metti mi piace\" (usa il ternario)",
+        difficulty: "facile",
+        starterCode: `function LikeButton() {
+  return <button>Metti mi piace</button>;
+}`,
+        solution: `import { useState } from "react";
+
+function LikeButton() {
+  const [liked, setLiked] = useState(false);
+
+  return (
+    <button onClick={() => setLiked((prev) => !prev)}>
+      {liked ? "Mi piace" : "Metti mi piace"}
+    </button>
+  );
+}`,
+        validate: `const c = $codeNoComments;
+if (!/import\\s*\\{[^}]*\\buseState\\b[^}]*\\}\\s*from\\s*["']react["']/.test(c)) return "Importa useState: import { useState } from \\"react\\";";
+if (!/const\\s*\\[\\s*liked\\s*,\\s*setLiked\\s*\\]\\s*=\\s*useState\\(\\s*false\\s*\\)/.test(c)) return "Crea lo stato con: const [liked, setLiked] = useState(false);";
+if (!/<button[^>]*onClick\\s*=\\s*\\{/.test(c)) return "Aggiungi un gestore onClick al <button>.";
+if (!/setLiked\\(\\s*\\(?\\s*(\\w+)\\s*\\)?\\s*=>\\s*!\\s*\\1\\s*\\)/.test(c)) return "Nel click usa la forma funzionale: setLiked((prev) => !prev).";
+if (!/\\{\\s*liked\\s*\\?\\s*["']Mi piace["']\\s*:\\s*["']Metti mi piace["']\\s*\\}/.test(c)) return "Mostra il testo con il ternario: {liked ? \\"Mi piace\\" : \\"Metti mi piace\\"}.";
+return true;`,
       },
     ],
   },
@@ -865,7 +1050,6 @@ function MyComponent() {
   });
 
   // 2. Array vuoto []: esegue SOLO al mount (primo rendering)
-  //    Equivalente a componentDidMount nelle classi
   useEffect(() => {
     console.log("Eseguito solo una volta, al mount");
   }, []);
@@ -874,6 +1058,7 @@ function MyComponent() {
   const [count, setCount] = useState(0);
   useEffect(() => {
     console.log("Count è cambiato:", count);
+    // document.title è il titolo mostrato nella scheda del browser
     document.title = \`Contatore: \${count}\`;
   }, [count]); // riesegue solo quando 'count' cambia
 
@@ -893,8 +1078,7 @@ function MyComponent() {
         type: "code",
         language: "javascript",
         title: "Fetch dei dati al mount",
-        code: `"use client";
-import { useState, useEffect } from "react";
+        code: `import { useState, useEffect } from "react";
 
 function UserList() {
   const [users, setUsers] = useState([]);
@@ -941,7 +1125,7 @@ function UserList() {
       {
         type: "text",
         content:
-          "Quando si passa un array di dipendenze, useEffect riesegue la callback ogni volta che uno dei valori nell'array cambia (confronto con Object.is). È il modo per reagire ai cambiamenti di props o state.",
+          "Quando si passa un array di dipendenze, useEffect riesegue la callback ogni volta che uno dei valori nell'array cambia (React confronta il valore nuovo con il precedente, in modo simile a ===). È il modo per reagire ai cambiamenti di props o state.",
       },
       {
         type: "code",
@@ -961,12 +1145,12 @@ function UserList() {
   }, [productId]); // dipendenza: quando cambia, rifai il fetch
 
   // Esempio con più dipendenze
-  const [filters, setFilters] = useState({});
+  const [category, setCategory] = useState("tutti");
   const [page, setPage] = useState(1);
 
   useEffect(() => {
-    fetchResults(filters, page);
-  }, [filters, page]); // riesegue se cambia filters O page
+    console.log("Carico la pagina " + page + " della categoria " + category);
+  }, [category, page]); // riesegue se cambia category O page
 }`,
       },
       {
@@ -983,10 +1167,12 @@ function UserList() {
         language: "javascript",
         title: "Cleanup function",
         code: `function WindowSize() {
+  // window.innerWidth è la larghezza della finestra del browser
   const [width, setWidth] = useState(window.innerWidth);
 
   useEffect(() => {
-    // Setup: aggiungere il listener
+    // Setup: addEventListener registra una funzione che il browser
+    // chiama ogni volta che la finestra viene ridimensionata
     const handleResize = () => setWidth(window.innerWidth);
     window.addEventListener("resize", handleResize);
 
@@ -1004,6 +1190,7 @@ function Notification({ message, duration = 3000 }) {
   const [visible, setVisible] = useState(true);
 
   useEffect(() => {
+    // clearTimeout annulla un setTimeout non ancora scattato
     const timer = setTimeout(() => setVisible(false), duration);
 
     // Se il componente si smonta prima del timeout, cancellalo
@@ -1015,44 +1202,40 @@ function Notification({ message, duration = 3000 }) {
       },
       {
         type: "heading",
-        content: "Pattern comune: sincronizzare URL con lo stato",
+        content: "Pattern comune: sincronizzare lo stato con il browser",
       },
       {
         type: "text",
         content:
-          "Un pattern frequente nelle applicazioni reali è usare useEffect per sincronizzare i parametri dell'URL con lo stato dell'applicazione. Quando un utente arriva direttamente a un URL, useEffect legge i parametri e aggiorna lo store.",
+          "Un uso frequente di useEffect è tenere allineato qualcosa che sta fuori da React con lo stato del componente. Un esempio classico è `localStorage`: uno spazio del browser in cui salvare stringhe che restano disponibili anche dopo aver ricaricato la pagina. Si legge con `localStorage.getItem(chiave)` e si scrive con `localStorage.setItem(chiave, valore)`.",
       },
       {
         type: "code",
         language: "javascript",
-        title: "Sincronizzare URL e Redux",
-        code: `"use client";
-import { useEffect } from "react";
-import { useSearchParams } from "next/navigation";
-import { useDispatch } from "react-redux";
-import { setSelectedSite, setDateRange } from "@/redux/filtersSlice";
+        title: "Salvare una preferenza in localStorage",
+        code: `import { useState, useEffect } from "react";
 
-function PageWithUrlSync() {
-  const searchParams = useSearchParams();
-  const dispatch = useDispatch();
+function ThemeSwitcher() {
+  // Valore iniziale: quello salvato, oppure "chiaro" se non c'è nulla
+  const [theme, setTheme] = useState(localStorage.getItem("theme") ?? "chiaro");
 
-  // Al mount: leggi i parametri URL e aggiorna Redux
+  // Ogni volta che theme cambia: salvalo e aggiorna il titolo della scheda
   useEffect(() => {
-    const site = searchParams.get("site");
-    const from = searchParams.get("from");
-    const to = searchParams.get("to");
+    localStorage.setItem("theme", theme);
+    document.title = "Tema: " + theme;
+  }, [theme]);
 
-    if (site) dispatch(setSelectedSite(site));
-    if (from && to) dispatch(setDateRange({ from, to }));
-  }, [searchParams, dispatch]);
-
-  return (/* ... */);
+  return (
+    <button onClick={() => setTheme(theme === "chiaro" ? "scuro" : "chiaro")}>
+      Passa al tema {theme === "chiaro" ? "scuro" : "chiaro"}
+    </button>
+  );
 }`,
       },
       {
         type: "tip",
         content:
-          "Nel progetto, useEffect sincronizza i parametri URL con Redux: quando l'utente naviga direttamente a un URL, useEffect legge i params e li dispatcha allo store.",
+          "Usa useEffect solo per sincronizzare il componente con qualcosa di esterno (browser, server, timer). Se un valore si può calcolare da props o state durante il rendering, calcolalo direttamente senza effetti.",
       },
       {
         type: "subheading",
@@ -1063,7 +1246,7 @@ function PageWithUrlSync() {
         items: [
           "Dimenticare l'array di dipendenze: l'effetto esegue ad ogni render, possibile loop infinito",
           "Dimenticare una dipendenza nell'array: l'effetto usa valori stale (non aggiornati)",
-          "Mettere un oggetto/array nelle dipendenze senza memo: riesegue ad ogni render perché {} !== {}",
+          "Mettere un oggetto/array creato nel componente tra le dipendenze: riesegue ad ogni render perché {} !== {} (nella prossima lezione vedrai useMemo per evitarlo)",
           "Non fare il cleanup: memory leak con listener, timer, sottoscrizioni",
           "Rendere useEffect async: non è supportato, definire la funzione async all'interno",
         ],
@@ -1122,6 +1305,44 @@ function PageWithUrlSync() {
         correct: 3,
         explanation:
           "useEffect non supporta callback async (opzione 1) perché il cleanup deve essere una funzione, non una Promise. Si può usare .then() (opzione 2) o definire una funzione async interna e invocarla (opzione 3). Entrambi gli approcci sono validi e comuni.",
+      },
+      {
+        type: "code",
+        mode: "static",
+        title: "Un timer con cleanup",
+        description:
+          "Completa il componente `Stopwatch`, che conta i secondi trascorsi:\n- importa `useState` e `useEffect` da \"react\"\n- crea lo stato `seconds` con valore iniziale `0`\n- in un `useEffect` con array di dipendenze vuoto `[]`, avvia `setInterval` (che esegue una funzione ripetutamente) salvandolo in una costante `id`: ogni `1000` ms aggiorna i secondi con `setSeconds((prev) => prev + 1)`\n- restituisci dall'effetto una funzione di cleanup che chiama `clearInterval(id)`\n- mostra i secondi in un `<p>`: `<p>Secondi: {seconds}</p>`",
+        difficulty: "medio",
+        starterCode: `function Stopwatch() {
+  return <p>Secondi: 0</p>;
+}`,
+        solution: `import { useState, useEffect } from "react";
+
+function Stopwatch() {
+  const [seconds, setSeconds] = useState(0);
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      setSeconds((prev) => prev + 1);
+    }, 1000);
+
+    return () => clearInterval(id);
+  }, []);
+
+  return <p>Secondi: {seconds}</p>;
+}`,
+        validate: `const c = $codeNoComments;
+const imp = c.match(/import\\s*\\{([^}]*)\\}\\s*from\\s*["']react["']/);
+if (!imp || !/\\buseState\\b/.test(imp[1]) || !/\\buseEffect\\b/.test(imp[1])) return "Importa entrambi gli hook: import { useState, useEffect } from \\"react\\";";
+if (!/const\\s*\\[\\s*seconds\\s*,\\s*setSeconds\\s*\\]\\s*=\\s*useState\\(\\s*0\\s*\\)/.test(c)) return "Crea lo stato con: const [seconds, setSeconds] = useState(0);";
+if (!/useEffect\\(\\s*\\(\\s*\\)\\s*=>/.test(c)) return "Chiama useEffect passando una arrow function: useEffect(() => { ... }, []).";
+if (!/const\\s+id\\s*=\\s*setInterval\\(/.test(c)) return "Dentro l'effetto salva l'intervallo: const id = setInterval(...).";
+if (!/setSeconds\\(\\s*\\(?\\s*(\\w+)\\s*\\)?\\s*=>\\s*\\1\\s*\\+\\s*1\\s*\\)/.test(c)) return "Aggiorna i secondi con la forma funzionale: setSeconds((prev) => prev + 1).";
+if (!/,\\s*1000\\s*\\)/.test(c)) return "L'intervallo deve essere di 1000 millisecondi.";
+if (!/return\\s*\\(\\s*\\)\\s*=>\\s*\\{?\\s*clearInterval\\(\\s*id\\s*\\)/.test(c)) return "Restituisci dall'effetto la funzione di cleanup: return () => clearInterval(id);";
+if (!/\\}\\s*,\\s*\\[\\s*\\]\\s*\\)/.test(c)) return "Passa un array di dipendenze vuoto [] come secondo argomento di useEffect.";
+if (!/<p[^>]*>\\s*Secondi:\\s*\\{\\s*seconds\\s*\\}\\s*<\\/p>/.test(c)) return "Mostra i secondi: <p>Secondi: {seconds}</p>.";
+return true;`,
       },
     ],
   },

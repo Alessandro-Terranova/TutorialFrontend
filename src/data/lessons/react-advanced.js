@@ -4,7 +4,7 @@ export const lessons = {
       {
         type: "text",
         content:
-          "In questa lezione esploreremo due hook avanzati di React: useRef e useMemo. Entrambi servono a ottimizzare le prestazioni e a gestire valori che devono persistere tra i render, ma funzionano in modi molto diversi.",
+          "In questa lezione esploreremo due hook avanzati di React: useRef e useMemo. Entrambi gestiscono valori che devono persistere tra un render e l'altro, ma funzionano in modi molto diversi: useRef conserva un valore senza causare re-render, useMemo evita di ripetere calcoli costosi.",
       },
       {
         type: "heading",
@@ -13,7 +13,7 @@ export const lessons = {
       {
         type: "text",
         content:
-          "useRef restituisce un oggetto con una proprieta .current che persiste per tutta la vita del componente. A differenza di useState, modificare .current NON causa un re-render. Questo lo rende perfetto per conservare valori che cambiano spesso ma che non devono influenzare l'interfaccia.",
+          "useRef restituisce un oggetto con una proprietà `.current` che persiste per tutta la vita del componente. A differenza di useState, modificare `.current` NON causa un re-render. Questo lo rende perfetto per conservare valori che cambiano ma che non devono influenzare ciò che viene mostrato.",
       },
       {
         type: "code",
@@ -41,122 +41,121 @@ function MioComponente() {
       {
         type: "text",
         content:
-          "L'uso più comune di useRef e ottenere un riferimento diretto a un elemento DOM. Passiamo il ref come attributo ref= a un elemento JSX, e React lo popola automaticamente con il nodo DOM corrispondente.",
+          "L'uso più comune di useRef è ottenere un riferimento diretto a un elemento del DOM, cioè all'oggetto JavaScript che rappresenta un elemento HTML nella pagina. Si passa il ref all'attributo `ref` di un elemento JSX e React lo riempie automaticamente con il nodo DOM corrispondente. Da lì si possono usare i metodi del nodo, ad esempio `focus()` per posizionare il cursore in un campo di testo.",
       },
       {
         type: "code",
         language: "javascript",
-        title: "Riferimento a un elemento DOM - scroll container",
+        title: "Dare il focus a un campo di ricerca",
         code: `import { useRef } from "react";
 
-function ScrollableChart() {
-  const scrollContainerRef = useRef(null);
+function CercaLibro() {
+  const inputRef = useRef(null);
 
-  const scrollToStart = () => {
-    // Accediamo direttamente al nodo DOM
-    if (scrollContainerRef.current) {
-      scrollContainerRef.current.scrollLeft = 0;
+  const attivaRicerca = () => {
+    // inputRef.current è il nodo <input> della pagina
+    if (inputRef.current) {
+      inputRef.current.focus(); // sposta il cursore nel campo
     }
   };
 
   return (
     <div>
-      <button onClick={scrollToStart}>Torna all'inizio</button>
-      <div
-        ref={scrollContainerRef}
-        style={{ overflowX: "auto", display: "flex" }}
-      >
-        {/* Contenuto scrollabile */}
-      </div>
+      <input ref={inputRef} placeholder="Titolo del libro..." />
+      <button onClick={attivaRicerca}>Cerca un libro</button>
     </div>
   );
 }`,
       },
       {
         type: "subheading",
-        content: "useRef per valori mutabili (guardie e flag)",
+        content: "useRef per valori mutabili (timer e flag)",
       },
       {
         type: "text",
         content:
-          "Un pattern molto potente e usare useRef come flag per controllare il flusso logico senza causare re-render. Questo e utile per prevenire chiamate API duplicate, gestire transizioni e tracciare stato interno.",
+          "useRef è utile anche per conservare valori \"di servizio\" che non vanno mostrati, come l'identificativo di un timer o un flag. Nell'esempio usiamo `setInterval(funzione, millisecondi)`, che funziona come setTimeout ma ripete la funzione a intervalli regolari finché non viene fermato con `clearInterval(id)`. L'id del timer va conservato tra un render e l'altro, ma non serve mostrarlo: è il lavoro ideale per un ref.",
       },
       {
         type: "code",
         language: "javascript",
-        title: "Prevenire fetch duplicati con useRef",
-        code: `import { useRef, useEffect, useState } from "react";
+        title: "Un cronometro con useRef",
+        code: `import { useRef, useState } from "react";
 
-function UserProfile({ userId }) {
-  const [profilo, setProfilo] = useState(null);
-  const isFetchingRef = useRef(false);
+function Cronometro() {
+  const [secondi, setSecondi] = useState(0);
+  const intervalRef = useRef(null); // id del timer: non serve mostrarlo
 
-  useEffect(() => {
-    const fetchProfilo = async () => {
-      // Se stiamo gia facendo il fetch, esci subito
-      if (isFetchingRef.current) return;
+  const avvia = () => {
+    if (intervalRef.current !== null) return; // già in corso: non avviarne un altro
+    intervalRef.current = setInterval(() => {
+      setSecondi((s) => s + 1);
+    }, 1000);
+  };
 
-      isFetchingRef.current = true;
-      try {
-        const response = await fetch(\`/api/users/\${userId}\`);
-        const data = await response.json();
-        setProfilo(data);
-      } catch (error) {
-        console.error("Errore:", error);
-      } finally {
-        isFetchingRef.current = false;
-      }
-    };
+  const ferma = () => {
+    clearInterval(intervalRef.current);
+    intervalRef.current = null;
+  };
 
-    fetchProfilo();
-  }, [userId]);
-
-  return profilo ? <div>{profilo.nome}</div> : <div>Caricamento...</div>;
+  return (
+    <div>
+      <p>Secondi: {secondi}</p>
+      <button onClick={avvia}>Avvia</button>
+      <button onClick={ferma}>Ferma</button>
+    </div>
+  );
 }`,
       },
       {
         type: "info",
         content:
-          "useRef e come una scatola che puoi riempire con qualsiasi valore. La differenza fondamentale con useState: cambiare .current non notifica React, quindi non avviene nessun re-render.",
+          "useRef è come una scatola in cui puoi mettere qualsiasi valore. La differenza fondamentale con useState: cambiare `.current` non avvisa React, quindi non avviene nessun re-render. Se un valore deve comparire sullo schermo, usa useState; se serve solo \"dietro le quinte\", useRef.",
       },
       {
         type: "heading",
-        content: "useMemo: memoizzare calcoli costosi",
+        content: "useMemo: memorizzare calcoli costosi",
       },
       {
         type: "text",
         content:
-          "useMemo memorizza il risultato di una funzione e lo ricalcola solo quando le sue dipendenze cambiano. E utile per evitare calcoli pesanti ad ogni render.",
+          "useMemo memorizza il risultato di una funzione e lo ricalcola solo quando le sue dipendenze cambiano. Riceve due argomenti, come useEffect: una funzione che restituisce il valore e un array di dipendenze. È utile per evitare calcoli pesanti a ogni render.",
       },
       {
         type: "code",
         language: "javascript",
-        title: "useMemo per filtrare e ordinare dati",
+        title: "useMemo per filtrare e ordinare dei prodotti",
         code: `import { useMemo, useState } from "react";
 
-function ListaFiltrata({ dati }) {
+function ListaProdotti({ prodotti }) {
   const [filtro, setFiltro] = useState("");
-  const [ordinamento, setOrdinamento] = useState("nome");
+  const [tema, setTema] = useState("chiaro");
 
-  // Senza useMemo: questo calcolo avviene ad OGNI render
-  // Con useMemo: avviene solo quando dati, filtro o ordinamento cambiano
-  const datiFiltrati = useMemo(() => {
-    console.log("Ricalcolo dati filtrati...");
-    return dati
-      .filter((item) => item.nome.toLowerCase().includes(filtro.toLowerCase()))
-      .sort((a, b) => a[ordinamento].localeCompare(b[ordinamento]));
-  }, [dati, filtro, ordinamento]);
+  // Senza useMemo: questo calcolo avverrebbe a OGNI render
+  // (anche quando cambia solo il tema!)
+  // Con useMemo: avviene solo quando prodotti o filtro cambiano
+  const prodottiFiltrati = useMemo(() => {
+    console.log("Ricalcolo prodotti filtrati...");
+    const risultato = prodotti.filter((p) =>
+      p.nome.toLowerCase().includes(filtro.toLowerCase())
+    );
+    // sort modifica l'array: ordiniamo una copia
+    return [...risultato].sort((a, b) => a.prezzo - b.prezzo);
+  }, [prodotti, filtro]);
 
   return (
-    <div>
+    <div className={tema}>
+      <button onClick={() => setTema(tema === "chiaro" ? "scuro" : "chiaro")}>
+        Cambia tema
+      </button>
       <input
         value={filtro}
         onChange={(e) => setFiltro(e.target.value)}
         placeholder="Filtra..."
       />
       <ul>
-        {datiFiltrati.map((item) => (
-          <li key={item.id}>{item.nome}</li>
+        {prodottiFiltrati.map((p) => (
+          <li key={p.id}>{p.nome} - {p.prezzo} €</li>
         ))}
       </ul>
     </div>
@@ -164,90 +163,188 @@ function ListaFiltrata({ dati }) {
 }`,
       },
       {
+        type: "text",
+        content:
+          "Un valore memorizzato con useMemo può essere a sua volta la dipendenza di un altro useMemo: in questo modo ogni calcolo viene rifatto solo quando cambia davvero ciò da cui dipende.",
+      },
+      {
         type: "code",
         language: "javascript",
-        title: "useMemo per mesi attivi e dati del grafico",
-        code: `// Estrazione dei mesi unici per la finestra scorrevole
-const allMonths = useMemo(() => {
-  if (!data || data.length === 0) return [];
+        title: "useMemo concatenati: voti degli studenti",
+        code: `function RiepilogoClasse({ studenti, votoMinimo }) {
+  // Si ricalcola solo quando cambiano gli studenti
+  const media = useMemo(() => {
+    if (studenti.length === 0) return 0;
+    const somma = studenti.reduce((tot, s) => tot + s.voto, 0);
+    return somma / studenti.length;
+  }, [studenti]);
 
-  const monthsSet = new Set();
-  data.forEach((row) => {
-    if (row.filling_dt) {
-      const monthKey = row.filling_dt.substring(0, 7); // "YYYY-MM"
-      monthsSet.add(monthKey);
-    }
-  });
+  // Si ricalcola quando cambiano gli studenti o il voto minimo
+  const promossi = useMemo(() => {
+    return studenti.filter((s) => s.voto >= votoMinimo);
+  }, [studenti, votoMinimo]);
 
-  return Array.from(monthsSet).sort();
-}, [data]);
-
-// Mesi visibili nella finestra corrente (dipende dall'indice)
-const activeTrimsterMonths = useMemo(() => {
-  if (allMonths.length === 0) return [];
-  return allMonths.slice(currentMonthIndex, currentMonthIndex + 3);
-}, [allMonths, currentMonthIndex]);`,
+  return (
+    <div>
+      <p>Media della classe: {media}</p>
+      <p>Promossi: {promossi.length} su {studenti.length}</p>
+    </div>
+  );
+}`,
       },
       {
         type: "subheading",
-        content: "Quando NON usare useMemo",
+        content: "useCallback: memorizzare una funzione",
+      },
+      {
+        type: "text",
+        content:
+          "A ogni render, le funzioni definite dentro un componente vengono ricreate: sono funzioni nuove, anche se il codice è identico. Di solito non è un problema, ma lo diventa quando la funzione è nell'array di dipendenze di un useEffect: l'effetto ripartirebbe a ogni render. `useCallback(funzione, dipendenze)` restituisce sempre la STESSA funzione finché le dipendenze non cambiano. In pratica è una scorciatoia: `useCallback(fn, deps)` equivale a `useMemo(() => fn, deps)`.",
+      },
+      {
+        type: "code",
+        language: "javascript",
+        title: "useCallback con useEffect",
+        code: `import { useCallback, useEffect, useState } from "react";
+
+function Meteo({ citta }) {
+  const [previsioni, setPrevisioni] = useState(null);
+
+  // Senza useCallback, caricaPrevisioni sarebbe una funzione nuova
+  // a ogni render e l'effetto qui sotto ripartirebbe ogni volta.
+  const caricaPrevisioni = useCallback(async () => {
+    const response = await fetch("/api/meteo?citta=" + citta);
+    const data = await response.json();
+    setPrevisioni(data);
+  }, [citta]); // nuova funzione solo quando cambia la città
+
+  useEffect(() => {
+    caricaPrevisioni();
+  }, [caricaPrevisioni]);
+
+  return (
+    <div>
+      <button onClick={caricaPrevisioni}>Aggiorna</button>
+      {previsioni && <p>{previsioni.descrizione}</p>}
+    </div>
+  );
+}`,
+      },
+      {
+        type: "subheading",
+        content: "Quando NON usare useMemo (e useCallback)",
       },
       {
         type: "list",
         items: [
-          "Per operazioni semplici come somme o concatenazioni di stringhe: il costo della memoizzazione supera il beneficio.",
-          "Quando il valore cambia ad ogni render comunque (le dipendenze cambiano sempre).",
-          "Per la creazione di oggetti semplici come { color: 'red' }: e più leggibile senza useMemo.",
+          "Per operazioni semplici come somme di pochi numeri o concatenazioni di stringhe: il costo della memorizzazione supera il beneficio.",
+          "Quando il valore cambia comunque a ogni render (le dipendenze cambiano sempre).",
+          "Per creare oggetti semplici come { color: 'red' }: il codice è più leggibile senza useMemo.",
           "Come ottimizzazione prematura: prima verifica che ci sia un vero problema di prestazioni.",
         ],
       },
       {
         type: "warning",
         content:
-          "useMemo non garantisce che il valore venga mantenuto per sempre. React potrebbe decidere di ricalcolarlo anche se le dipendenze non sono cambiate (ad esempio durante la garbage collection). Non usare useMemo per effetti collaterali.",
+          "useMemo è un'ottimizzazione, non una garanzia: React potrebbe decidere di ricalcolare il valore anche se le dipendenze non sono cambiate (ad esempio per liberare memoria). Il codice deve funzionare correttamente anche senza useMemo, e la funzione passata a useMemo non deve avere effetti collaterali (chiamate API, modifiche a variabili esterne): per quelli c'è useEffect.",
       },
       {
         type: "tip",
         content:
-          "In un progetto React reale, useRef e usato per: container di scroll (scrollContainerRef), prevenire fetch duplicati (isFetchingRef), e guardie per le transizioni (isTransitioningRef, hasTriggeredEndRef). useMemo memoizza: mesi attivi, dati filtrati del grafico, indici di focus.",
+          "Usa useRef per tutto ciò che deve sopravvivere ai render senza essere mostrato (nodi DOM, id dei timer, flag), e useMemo solo per calcoli davvero pesanti su liste lunghe. Se non sei sicuro, scrivi prima il codice senza useMemo: aggiungerlo dopo è facile.",
       },
     ],
     exercises: [
       {
         type: "code",
+        mode: "static",
         title: "Contatore con useRef",
         description:
-          "Crea un contatore che tiene traccia di quante volte il componente e stato renderizzato usando useRef.\n\nScrivi una funzione contaRender che simula questo comportamento: riceve un oggetto ref e lo incrementa ogni volta che viene chiamata. La funzione deve restituire il valore aggiornato.",
+          "Completa il componente `ContaClic`, che conta i clic su un bottone SENZA causare re-render.\n\n1. Crea un ref `clicRef` con valore iniziale `0` usando `useRef`.\n2. Nella funzione `registraClic` incrementa `clicRef.current` di 1.\n3. Nella funzione `mostraTotale` stampa il totale con `console.log`, ad esempio `console.log(\"Clic totali: \" + clicRef.current)`.\n4. Collega i due bottoni alle funzioni con `onClick`.\n\nNon usare useState: il numero di clic non deve essere mostrato sullo schermo.",
         difficulty: "facile",
-        starterCode: `// Simula un ref come farebbe React
-const renderCountRef = { current: 0 };
+        starterCode: `import { useRef } from "react";
 
-function contaRender(ref) {
-  // Incrementa ref.current e restituisci il nuovo valore
+function ContaClic() {
+  // 1. Crea qui il ref clicRef
 
-}
+  const registraClic = () => {
+    // 2. Incrementa il valore del ref
+  };
 
-// Test
-console.log(contaRender(renderCountRef)); // 1
-console.log(contaRender(renderCountRef)); // 2
-console.log(contaRender(renderCountRef)); // 3`,
-        solution: `const renderCountRef = { current: 0 };
+  const mostraTotale = () => {
+    // 3. Stampa il totale dei clic
+  };
 
-function contaRender(ref) {
-  ref.current += 1;
-  return ref.current;
-}
+  return (
+    <div>
+      {/* 4. Collega i bottoni alle funzioni */}
+      <button>Clicca</button>
+      <button>Mostra totale</button>
+    </div>
+  );
+}`,
+        solution: `import { useRef } from "react";
 
-console.log(contaRender(renderCountRef)); // 1
-console.log(contaRender(renderCountRef)); // 2
-console.log(contaRender(renderCountRef)); // 3`,
-        validate: `try {
-  const ref = { current: 0 };
-  const fn = new Function("ref", userCode.match(/function contaRender[\\s\\S]*?\\n}/)?.[0]?.replace("function contaRender", "return function contaRender") + "")
-  // Simpler: check if ref.current is 3 after the code runs
-  return renderCountRef.current === 3;
-} catch(e) { return false; }`,
-        testCode: "",
+function ContaClic() {
+  const clicRef = useRef(0);
+
+  const registraClic = () => {
+    clicRef.current += 1;
+  };
+
+  const mostraTotale = () => {
+    console.log("Clic totali: " + clicRef.current);
+  };
+
+  return (
+    <div>
+      <button onClick={registraClic}>Clicca</button>
+      <button onClick={mostraTotale}>Mostra totale</button>
+    </div>
+  );
+}`,
+        validate: `const c = $codeNoComments;
+if (!/import\\s*\\{[^}]*\\buseRef\\b[^}]*\\}\\s*from\\s*["']react["']/.test(c)) return "Importa useRef da \\"react\\": import { useRef } from \\"react\\";";
+if (!/const\\s+clicRef\\s*=\\s*useRef\\(\\s*0\\s*\\)/.test(c)) return "Crea il ref con valore iniziale 0: const clicRef = useRef(0);";
+if (/\\buseState\\b/.test(c)) return "Non serve useState: il conteggio va salvato solo nel ref, così i clic non causano re-render.";
+if (!/clicRef\\.current\\s*(\\+\\+|\\+=\\s*1\\b|=\\s*clicRef\\.current\\s*\\+\\s*1\\b)|\\+\\+\\s*clicRef\\.current/.test(c)) return "In registraClic incrementa il ref di 1: clicRef.current += 1;";
+if (!/console\\.log\\([^)]*clicRef\\.current/.test(c)) return "In mostraTotale stampa clicRef.current con console.log.";
+if (!/<button[^>]*onClick\\s*=\\s*\\{\\s*registraClic\\s*\\}/.test(c)) return "Collega il bottone \\"Clicca\\" alla funzione: onClick={registraClic}.";
+if (!/<button[^>]*onClick\\s*=\\s*\\{\\s*mostraTotale\\s*\\}/.test(c)) return "Collega il bottone \\"Mostra totale\\" alla funzione: onClick={mostraTotale}.";
+return true;`,
+      },
+      {
+        type: "code",
+        mode: "static",
+        title: "Totale del carrello con useMemo",
+        description:
+          "Il componente `Carrello` riceve la prop `prodotti`, un array di oggetti come `{ id: 1, nome: \"Zaino\", prezzo: 30, quantita: 2 }`.\n\nCalcola la costante `totale` con `useMemo`: usa `reduce` per sommare `prezzo * quantita` di ogni prodotto (partendo da 0) e indica `prodotti` come unica dipendenza.",
+        difficulty: "medio",
+        starterCode: `import { useMemo } from "react";
+
+function Carrello({ prodotti }) {
+  // Calcola qui la costante totale con useMemo
+
+  return <p>Totale: {totale} €</p>;
+}`,
+        solution: `import { useMemo } from "react";
+
+function Carrello({ prodotti }) {
+  const totale = useMemo(() => {
+    return prodotti.reduce((somma, p) => somma + p.prezzo * p.quantita, 0);
+  }, [prodotti]);
+
+  return <p>Totale: {totale} €</p>;
+}`,
+        validate: `const c = $codeNoComments;
+if (!/import\\s*\\{[^}]*\\buseMemo\\b[^}]*\\}\\s*from\\s*["']react["']/.test(c)) return "Importa useMemo da \\"react\\".";
+if (!/const\\s+totale\\s*=\\s*useMemo\\(/.test(c)) return "Calcola il totale con useMemo: const totale = useMemo(() => ..., [prodotti]);";
+if (!/prodotti\\.reduce\\(/.test(c)) return "Dentro useMemo usa prodotti.reduce(...) per sommare i prezzi.";
+if (!/\\.prezzo\\s*\\*\\s*\\w+\\.quantita|\\.quantita\\s*\\*\\s*\\w+\\.prezzo/.test(c)) return "Per ogni prodotto somma prezzo * quantita.";
+if (!/,\\s*0\\s*\\)/.test(c)) return "Ricorda il valore iniziale di reduce: 0.";
+if (!/,\\s*\\[\\s*prodotti\\s*\\]\\s*\\)/.test(c)) return "Passa a useMemo l'array di dipendenze [prodotti] come secondo argomento.";
+if (!/\\{\\s*totale\\s*\\}/.test(c)) return "Mostra il totale nel JSX con {totale}.";
+return true;`,
       },
       {
         type: "multiple-choice",
@@ -258,28 +355,28 @@ console.log(contaRender(renderCountRef)); // 3`,
         options: [
           "useRef e useState causano entrambi un re-render quando il valore cambia",
           "useRef mantiene il valore tra i render senza causare re-render; useState causa un re-render quando il valore cambia",
-          "useState mantiene il valore tra i render; useRef resetta il valore ad ogni render",
-          "useRef puo contenere solo riferimenti a elementi DOM; useState puo contenere qualsiasi valore",
+          "useState mantiene il valore tra i render; useRef azzera il valore a ogni render",
+          "useRef può contenere solo riferimenti a elementi DOM; useState può contenere qualsiasi valore",
         ],
         correct: 1,
         explanation:
-          "useRef restituisce un oggetto { current: valore } che persiste tra i render. Modificare .current NON causa un re-render. useState invece notifica React del cambiamento, causando un nuovo render del componente.",
+          "useRef restituisce un oggetto { current: valore } che persiste tra i render. Modificare .current NON causa un re-render. useState invece avvisa React del cambiamento, causando un nuovo render del componente. Un ref può contenere qualsiasi valore, non solo nodi DOM.",
       },
       {
         type: "multiple-choice",
         title: "Quando usare useMemo",
         description:
-          "In quale di questi scenari e più appropriato usare useMemo?",
+          "In quale di questi scenari è più appropriato usare useMemo?",
         difficulty: "medio",
         options: [
-          "Per memorizzare una stringa costante come const titolo = 'Dashboard'",
+          "Per memorizzare una stringa costante come const titolo = 'Benvenuto'",
           "Per filtrare e ordinare un array di 10.000 elementi ogni volta che cambia un filtro",
-          "Per creare un event handler come onClick={() => alert('cliccato')}",
+          "Per creare un gestore di eventi come onClick={() => alert('cliccato')}",
           "Per salvare il valore di un input di testo",
         ],
         correct: 1,
         explanation:
-          "useMemo e ideale per operazioni costose come filtrare e ordinare grandi quantita di dati. Il costo della memoizzazione si ripaga quando il calcolo e pesante e le dipendenze non cambiano ad ogni render. Per valori semplici o handler, useMemo aggiunge complessita senza beneficio.",
+          "useMemo è ideale per operazioni costose come filtrare e ordinare grandi quantità di dati. Il costo della memorizzazione si ripaga quando il calcolo è pesante e le dipendenze non cambiano a ogni render. Per valori semplici o gestori di eventi, useMemo aggiunge complessità senza benefici; per il valore di un input serve useState.",
       },
     ],
   },
@@ -289,16 +386,16 @@ console.log(contaRender(renderCountRef)); // 3`,
       {
         type: "text",
         content:
-          "I custom hooks sono funzioni JavaScript il cui nome inizia con 'use' e che possono chiamare altri hook di React al loro interno. Sono il meccanismo principale per estrarre e riutilizzare logica stateful tra componenti diversi.",
+          "I custom hook sono funzioni JavaScript il cui nome inizia con `use` e che possono chiamare altri hook di React al loro interno. Sono il meccanismo principale per estrarre e riutilizzare logica con stato tra componenti diversi.",
       },
       {
         type: "heading",
-        content: "Cosa sono i Custom Hooks",
+        content: "Cosa sono i custom hook",
       },
       {
         type: "text",
         content:
-          "Un custom hook e semplicemente una funzione che usa altri hook. Non e un componente: non restituisce JSX, ma valori (dati, funzioni, oggetti) che i componenti possono utilizzare. L'idea chiave e: se due componenti condividono la stessa logica, estraila in un hook.",
+          "Un custom hook è semplicemente una funzione che usa altri hook. Non è un componente: non restituisce JSX, ma valori (dati, funzioni, oggetti) che i componenti possono utilizzare. L'idea chiave è: se due componenti condividono la stessa logica, estraila in un hook.",
       },
       {
         type: "code",
@@ -312,42 +409,42 @@ function useContatore(valoreIniziale = 0) {
 
   const incrementa = () => setValore((v) => v + 1);
   const decrementa = () => setValore((v) => v - 1);
-  const resetta = () => setValore(valoreIniziale);
+  const azzera = () => setValore(valoreIniziale);
 
-  return { valore, incrementa, decrementa, resetta };
+  return { valore, incrementa, decrementa, azzera };
 }
 
 // Uso nel componente
 function Contatore() {
-  const { valore, incrementa, decrementa, resetta } = useContatore(0);
+  const { valore, incrementa, decrementa, azzera } = useContatore(0);
 
   return (
     <div>
       <p>Valore: {valore}</p>
       <button onClick={incrementa}>+</button>
       <button onClick={decrementa}>-</button>
-      <button onClick={resetta}>Reset</button>
+      <button onClick={azzera}>Azzera</button>
     </div>
   );
 }`,
       },
       {
         type: "heading",
-        content: "Regole dei Hooks",
+        content: "Regole degli hook",
       },
       {
         type: "list",
         items: [
           "Chiama gli hook solo al livello più alto della funzione, mai dentro condizioni, cicli o funzioni annidate.",
-          "Chiama gli hook solo dentro componenti React o altri custom hooks.",
-          "Il nome deve iniziare con 'use' (es. useContatore, useSession, useFetch).",
+          "Chiama gli hook solo dentro componenti React o altri custom hook.",
+          "Il nome deve iniziare con `use` (es. useContatore, useToggle, useFetch).",
           "Ogni chiamata a un hook ha il proprio stato indipendente: se due componenti usano lo stesso hook, non condividono lo stato.",
         ],
       },
       {
         type: "warning",
         content:
-          "Non chiamare mai un hook dentro un if o un for. React si affida all'ordine delle chiamate per associare lo stato interno. Cambiare l'ordine tra i render causa bug difficili da individuare.",
+          "Non chiamare mai un hook dentro un if o un for. React si basa sull'ordine delle chiamate per associare a ogni hook il suo stato interno: cambiare l'ordine tra un render e l'altro causa bug difficili da individuare.",
       },
       {
         type: "heading",
@@ -356,30 +453,25 @@ function Contatore() {
       {
         type: "text",
         content:
-          "Il vero potere dei custom hooks emerge quando la logica diventa complessa. Invece di duplicare codice tra componenti, lo estraiamo in un hook che puo combinare useState, useEffect, useRef, useMemo e qualsiasi altro hook.",
+          "Il vero potere dei custom hook emerge quando la logica diventa complessa. Invece di duplicare codice tra componenti, lo si estrae in un hook che può combinare useState, useEffect, useRef, useMemo e qualsiasi altro hook.",
       },
       {
         type: "code",
         language: "javascript",
-        title: "Custom hook per fetch di dati",
-        code: `import { useState, useEffect, useRef } from "react";
+        title: "Custom hook per caricare dati",
+        code: `import { useState, useEffect } from "react";
 
 function useFetch(url) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [errore, setErrore] = useState(null);
-  const isFetchingRef = useRef(false);
 
   useEffect(() => {
     if (!url) return;
 
-    const fetchData = async () => {
-      if (isFetchingRef.current) return;
-      isFetchingRef.current = true;
-
+    async function caricaDati() {
       setLoading(true);
       setErrore(null);
-
       try {
         const response = await fetch(url);
         if (!response.ok) throw new Error("Errore nella risposta");
@@ -389,177 +481,191 @@ function useFetch(url) {
         setErrore(err.message);
       } finally {
         setLoading(false);
-        isFetchingRef.current = false;
       }
-    };
+    }
 
-    fetchData();
-  }, [url]);
+    caricaDati();
+  }, [url]); // ricarica quando cambia l'indirizzo
 
   return { data, loading, errore };
 }
 
-// Uso nel componente - pulito e riutilizzabile
-function ListaUtenti() {
-  const { data, loading, errore } = useFetch("/api/utenti");
+// Uso nei componenti: pulito e riutilizzabile
+function ListaFilm() {
+  const { data, loading, errore } = useFetch("/api/film");
 
   if (loading) return <p>Caricamento...</p>;
   if (errore) return <p>Errore: {errore}</p>;
-  return <ul>{data.map((u) => <li key={u.id}>{u.nome}</li>)}</ul>;
+  return <ul>{data.map((f) => <li key={f.id}>{f.titolo}</li>)}</ul>;
+}
+
+function ListaRicette() {
+  // Stessa logica, dati diversi
+  const { data, loading } = useFetch("/api/ricette");
+  // ...
 }`,
       },
       {
         type: "subheading",
-        content: "Restituire valori dai Custom Hooks",
+        content: "Restituire valori dai custom hook",
       },
       {
         type: "text",
         content:
-          "Un custom hook puo restituire qualsiasi cosa: un singolo valore, un array (come useState), o un oggetto con più proprieta e funzioni. La convenzione più comune e restituire un oggetto quando ci sono molti valori, o un array quando ce ne sono pochi.",
+          "Un custom hook può restituire qualsiasi cosa: un singolo valore, un array (come useState) o un oggetto con più proprietà e funzioni. La convenzione più comune è restituire un array quando i valori sono pochi (così chi lo usa può rinominarli liberamente con il destructuring) e un oggetto quando sono molti (così si prendono per nome solo quelli che servono).",
       },
       {
         type: "code",
         language: "javascript",
-        title: "Hook dal progetto: useChartDataAndScroll",
-        code: `import { useState, useMemo, useRef, useEffect } from "react";
-import { useSelector } from "react-redux";
+        title: "Un hook più completo: usePaginazione",
+        code: `import { useState, useMemo } from "react";
 
-export function useChartDataAndScroll(data = []) {
-  const [isLoading, setIsLoading] = useState(false);
-  const [currentMonthIndex, setCurrentMonthIndex] = useState(0);
+function usePaginazione(elementi, perPagina = 5) {
+  const [pagina, setPagina] = useState(1);
 
-  // Refs per gestire scroll e transizioni
-  const scrollContainerRefs = useRef({});
-  const isTransitioningRef = useRef(false);
+  // Math.ceil arrotonda per eccesso: 12 elementi / 5 = 3 pagine
+  const totalePagine = Math.ceil(elementi.length / perPagina);
 
-  // Legge filtri di navigazione da Redux
-  const { selectedAnalysisType, selectedPage } = useSelector(
-    (state) => state.navigation
-  );
+  // Gli elementi della pagina corrente (ricalcolati solo se serve)
+  const elementiVisibili = useMemo(() => {
+    const inizio = (pagina - 1) * perPagina;
+    return elementi.slice(inizio, inizio + perPagina);
+  }, [elementi, pagina, perPagina]);
 
-  // Calcola i mesi visibili con useMemo
-  const allMonths = useMemo(() => {
-    if (!data || data.length === 0) return [];
-    const monthsSet = new Set();
-    data.forEach((row) => {
-      if (row.filling_dt) monthsSet.add(row.filling_dt.substring(0, 7));
-    });
-    return Array.from(monthsSet).sort();
-  }, [data]);
-
-  const activeTrimsterMonths = useMemo(() => {
-    return allMonths.slice(currentMonthIndex, currentMonthIndex + 3);
-  }, [allMonths, currentMonthIndex]);
-
-  // Funzioni di navigazione
-  const handlePrevMonth = () => {
-    if (currentMonthIndex > 0) setCurrentMonthIndex((prev) => prev - 1);
+  const paginaSuccessiva = () => {
+    if (pagina < totalePagine) setPagina((p) => p + 1);
   };
-  const handleNextMonth = () => {
-    if (currentMonthIndex + 3 < allMonths.length)
-      setCurrentMonthIndex((prev) => prev + 1);
+  const paginaPrecedente = () => {
+    if (pagina > 1) setPagina((p) => p - 1);
   };
 
-  // Restituisce un oggetto con tutto il necessario
+  // Molti valori: restituiamo un oggetto
   return {
-    allMonths,
-    activeTrimsterMonths,
-    currentMonthIndex,
-    isLoading,
-    scrollContainerRefs,
-    handlePrevMonth,
-    handleNextMonth,
+    pagina,
+    totalePagine,
+    elementiVisibili,
+    paginaSuccessiva,
+    paginaPrecedente,
   };
+}
+
+// Uso nel componente
+function ElencoArticoli({ articoli }) {
+  const { pagina, totalePagine, elementiVisibili, paginaSuccessiva, paginaPrecedente } =
+    usePaginazione(articoli, 3);
+
+  return (
+    <div>
+      <ul>
+        {elementiVisibili.map((a) => <li key={a.id}>{a.titolo}</li>)}
+      </ul>
+      <button onClick={paginaPrecedente}>Indietro</button>
+      <span> Pagina {pagina} di {totalePagine} </span>
+      <button onClick={paginaSuccessiva}>Avanti</button>
+    </div>
+  );
 }`,
       },
       {
         type: "info",
         content:
-          "Nota come useChartDataAndScroll combina useState, useMemo, useRef e useSelector in un unico hook. Il componente che lo usa riceve un'interfaccia pulita senza dover conoscere i dettagli implementativi.",
+          "Nota come usePaginazione combina useState e useMemo in un unico hook. Il componente che lo usa riceve un'interfaccia pulita (dati e funzioni pronti all'uso) senza dover conoscere i dettagli del calcolo.",
       },
       {
         type: "tip",
         content:
-          "Nel progetto, useChartDataAndScroll e un custom hook che incapsula tutta la logica di processing dati del grafico, time windowing e scroll sincronizzato. useSession() e un custom hook per accedere al contesto di sessione.",
+          "Quando un componente diventa lungo e pieno di useState e useEffect, prova a raggruppare la logica in un custom hook con un nome che descriva cosa fa (useFetch, usePaginazione, useToggle): il componente resterà concentrato su ciò che mostra e la logica diventerà riutilizzabile.",
       },
     ],
     exercises: [
       {
         type: "code",
+        mode: "static",
         title: "Crea un custom hook useToggle",
         description:
-          "Crea un custom hook chiamato useToggle che gestisce un valore booleano.\nDeve restituire un array con: il valore corrente, una funzione per invertirlo (toggle), e una funzione per impostarlo direttamente (setValue).",
+          "Completa il custom hook `useToggle`, che gestisce un valore booleano (vero/falso).\n\n1. Crea lo stato con `const [valore, setValore] = useState(valoreIniziale);`\n2. Definisci una funzione `toggle` che inverte il valore usando `setValore` (con l'operatore `!`).\n3. Restituisci un array con, in quest'ordine: `valore`, `toggle` e `setValore`.\n\nIl componente `Interruttore` mostra come verrà usato l'hook.",
         difficulty: "facile",
-        starterCode: `function useToggle(valoreIniziale = false) {
-  // Implementa il hook
-  // Suggerimento: usa un semplice stato booleano
+        starterCode: `import { useState } from "react";
 
+function useToggle(valoreIniziale = false) {
+  // Implementa qui l'hook
 }
 
-// Test
-const [attivo, toggle, setAttivo] = useToggle(false);
-console.log(attivo);  // false
-toggle();
-// Come verificheresti che toggle funziona?
-// Suggerimento: simula lo stato con una variabile`,
-        solution: `function useToggle(valoreIniziale = false) {
-  let valore = valoreIniziale;
+// Esempio d'uso
+function Interruttore() {
+  const [acceso, toggle, setAcceso] = useToggle(false);
+
+  return (
+    <div>
+      <p>La luce è {acceso ? "accesa" : "spenta"}</p>
+      <button onClick={toggle}>Accendi/Spegni</button>
+      <button onClick={() => setAcceso(false)}>Spegni</button>
+    </div>
+  );
+}`,
+        solution: `import { useState } from "react";
+
+function useToggle(valoreIniziale = false) {
+  const [valore, setValore] = useState(valoreIniziale);
 
   const toggle = () => {
-    valore = !valore;
-    return valore;
+    setValore((v) => !v);
   };
 
-  const setValue = (nuovoValore) => {
-    valore = nuovoValore;
-    return valore;
-  };
-
-  return [valore, toggle, setValue];
+  return [valore, toggle, setValore];
 }
 
-// Test (versione semplificata senza React)
-let [attivo, toggle, setAttivo] = useToggle(false);
-console.log(attivo);         // false
-console.log(toggle());       // true
-console.log(toggle());       // false
-console.log(setAttivo(true)); // true`,
-        validate: `try {
-  return userCode.includes("useToggle") && userCode.includes("return");
-} catch(e) { return false; }`,
-        testCode: "",
+// Esempio d'uso
+function Interruttore() {
+  const [acceso, toggle, setAcceso] = useToggle(false);
+
+  return (
+    <div>
+      <p>La luce è {acceso ? "accesa" : "spenta"}</p>
+      <button onClick={toggle}>Accendi/Spegni</button>
+      <button onClick={() => setAcceso(false)}>Spegni</button>
+    </div>
+  );
+}`,
+        validate: `const c = $codeNoComments;
+if (!/function\\s+useToggle\\s*\\(|const\\s+useToggle\\s*=/.test(c)) return "Definisci l'hook useToggle.";
+if (!/const\\s*\\[\\s*valore\\s*,\\s*setValore\\s*\\]\\s*=\\s*useState\\(\\s*valoreIniziale\\s*\\)/.test(c)) return "Dentro useToggle crea lo stato: const [valore, setValore] = useState(valoreIniziale);";
+if (!/const\\s+toggle\\s*=|function\\s+toggle\\s*\\(/.test(c)) return "Definisci la funzione toggle dentro l'hook.";
+if (!/setValore\\(\\s*\\(?\\s*(\\w+)\\s*\\)?\\s*=>\\s*!\\s*\\1\\s*\\)|setValore\\(\\s*!\\s*valore\\s*\\)/.test(c)) return "toggle deve invertire il valore: setValore((v) => !v) oppure setValore(!valore).";
+if (!/return\\s*\\[\\s*valore\\s*,\\s*toggle\\s*,\\s*setValore\\s*\\]/.test(c)) return "L'hook deve restituire l'array [valore, toggle, setValore], in quest'ordine.";
+return true;`,
       },
       {
         type: "multiple-choice",
-        title: "Regole dei Hooks",
+        title: "Regole degli hook",
         description:
-          "Quale di queste e una violazione delle regole dei hooks?",
+          "Quale di queste è una violazione delle regole degli hook?",
         difficulty: "medio",
         options: [
           "Chiamare useState dentro un custom hook chiamato useForm",
           "Chiamare useEffect dentro un if (condizione) nel corpo del componente",
-          "Usare useSelector all'interno di un custom hook",
+          "Usare useRef all'interno di un custom hook chiamato useTimer",
           "Restituire un oggetto da un custom hook",
         ],
         correct: 1,
         explanation:
-          "Gli hook devono essere chiamati sempre allo stesso livello del componente o dell'hook, mai dentro condizioni, cicli o blocchi annidati. React dipende dall'ordine delle chiamate per gestire lo stato interno. Chiamare useEffect dentro un if violerebbe questo ordine.",
+          "Gli hook devono essere chiamati sempre al livello più alto del componente o dell'hook, mai dentro condizioni, cicli o blocchi annidati. React dipende dall'ordine delle chiamate per gestire lo stato interno: chiamare useEffect dentro un if cambierebbe quest'ordine tra un render e l'altro. Le altre opzioni sono tutte lecite.",
       },
       {
         type: "multiple-choice",
-        title: "Vantaggi dei Custom Hooks",
+        title: "Vantaggi dei custom hook",
         description:
-          "Qual e il vantaggio principale di estrarre logica in un custom hook?",
+          "Qual è il vantaggio principale di estrarre logica in un custom hook?",
         difficulty: "facile",
         options: [
-          "I custom hooks rendono il codice più veloce a runtime",
-          "I custom hooks permettono di condividere stato tra componenti",
-          "I custom hooks permettono di riutilizzare logica stateful senza duplicare codice",
-          "I custom hooks sostituiscono completamente la necessita di Redux",
+          "I custom hook rendono il codice più veloce durante l'esecuzione",
+          "I custom hook permettono di condividere lo stesso stato tra componenti diversi",
+          "I custom hook permettono di riutilizzare logica con stato senza duplicare codice",
+          "I custom hook restituiscono JSX e quindi sostituiscono i componenti",
         ],
         correct: 2,
         explanation:
-          "I custom hooks estraggono logica riutilizzabile. Attenzione: non condividono stato tra componenti (ogni uso crea il proprio stato indipendente). Il vantaggio e evitare la duplicazione di logica complessa che coinvolge hook.",
+          "I custom hook estraggono logica riutilizzabile. Attenzione: non condividono lo stato tra componenti (ogni uso crea il proprio stato indipendente) e non restituiscono JSX. Il vantaggio è evitare di duplicare logica complessa che coinvolge altri hook.",
       },
     ],
   },
@@ -573,12 +679,12 @@ console.log(setAttivo(true)); // true`,
       },
       {
         type: "heading",
-        content: "Il problema: Prop Drilling",
+        content: "Il problema: prop drilling",
       },
       {
         type: "text",
         content:
-          "Il prop drilling avviene quando un dato deve passare attraverso molti livelli di componenti, anche se quelli intermedi non lo usano. Ad esempio, se l'username deve arrivare dal componente App fino a un bottone annidato 5 livelli sotto, ogni componente intermedio deve riceverlo come prop e passarlo al figlio.",
+          "Il prop drilling avviene quando un dato deve passare attraverso molti livelli di componenti, anche se quelli intermedi non lo usano. Ad esempio, se il nome dell'utente deve arrivare dal componente App fino a un menu annidato cinque livelli più in basso, ogni componente intermedio deve riceverlo come prop e passarlo al figlio.",
       },
       {
         type: "code",
@@ -601,7 +707,7 @@ function Sidebar({ username }) {
 }
 
 function UserMenu({ username }) {
-  // Solo qui viene usato realmente
+  // Solo qui viene usato davvero
   return <span>Ciao, {username}!</span>;
 }`,
       },
@@ -612,213 +718,236 @@ function UserMenu({ username }) {
       {
         type: "text",
         content:
-          "Context crea un canale diretto tra un componente fornitore (Provider) e qualsiasi componente discendente che vuole consumare quei dati, saltando tutti i livelli intermedi.",
+          "Context crea un canale diretto tra un componente fornitore (il Provider) e qualsiasi componente discendente che vuole leggere quei dati, saltando tutti i livelli intermedi. Si procede in tre passi: si crea il Context con `createContext`, si crea un componente Provider che contiene lo stato, e lo si usa per avvolgere la parte di applicazione che deve accedere ai dati.",
       },
       {
         type: "code",
         language: "javascript",
         title: "Creare un Context e il suo Provider",
-        code: `import { createContext, useState, useEffect } from "react";
+        code: `import { createContext, useState } from "react";
 
-// 1. Creiamo il Context
-const SessionContext = createContext(undefined);
+// 1. Creiamo il Context (undefined è il valore di default)
+export const UserContext = createContext(undefined);
 
-// 2. Creiamo il Provider (un componente wrapper)
-export const SessionProvider = ({ children }) => {
-  const [username, setUsername] = useState("");
-  const [profilePhoto, setProfilePhoto] = useState("");
-  const [loading, setLoading] = useState(true);
+// 2. Creiamo il Provider: un componente che avvolge i figli
+export function UserProvider({ children }) {
+  const [username, setUsername] = useState("Mario Rossi");
+  const [loggato, setLoggato] = useState(true);
 
-  useEffect(() => {
-    // Logica per ottenere i dati utente
-    const fetchUser = async () => {
-      try {
-        const response = await fetch("/api/user");
-        const data = await response.json();
-        setUsername(data.name);
-        setProfilePhoto(data.photo);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchUser();
-  }, []);
+  const logout = () => {
+    setUsername("");
+    setLoggato(false);
+  };
 
-  // 3. Il Provider rende i dati disponibili a tutti i figli
+  // Tutto ciò che è in value diventa disponibile ai discendenti
   return (
-    <SessionContext.Provider value={{ username, profilePhoto, loading }}>
+    <UserContext.Provider value={{ username, loggato, logout }}>
       {children}
-    </SessionContext.Provider>
+    </UserContext.Provider>
   );
-};`,
+}
+
+// 3. Avvolgiamo l'applicazione con il Provider
+function App() {
+  return (
+    <UserProvider>
+      <Layout />
+    </UserProvider>
+  );
+}`,
       },
       {
         type: "heading",
-        content: "useContext: consumare il Context",
+        content: "useContext: leggere il Context",
       },
       {
         type: "text",
         content:
-          "Il hook useContext permette a qualsiasi componente discendente del Provider di accedere ai dati del Context, indipendentemente da quanti livelli di nesting ci siano.",
+          "L'hook `useContext` permette a qualsiasi componente discendente del Provider di leggere i dati del Context, indipendentemente da quanti livelli di annidamento ci siano. Ora Layout e Sidebar non devono più ricevere né passare username.",
       },
       {
         type: "code",
         language: "javascript",
-        title: "Consumare il Context con useContext",
+        title: "Leggere il Context con useContext",
         code: `import { useContext } from "react";
+import { UserContext } from "./UserContext";
+
+function Layout() {
+  return <Sidebar />; // nessuna prop da passare
+}
+
+function Sidebar() {
+  return <UserMenu />;
+}
 
 function UserMenu() {
-  // Accede direttamente ai dati - niente prop drilling!
-  const { username, profilePhoto } = useContext(SessionContext);
+  // Accede direttamente ai dati: niente prop drilling!
+  const { username, logout } = useContext(UserContext);
 
   return (
     <div>
-      <img src={profilePhoto} alt={username} />
-      <span>{username}</span>
+      <span>Ciao, {username}!</span>
+      <button onClick={logout}>Esci</button>
     </div>
   );
 }`,
       },
       {
+        type: "text",
+        content:
+          "Quando il valore del Provider cambia (ad esempio dopo il logout), React fa automaticamente il re-render di tutti i componenti che usano quel Context. Se ci sono più Provider dello stesso Context annidati, un componente legge il valore del Provider più vicino sopra di lui; un componente che non si trova dentro nessun Provider riceve invece il valore di default passato a `createContext`.",
+      },
+      {
         type: "subheading",
-        content: "Pattern: Custom Hook per il Context",
+        content: "Pattern: un custom hook per il Context",
       },
       {
         type: "text",
         content:
-          "Una best practice e creare un custom hook dedicato per ogni Context. Questo semplifica l'uso, aggiunge validazione e nasconde i dettagli implementativi.",
+          "Una buona pratica è creare un custom hook dedicato per ogni Context. Questo semplifica l'uso, aggiunge un controllo sugli errori e nasconde i dettagli di implementazione.",
       },
       {
         type: "code",
         language: "javascript",
-        title: "Custom hook useSession",
-        code: `import { createContext, useContext } from "react";
+        title: "Custom hook useUser",
+        code: `import { useContext } from "react";
+import { UserContext } from "./UserContext";
 
-const SessionContext = createContext(undefined);
-
-// Custom hook con validazione
-export const useSession = () => {
-  const context = useContext(SessionContext);
+// Custom hook con controllo
+export function useUser() {
+  const context = useContext(UserContext);
   if (!context) {
-    throw new Error(
-      "useSession deve essere usato dentro un SessionProvider"
-    );
+    throw new Error("useUser deve essere usato dentro un UserProvider");
   }
   return context;
-};
+}
 
 // Ora nei componenti basta scrivere:
 function ProfiloUtente() {
-  const { username, profilePhoto, accounts } = useSession();
+  const { username } = useUser();
   return <div>Benvenuto, {username}!</div>;
 }`,
       },
       {
         type: "info",
         content:
-          "Il throw new Error dentro useSession e un pattern difensivo: se un componente prova a usare il context fuori dal Provider, ottiene un errore chiaro invece di un undefined misterioso.",
+          "Il `throw new Error` dentro useUser è un pattern difensivo: se un componente prova a usare il Context fuori dal Provider, riceve il valore di default `undefined`; invece di un errore misterioso più avanti (\"cannot read properties of undefined\"), ottiene subito un messaggio chiaro.",
       },
       {
         type: "heading",
-        content: "Quando usare Context vs Redux",
+        content: "Quando usare Context e quando una libreria di stato",
+      },
+      {
+        type: "text",
+        content:
+          "Context è ottimo per pochi dati globali, ma non è pensato per gestire tutto lo stato di un'applicazione grande. Per questo esistono librerie dedicate come Redux, che vedremo nel prossimo modulo. Ecco un confronto concettuale:",
       },
       {
         type: "list",
         items: [
-          "Usa Context per dati che cambiano raramente: tema, lingua, sessione utente, autenticazione.",
-          "Usa Redux per stato complesso e frequentemente aggiornato: filtri, dati dei grafici, navigazione.",
-          "Context causa il re-render di TUTTI i consumatori quando il valore cambia, anche se usano solo una parte dei dati.",
-          "Redux con useSelector permette di leggere solo la porzione di stato necessaria, ottimizzando i re-render.",
-          "Possono coesistere: in un'applicazione enterprise, Context gestisce la sessione mentre Redux gestisce tutto il resto.",
+          "Usa Context per dati che cambiano raramente e servono ovunque: tema, lingua, utente connesso.",
+          "Context causa il re-render di TUTTI i componenti che lo usano quando il valore cambia, anche se a loro interessa solo una parte dei dati.",
+          "Una libreria come Redux è più adatta a stato complesso e aggiornato spesso (carrello, filtri, dati condivisi da molte pagine): permette a ogni componente di leggere solo la porzione di stato che gli serve, limitando i re-render.",
+          "Le due soluzioni possono convivere: ad esempio Context per tema e utente, Redux per il resto dello stato.",
         ],
       },
       {
         type: "tip",
         content:
-          "Nel progetto, SessionContext fornisce profilePhoto, username e accounts a tutti i componenti senza passarli come props. La gerarchia e: Redux Provider > MSAL Provider > SessionProvider.",
+          "Non usare Context per evitare di passare props a uno o due livelli: in quel caso le props sono più semplici e chiare. Riservalo ai dati davvero globali e accompagnalo sempre con un custom hook (useUser, useTheme) che controlli la presenza del Provider.",
       },
     ],
     exercises: [
       {
         type: "code",
+        mode: "static",
         title: "Crea un ThemeContext",
         description:
-          "Crea un semplice sistema di tema (chiaro/scuro) usando il pattern del Context.\n\nImplementa:\n1. Una variabile themeContext che simula il contesto (un oggetto)\n2. Una funzione useTheme che legge il contesto e lancia un errore se il valore e undefined\n3. Una funzione toggleTheme che cambia il tema tra 'chiaro' e 'scuro'",
+          "Crea un sistema di tema (chiaro/scuro) con la Context API.\n\n1. Crea `ThemeContext` con `createContext(undefined)`.\n2. Nel componente `ThemeProvider` crea lo stato `const [tema, setTema] = useState(\"chiaro\");` e una funzione `toggleTema` che passa da \"chiaro\" a \"scuro\" e viceversa.\n3. `ThemeProvider` deve restituire `<ThemeContext.Provider value={{ tema, toggleTema }}>` con dentro `{children}`.\n4. Nel custom hook `useTheme` leggi il Context con `useContext`, lancia un errore con `throw new Error(...)` se il valore è undefined, altrimenti restituiscilo.",
         difficulty: "medio",
-        starterCode: `// Simula un context (senza React)
-let themeContext = { theme: "chiaro" };
+        starterCode: `import { createContext, useContext, useState } from "react";
 
-function useTheme() {
-  // Leggi themeContext e verifica che non sia undefined
-  // Restituisci l'oggetto context
+// 1. Crea ThemeContext
 
-}
-
-function toggleTheme() {
-  // Cambia il tema tra "chiaro" e "scuro"
+// 2-3. Completa il Provider
+export function ThemeProvider({ children }) {
 
 }
 
-// Test
-console.log(useTheme().theme); // "chiaro"
-toggleTheme();
-console.log(useTheme().theme); // "scuro"
-toggleTheme();
-console.log(useTheme().theme); // "chiaro"`,
-        solution: `let themeContext = { theme: "chiaro" };
+// 4. Completa il custom hook
+export function useTheme() {
 
-function useTheme() {
-  if (!themeContext) {
+}`,
+        solution: `import { createContext, useContext, useState } from "react";
+
+const ThemeContext = createContext(undefined);
+
+export function ThemeProvider({ children }) {
+  const [tema, setTema] = useState("chiaro");
+
+  const toggleTema = () => {
+    setTema((t) => (t === "chiaro" ? "scuro" : "chiaro"));
+  };
+
+  return (
+    <ThemeContext.Provider value={{ tema, toggleTema }}>
+      {children}
+    </ThemeContext.Provider>
+  );
+}
+
+export function useTheme() {
+  const context = useContext(ThemeContext);
+  if (!context) {
     throw new Error("useTheme deve essere usato dentro un ThemeProvider");
   }
-  return themeContext;
-}
-
-function toggleTheme() {
-  themeContext.theme = themeContext.theme === "chiaro" ? "scuro" : "chiaro";
-}
-
-console.log(useTheme().theme); // "chiaro"
-toggleTheme();
-console.log(useTheme().theme); // "scuro"
-toggleTheme();
-console.log(useTheme().theme); // "chiaro"`,
-        validate: `try {
-  return userCode.includes("useTheme") && userCode.includes("toggleTheme") && userCode.includes("throw");
-} catch(e) { return false; }`,
-        testCode: "",
+  return context;
+}`,
+        validate: `const c = $codeNoComments;
+if (!/const\\s+ThemeContext\\s*=\\s*createContext\\(/.test(c)) return "Crea il Context: const ThemeContext = createContext(undefined);";
+if (!/const\\s*\\[\\s*tema\\s*,\\s*setTema\\s*\\]\\s*=\\s*useState\\(\\s*["']chiaro["']\\s*\\)/.test(c)) return "In ThemeProvider crea lo stato: const [tema, setTema] = useState(\\"chiaro\\");";
+if (!/const\\s+toggleTema\\s*=|function\\s+toggleTema\\s*\\(/.test(c)) return "Definisci la funzione toggleTema dentro ThemeProvider.";
+if (!/setTema\\(/.test(c) || !/["']scuro["']/.test(c) || !/===\\s*["'](chiaro|scuro)["']|["'](chiaro|scuro)["']\\s*===/.test(c)) return "toggleTema deve usare setTema per passare da \\"chiaro\\" a \\"scuro\\" e viceversa (ad esempio con un ternario e ===).";
+const prov = c.match(/<ThemeContext\\.Provider\\s+value\\s*=\\s*\\{\\s*\\{([^}]*)\\}\\s*\\}\\s*>/);
+if (!prov) return "ThemeProvider deve restituire <ThemeContext.Provider value={{ tema, toggleTema }}>.";
+if (!/\\btema\\b/.test(prov[1]) || !/\\btoggleTema\\b/.test(prov[1])) return "Nel value del Provider metti sia tema sia toggleTema: value={{ tema, toggleTema }}.";
+if (!/<ThemeContext\\.Provider[\\s\\S]*\\{\\s*children\\s*\\}[\\s\\S]*<\\/ThemeContext\\.Provider>/.test(c)) return "Dentro il Provider mostra i figli con {children} e chiudi il tag con </ThemeContext.Provider>.";
+if (!/useContext\\(\\s*ThemeContext\\s*\\)/.test(c)) return "In useTheme leggi il Context con useContext(ThemeContext).";
+if (!/throw\\s+new\\s+Error\\(/.test(c)) return "In useTheme lancia un errore se il Context è undefined: throw new Error(\\"...\\").";
+if (!/function\\s+useTheme[\\s\\S]*throw[\\s\\S]*return\\s+\\w+/.test(c)) return "Alla fine di useTheme restituisci il valore del Context con return.";
+return true;`,
       },
       {
         type: "multiple-choice",
-        title: "Context vs Props",
+        title: "Context o props?",
         description:
-          "Quando e preferibile usare Context invece di passare props normalmente?",
+          "Quando è preferibile usare Context invece di passare normalmente le props?",
         difficulty: "facile",
         options: [
-          "Sempre, perche le props sono obsolete",
+          "Sempre, perché le props sono superate",
           "Quando un dato deve attraversare molti livelli di componenti che non lo usano direttamente",
           "Solo per gestire il tema dell'applicazione",
-          "Quando si vogliono migliorare le prestazioni di rendering",
+          "Quando si vogliono migliorare le prestazioni del rendering",
         ],
         correct: 1,
         explanation:
-          "Context e utile quando i dati devono attraversare molti livelli intermedi che non li usano (prop drilling). Non sostituisce le props per comunicazione diretta genitore-figlio, e non migliora le prestazioni di per se (anzi, un uso eccessivo puo peggiorarle).",
+          "Context è utile quando i dati devono attraversare molti livelli intermedi che non li usano (prop drilling). Non sostituisce le props nella comunicazione diretta genitore-figlio e non migliora le prestazioni di per sé (anzi, un uso eccessivo può peggiorarle, perché ogni cambiamento fa ridisegnare tutti i componenti che lo usano).",
       },
       {
         type: "multiple-choice",
-        title: "Gerarchia dei Provider",
+        title: "Provider annidati",
         description:
-          "In un'applicazione enterprise, qual e l'ordine corretto dei Provider nel layout dell'applicazione?",
+          "Un'app è avvolta da `<ThemeContext.Provider value=\"chiaro\">`. Al suo interno, una sezione è avvolta da `<ThemeContext.Provider value=\"scuro\">`. Un componente dentro quella sezione chiama `useContext(ThemeContext)`. Che valore riceve?",
         difficulty: "difficile",
         options: [
-          "SessionProvider > MSAL Provider > Redux Provider",
-          "Redux Provider > MSAL Provider > SessionProvider",
-          "MSAL Provider > SessionProvider > Redux Provider",
-          "L'ordine dei Provider non ha importanza",
+          "\"chiaro\", perché vince sempre il Provider più esterno",
+          "\"scuro\", perché si legge il valore del Provider più vicino",
+          "undefined, perché non si possono annidare due Provider dello stesso Context",
+          "Un array con entrambi i valori: [\"chiaro\", \"scuro\"]",
         ],
         correct: 1,
         explanation:
-          "L'ordine e: Redux Provider (più esterno) > MSAL Provider > SessionProvider (più interno). Questo e necessario perche SessionProvider potrebbe aver bisogno di accedere allo stato Redux o MSAL, quindi deve trovarsi all'interno di quei Provider.",
+          "useContext risale l'albero dei componenti e usa il valore del Provider più vicino. Annidare Provider dello stesso Context è lecito ed è utile per sovrascrivere un valore solo in una parte dell'app (ad esempio una sezione con tema scuro). Solo un componente fuori da ogni Provider riceve il valore di default di createContext.",
       },
     ],
   },

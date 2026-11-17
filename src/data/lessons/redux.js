@@ -4,16 +4,69 @@ export const lessons = {
       {
         type: "text",
         content:
-          "Redux e una libreria per la gestione dello stato globale dell'applicazione. Invece di passare dati tra decine di componenti tramite props, Redux crea un unico store centralizzato a cui qualsiasi componente puo accedere direttamente.",
+          "Redux è una libreria per la gestione dello **stato globale** di un'applicazione. Invece di passare i dati tra decine di componenti tramite props, Redux li conserva in un unico **store** centralizzato da cui qualsiasi componente può leggere e a cui qualsiasi componente può chiedere modifiche.",
       },
       {
         type: "heading",
-        content: "Perche Redux?",
+        content: "Perché Redux?",
       },
       {
         type: "text",
         content:
-          "Immagina un'app con filtri nella sidebar, dati nel grafico centrale e contatori nella barra superiore. Tutti questi componenti devono leggere e modificare gli stessi dati. Senza Redux, dovresti sollevare lo stato al componente più alto e passarlo giu come props. Redux elimina questo problema creando un unico punto di verita accessibile ovunque.",
+          "Immagina un negozio online: l'header mostra il numero di articoli nel carrello, la pagina del prodotto ha il bottone \"Aggiungi al carrello\", la pagina del carrello mostra l'elenco e il totale, e il checkout deve conoscere tutto. Tutti questi componenti leggono e modificano gli stessi dati. Senza uno stato globale dovresti sollevare lo stato fino al componente più alto e passarlo giù come props (il *prop drilling* visto nella lezione su Context). Redux risolve il problema creando un'unica fonte di verità accessibile ovunque.",
+      },
+      {
+        type: "info",
+        content:
+          "Anche Context risolve il prop drilling. Redux in più offre: aggiornamenti prevedibili tramite action e reducer, strumenti di debug (Redux DevTools) e la possibilità di far ri-renderizzare un componente solo quando cambia la porzione di stato che usa. Per dati semplici e poco frequenti (tema, utente loggato) Context basta; per stato ricco e aggiornato spesso Redux è più comodo.",
+      },
+      {
+        type: "heading",
+        content: "I concetti di base: state, action, reducer",
+      },
+      {
+        type: "list",
+        items: [
+          "**State**: un normale oggetto JavaScript che contiene tutti i dati globali, ad esempio `{ cart: { items: [], total: 0 } }`.",
+          "**Action**: un oggetto che descrive *cosa è successo*. Ha sempre un campo `type` (una stringa) e spesso un `payload` con i dati, ad esempio `{ type: \"cart/addItem\", payload: { name: \"Mela\", price: 1.5 } }`.",
+          "**Reducer**: una funzione `(state, action) => nuovoState` che, dato lo stato attuale e un'action, restituisce il nuovo stato. Deve essere *pura*: niente effetti collaterali e niente modifiche dirette allo stato ricevuto.",
+          "**Store**: l'oggetto che conserva lo stato e offre `getState()` per leggerlo e `dispatch(action)` per inviare un'action al reducer.",
+        ],
+      },
+      {
+        type: "code",
+        language: "javascript",
+        title: "Un reducer \"a mano\" (Redux classico)",
+        code: `const initialState = { items: [], total: 0 };
+
+function cartReducer(state = initialState, action) {
+  if (action.type === "cart/addItem") {
+    // Non modifichiamo state: creiamo un NUOVO oggetto con lo spread
+    return {
+      ...state,
+      items: [...state.items, action.payload],
+      total: state.total + action.payload.price,
+    };
+  } else if (action.type === "cart/clear") {
+    return initialState;
+  }
+  // Action sconosciuta: lo stato resta com'è
+  return state;
+}
+
+let state = cartReducer(undefined, { type: "@@init" });
+console.log(state); // { items: [], total: 0 }
+
+state = cartReducer(state, {
+  type: "cart/addItem",
+  payload: { name: "Mela", price: 1.5 },
+});
+console.log(state.total); // 1.5`,
+      },
+      {
+        type: "text",
+        content:
+          "Perché tanta attenzione a non modificare lo stato? Redux (e React) capiscono che qualcosa è cambiato confrontando i riferimenti con `===`: se modifichi l'oggetto esistente, il riferimento resta lo stesso e l'interfaccia potrebbe non aggiornarsi. Restituire sempre un nuovo oggetto rende ogni modifica rilevabile e prevedibile.",
       },
       {
         type: "heading",
@@ -22,57 +75,16 @@ export const lessons = {
       {
         type: "text",
         content:
-          "Redux Toolkit e il modo moderno e ufficiale di usare Redux. Il Redux classico richiedeva molto codice boilerplate: action types come stringhe, action creators separati, reducer con grandi switch-case, e immutabilita manuale dello stato. RTK semplifica tutto questo drasticamente.",
+          "Redux Toolkit è il modo moderno e ufficiale di usare Redux (si installa con `npm install @reduxjs/toolkit react-redux`). Il Redux classico richiedeva molto codice ripetitivo (*boilerplate*): stringhe per i tipi di action, funzioni separate per creare le action, reducer con lunghe catene di condizioni e copie manuali dello stato con lo spread. RTK semplifica tutto questo.",
       },
       {
         type: "list",
         items: [
-          "configureStore: crea lo store con configurazione automatica di middleware e dev tools.",
-          "createSlice: genera automaticamente actions e reducer da un singolo oggetto.",
-          "Immer integrato: puoi scrivere codice che sembra mutare lo stato, ma sotto il cofano produce aggiornamenti immutabili.",
-          "Meno boilerplate: niente più action types, action creators manuali o switch-case.",
+          "`configureStore`: crea lo store con una configurazione già pronta (middleware e supporto ai Redux DevTools).",
+          "`createSlice`: genera automaticamente action e reducer a partire da un unico oggetto.",
+          "Immer integrato: puoi scrivere codice che *sembra* modificare lo stato, ma che produce comunque un nuovo oggetto.",
+          "Meno boilerplate: niente tipi di action scritti a mano, niente funzioni per creare action, niente catene di if/else.",
         ],
-      },
-      {
-        type: "heading",
-        content: "configureStore: creare lo Store",
-      },
-      {
-        type: "text",
-        content:
-          "Lo store e il contenitore centrale di tutto lo stato dell'applicazione. Si crea con configureStore passando un oggetto con i reducer. Ogni chiave dell'oggetto reducer diventa una sezione (slice) dello stato globale.",
-      },
-      {
-        type: "code",
-        language: "javascript",
-        title: "Store di un'applicazione reale",
-        code: `import { configureStore } from "@reduxjs/toolkit";
-import navigationReducer from "./reducers/navigationReducer";
-import dataReducer from "./reducers/dataReducer";
-import chartConfigReducer from "./reducers/editModeReducer";
-import filtersReducer from "./reducers/filtersSlice";
-import filterCombinationReducer from "./reducers/filterCombinationReducer";
-
-const store = configureStore({
-  reducer: {
-    navigation: navigationReducer,
-    data: dataReducer,
-    chartConfig: chartConfigReducer,
-    filters: filtersReducer,
-    filterCombination: filterCombinationReducer,
-  },
-});
-
-export default store;
-
-// Lo stato risultante ha questa forma:
-// {
-//   navigation: { selectedSite, selectedAnalysisType, selectedPage, ... },
-//   data: { ... },
-//   chartConfig: { charts: { ... } },
-//   filters: { "100/category_analysis": { values, options, range }, ... },
-//   filterCombination: { ... },
-// }`,
       },
       {
         type: "heading",
@@ -81,48 +93,48 @@ export default store;
       {
         type: "text",
         content:
-          "createSlice e il cuore di Redux Toolkit. Riceve un nome, uno stato iniziale e un oggetto di reducer, e genera automaticamente le action e gli action creators corrispondenti.",
+          "`createSlice` è il cuore di Redux Toolkit. Riceve un nome, uno stato iniziale e un oggetto di reducer, e genera automaticamente il reducer della slice e gli *action creators*: funzioni che costruiscono l'action giusta. Ad esempio `addItem(prodotto)` restituisce `{ type: \"cart/addItem\", payload: prodotto }`.",
       },
       {
         type: "code",
         language: "javascript",
-        title: "createSlice - navigazione del progetto",
-        code: `import { createSlice } from "@reduxjs/toolkit";
+        title: "createSlice per il carrello",
+        code: `// store/cartSlice.js
+import { createSlice } from "@reduxjs/toolkit";
 
-const navigationSlice = createSlice({
-  name: "navigation",           // Nome univoco della slice
-  initialState: {               // Stato iniziale
-    selectedSite: "Sesto",
-    selectedAnalysisType: "100",
-    selectedPage: "category_analysis",
-    selectedView: "grafico",
-    selectedGroupBy: "individual",
+const cartSlice = createSlice({
+  name: "cart",                 // Nome univoco: prefisso dei tipi di action
+  initialState: {               // Stato iniziale della slice
+    items: [],
+    total: 0,
   },
-  reducers: {                   // Funzioni che modificano lo stato
-    setSelectedSite(state, action) {
-      state.selectedSite = action.payload;
+  reducers: {                   // Una funzione per ogni modifica possibile
+    addItem(state, action) {
+      state.items.push(action.payload);
+      state.total += action.payload.price;
     },
-    setSelectedAnalysisType(state, action) {
-      state.selectedAnalysisType = action.payload;
-      // Quando cambia il tipo di analisi, resetta la pagina
-      state.selectedPage = "category_analysis";
-      state.selectedView = "grafico";
+    removeItem(state, action) {
+      const index = state.items.findIndex((p) => p.name === action.payload);
+      if (index !== -1) {
+        state.total -= state.items[index].price;
+        state.items.splice(index, 1);
+      }
     },
-    setSelectedPage(state, action) {
-      state.selectedPage = action.payload;
+    clearCart(state) {
+      state.items = [];
+      state.total = 0;
     },
   },
 });
 
-// Le action vengono generate AUTOMATICAMENTE
-export const {
-  setSelectedSite,
-  setSelectedAnalysisType,
-  setSelectedPage,
-} = navigationSlice.actions;
+// Gli action creators vengono generati AUTOMATICAMENTE
+export const { addItem, removeItem, clearCart } = cartSlice.actions;
+
+console.log(addItem({ name: "Mela", price: 1.5 }));
+// { type: "cart/addItem", payload: { name: "Mela", price: 1.5 } }
 
 // Il reducer viene esportato per lo store
-export default navigationSlice.reducer;`,
+export default cartSlice.reducer;`,
       },
       {
         type: "heading",
@@ -131,37 +143,39 @@ export default navigationSlice.reducer;`,
       {
         type: "text",
         content:
-          "In Redux classico, non puoi mai modificare lo stato direttamente: devi sempre restituire un nuovo oggetto. Redux Toolkit usa la libreria Immer sotto il cofano, permettendoti di scrivere codice che sembra mutare lo stato ma in realta produce una copia immutabile.",
+          "Nel Redux classico non puoi mai modificare lo stato direttamente: devi sempre restituire un nuovo oggetto. Redux Toolkit usa la libreria **Immer**, che ti permette di scrivere `state.total += 1` o `state.items.push(...)`: Immer registra le modifiche su una bozza e produce un nuovo stato, lasciando intatto quello precedente.",
       },
       {
         type: "code",
         language: "javascript",
         title: "Immer rende il codice molto più leggibile",
-        code: `// REDUX CLASSICO (senza Immer) - verboso e fragile
-function filtersReducer(state, action) {
-  return {
-    ...state,
-    [action.payload.key]: {
-      ...state[action.payload.key],
-      values: {
-        ...state[action.payload.key].values,
-        [action.payload.filter]: action.payload.value,
+        code: `// REDUX CLASSICO (senza Immer): spread annidati, verboso e fragile
+function preferencesReducer(state, action) {
+  if (action.type === "preferences/setNotification") {
+    return {
+      ...state,
+      notifications: {
+        ...state.notifications,
+        [action.payload.channel]: action.payload.enabled,
       },
-    },
-  };
+    };
+  }
+  return state;
 }
 
-// REDUX TOOLKIT (con Immer) - semplice e diretto
-const filtersSlice = createSlice({
-  name: "filters",
-  initialState: {},
+// REDUX TOOLKIT (con Immer): semplice e diretto
+const preferencesSlice = createSlice({
+  name: "preferences",
+  initialState: {
+    theme: "chiaro",
+    notifications: { email: true, push: false },
+  },
   reducers: {
-    setFilterValue(state, action) {
-      const { key, filter, value } = action.payload;
-      // Sembra una mutazione, ma Immer la converte
-      // automaticamente in un aggiornamento immutabile!
-      if (!state[key]) state[key] = { values: {}, options: {}, range: "1y" };
-      state[key].values[filter] = value;
+    setNotification(state, action) {
+      const { channel, enabled } = action.payload;
+      // Sembra una modifica diretta, ma Immer la trasforma
+      // in un aggiornamento immutabile!
+      state.notifications[channel] = enabled;
     },
   },
 });`,
@@ -169,150 +183,230 @@ const filtersSlice = createSlice({
       {
         type: "warning",
         content:
-          "Attenzione: la \"mutazione\" funziona solo dentro i reducer di createSlice. Fuori dai reducer (ad esempio nei componenti), non devi MAI modificare lo stato Redux direttamente.",
+          "Attenzione: la \"mutazione\" è permessa solo dentro i reducer di `createSlice`. Fuori dai reducer (ad esempio nei componenti) non devi MAI modificare direttamente lo stato Redux: invia sempre un'action con `dispatch`.",
       },
       {
-        type: "subheading",
-        content: "più slices per un'app organizzata",
+        type: "heading",
+        content: "configureStore: creare lo store",
       },
       {
         type: "text",
         content:
-          "Ogni slice gestisce una responsabilita specifica. Dividere lo stato in slices rende il codice modulare, testabile e facile da comprendere. Ogni sviluppatore puo lavorare sulla propria slice senza conflitti.",
+          "Lo store si crea con `configureStore`, passando un oggetto `reducer`. Ogni chiave di questo oggetto diventa una sezione (slice) dello stato globale, gestita dal reducer corrispondente.",
+      },
+      {
+        type: "code",
+        language: "javascript",
+        title: "Lo store di un negozio online",
+        code: `// store/index.js
+import { configureStore } from "@reduxjs/toolkit";
+import cartReducer from "./cartSlice";
+import productsReducer from "./productsSlice";
+import preferencesReducer from "./preferencesSlice";
+
+const store = configureStore({
+  reducer: {
+    cart: cartReducer,
+    products: productsReducer,
+    preferences: preferencesReducer,
+  },
+});
+
+export default store;
+
+// Lo stato globale ha questa forma:
+// {
+//   cart: { items: [...], total: 0 },
+//   products: { list: [...], loading: false },
+//   preferences: { theme: "chiaro", notifications: { ... } },
+// }
+
+// Lo store si può usare anche senza React:
+store.dispatch(addItem({ name: "Mela", price: 1.5 }));
+console.log(store.getState().cart.total); // 1.5`,
+      },
+      {
+        type: "subheading",
+        content: "Più slice per un'app organizzata",
+      },
+      {
+        type: "text",
+        content:
+          "Ogni slice gestisce una responsabilità specifica. Dividere lo stato in slice rende il codice modulare, facile da testare e da capire: chi lavora sul carrello tocca solo `cartSlice.js`.",
       },
       {
         type: "list",
         items: [
-          "navigation: sito selezionato, tipo di analisi, pagina corrente, vista e raggruppamento.",
-          "data: dati grezzi caricati dal backend.",
-          "chartConfig: configurazione visuale dei grafici (colori, stili, assi) personalizzata dall'utente.",
-          "filters: valori dei filtri selezionati e opzioni disponibili per ogni pagina.",
-          "filterCombination: combinazioni valide di filtri e logica di narrowing.",
+          "`cart`: prodotti nel carrello e totale.",
+          "`products`: catalogo dei prodotti caricato dal server e stato di caricamento.",
+          "`preferences`: tema, lingua e notifiche scelte dall'utente.",
         ],
       },
       {
         type: "tip",
         content:
-          "In un'applicazione enterprise, lo store ha 5 slices: navigation, data, chartConfig, filters, filterCombination. Ogni slice gestisce un aspetto specifico dello stato.",
+          "Crea una slice per ogni area logica dell'applicazione (non una per componente) e metti in Redux solo lo stato davvero condiviso: lo stato locale di un singolo componente, come l'apertura di un menu o il testo di un campo, sta meglio in `useState`.",
       },
     ],
     exercises: [
       {
         type: "code",
-        title: "Crea una slice per un carrello",
+        title: "Crea la slice del carrello",
         description:
-          "Simula la struttura di una slice Redux per un carrello della spesa.\n\nCrea un oggetto carrelloSlice con:\n- name: \"carrello\"\n- initialState: un oggetto con prodotti (array vuoto) e totale (0)\n- reducers: un oggetto con aggiungiProdotto e rimuoviProdotto\n\nLe funzioni reducer ricevono (state, action) e modificano state direttamente (come con Immer).",
+          "Nello starter trovi una versione semplificata di `createSlice` (non serve modificarla): crea `actions` e `reducer` come quella vera, e lavora su una copia dello stato, quindi puoi \"mutare\" `state` come con Immer.\n\nCrea `cartSlice` con:\n- `name`: \"cart\"\n- `initialState`: `{ items: [], total: 0 }`\n- `reducers`:\n  - `addItem(state, action)`: aggiunge `action.payload` (un oggetto `{ name, price }`) a `items` e somma il prezzo a `total`\n  - `removeItem(state, action)`: `action.payload` è un nome; rimuove il primo prodotto con quel nome e sottrae il suo prezzo da `total` (se non esiste non fa nulla)\n  - `clearCart(state)`: svuota il carrello e riporta `total` a 0",
         difficulty: "medio",
-        starterCode: `// Simula createSlice (senza Redux)
+        mode: "js",
+        starterCode: `// ---- createSlice semplificato (non modificare) ----
 function createSlice({ name, initialState, reducers }) {
-  const state = JSON.parse(JSON.stringify(initialState));
   const actions = {};
-
-  for (const [key, reducerFn] of Object.entries(reducers)) {
-    actions[key] = (payload) => reducerFn(state, { payload });
+  for (const key of Object.keys(reducers)) {
+    // Action creator: costruisce { type: "nome/chiave", payload }
+    actions[key] = (payload) => ({ type: name + "/" + key, payload });
   }
-
-  return { name, state, actions };
+  function reducer(state = initialState, action) {
+    for (const key of Object.keys(reducers)) {
+      if (action.type === name + "/" + key) {
+        // structuredClone crea una copia profonda: lo stato precedente resta intatto
+        const draft = structuredClone(state);
+        reducers[key](draft, action);
+        return draft;
+      }
+    }
+    return state;
+  }
+  return { name, actions, reducer };
 }
+// ----------------------------------------------------
 
-// Crea la slice del carrello
-const carrelloSlice = createSlice({
-  name: "carrello",
+const cartSlice = createSlice({
+  name: "cart",
   initialState: {
     // definisci lo stato iniziale
   },
   reducers: {
-    // aggiungiProdotto: aggiunge un prodotto all'array e aggiorna il totale
-    // rimuoviProdotto: rimuove per nome e aggiorna il totale
+    // addItem, removeItem, clearCart
   },
 });
 
-// Test
-const { aggiungiProdotto, rimuoviProdotto } = carrelloSlice.actions;
-aggiungiProdotto({ nome: "Mela", prezzo: 1.5 });
-aggiungiProdotto({ nome: "Pane", prezzo: 2.0 });
-console.log(carrelloSlice.state.prodotti.length); // 2
-console.log(carrelloSlice.state.totale);          // 3.5
-rimuoviProdotto({ nome: "Mela" });
-console.log(carrelloSlice.state.prodotti.length); // 1
-console.log(carrelloSlice.state.totale);          // 2.0`,
-        solution: `function createSlice({ name, initialState, reducers }) {
-  const state = JSON.parse(JSON.stringify(initialState));
+// Prova
+const { addItem, removeItem, clearCart } = cartSlice.actions;
+let state = cartSlice.reducer(undefined, { type: "@@init" });
+state = cartSlice.reducer(state, addItem({ name: "Mela", price: 1.5 }));
+state = cartSlice.reducer(state, addItem({ name: "Pane", price: 2 }));
+console.log(state.items.length, state.total); // 2 3.5
+state = cartSlice.reducer(state, removeItem("Mela"));
+console.log(state.items.length, state.total); // 1 2`,
+        solution: `// ---- createSlice semplificato (non modificare) ----
+function createSlice({ name, initialState, reducers }) {
   const actions = {};
-
-  for (const [key, reducerFn] of Object.entries(reducers)) {
-    actions[key] = (payload) => reducerFn(state, { payload });
+  for (const key of Object.keys(reducers)) {
+    // Action creator: costruisce { type: "nome/chiave", payload }
+    actions[key] = (payload) => ({ type: name + "/" + key, payload });
   }
-
-  return { name, state, actions };
+  function reducer(state = initialState, action) {
+    for (const key of Object.keys(reducers)) {
+      if (action.type === name + "/" + key) {
+        // structuredClone crea una copia profonda: lo stato precedente resta intatto
+        const draft = structuredClone(state);
+        reducers[key](draft, action);
+        return draft;
+      }
+    }
+    return state;
+  }
+  return { name, actions, reducer };
 }
+// ----------------------------------------------------
 
-const carrelloSlice = createSlice({
-  name: "carrello",
+const cartSlice = createSlice({
+  name: "cart",
   initialState: {
-    prodotti: [],
-    totale: 0,
+    items: [],
+    total: 0,
   },
   reducers: {
-    aggiungiProdotto(state, action) {
-      state.prodotti.push(action.payload);
-      state.totale += action.payload.prezzo;
+    addItem(state, action) {
+      state.items.push(action.payload);
+      state.total += action.payload.price;
     },
-    rimuoviProdotto(state, action) {
-      const indice = state.prodotti.findIndex(
-        (p) => p.nome === action.payload.nome
-      );
-      if (indice !== -1) {
-        state.totale -= state.prodotti[indice].prezzo;
-        state.prodotti.splice(indice, 1);
+    removeItem(state, action) {
+      const index = state.items.findIndex((p) => p.name === action.payload);
+      if (index !== -1) {
+        state.total -= state.items[index].price;
+        state.items.splice(index, 1);
       }
+    },
+    clearCart(state) {
+      state.items = [];
+      state.total = 0;
     },
   },
 });
 
-const { aggiungiProdotto, rimuoviProdotto } = carrelloSlice.actions;
-aggiungiProdotto({ nome: "Mela", prezzo: 1.5 });
-aggiungiProdotto({ nome: "Pane", prezzo: 2.0 });
-console.log(carrelloSlice.state.prodotti.length); // 2
-console.log(carrelloSlice.state.totale);          // 3.5
-rimuoviProdotto({ nome: "Mela" });
-console.log(carrelloSlice.state.prodotti.length); // 1
-console.log(carrelloSlice.state.totale);          // 2.0`,
-        validate: `try {
-  return carrelloSlice.state.prodotti.length === 1 && carrelloSlice.state.totale === 2;
-} catch(e) { return false; }`,
-        testCode: "",
+// Prova
+const { addItem, removeItem, clearCart } = cartSlice.actions;
+let state = cartSlice.reducer(undefined, { type: "@@init" });
+state = cartSlice.reducer(state, addItem({ name: "Mela", price: 1.5 }));
+state = cartSlice.reducer(state, addItem({ name: "Pane", price: 2 }));
+console.log(state.items.length, state.total); // 2 3.5
+state = cartSlice.reducer(state, removeItem("Mela"));
+console.log(state.items.length, state.total); // 1 2`,
+        validate: `if (typeof cartSlice !== "object" || !cartSlice) return "Crea cartSlice con createSlice";
+if (cartSlice.name !== "cart") return "Il name della slice deve essere \\"cart\\"";
+const a = cartSlice.actions;
+const r = cartSlice.reducer;
+let s = r(undefined, { type: "@@init" });
+if (!$equal(s, { items: [], total: 0 })) return "initialState deve essere { items: [], total: 0 }";
+for (const k of ["addItem", "removeItem", "clearCart"]) {
+  if (typeof a[k] !== "function") return "Manca il reducer " + k + " nell'oggetto reducers";
+}
+s = r(s, a.addItem({ name: "Mela", price: 1.5 }));
+s = r(s, a.addItem({ name: "Pane", price: 2 }));
+s = r(s, a.addItem({ name: "Latte", price: 0.5 }));
+if (!s.items || s.items.length !== 3) return "Dopo 3 addItem il carrello deve contenere 3 prodotti";
+if (s.items[0].name !== "Mela" || s.items[2].name !== "Latte") return "addItem deve aggiungere action.payload in fondo a items";
+if (s.total !== 4) return "Dopo aver aggiunto prodotti da 1.5, 2 e 0.5 il totale deve essere 4 (ottenuto: " + $format(s.total) + ")";
+const prima = s;
+s = r(s, a.removeItem("Pane"));
+if (s.items.length !== 2 || s.items.some((p) => p.name === "Pane")) return "removeItem(\\"Pane\\") deve rimuovere il prodotto Pane";
+if (s.total !== 2) return "Dopo aver rimosso Pane (2) il totale deve essere 2";
+if (prima.items.length !== 3) return "Il reducer non deve modificare lo stato precedente";
+const s2 = r(s, a.removeItem("Caffè"));
+if (s2.items.length !== 2 || s2.total !== 2) return "removeItem con un nome inesistente non deve cambiare nulla";
+s = r(s, a.clearCart());
+if (!$equal(s, { items: [], total: 0 })) return "clearCart deve riportare lo stato a { items: [], total: 0 }";
+return true;`,
       },
       {
         type: "multiple-choice",
         title: "Ruolo di createSlice",
-        description: "Cosa genera automaticamente createSlice di Redux Toolkit?",
+        description: "Cosa genera automaticamente `createSlice` di Redux Toolkit?",
         difficulty: "facile",
         options: [
-          "Solo il reducer, le action vanno create manualmente",
-          "Reducer, action types e action creators a partire dall'oggetto reducers",
-          "Solo le action, il reducer va scritto separatamente",
+          "Solo il reducer: le action vanno create a mano",
+          "Il reducer, i tipi di action e gli action creators a partire dall'oggetto reducers",
+          "Solo le action: il reducer va scritto separatamente",
           "Un componente React con lo stato predefinito",
         ],
         correct: 1,
         explanation:
-          "createSlice riceve name, initialState e reducers, e genera automaticamente il reducer (funzione che gestisce lo stato), gli action types (stringhe come 'navigation/setSelectedSite') e gli action creators (funzioni che creano gli oggetti action). Tutto da un unico punto di configurazione.",
+          "`createSlice` riceve name, initialState e reducers e genera il reducer della slice, i tipi di action (stringhe come `\"cart/addItem\"`, formate da name + nome del reducer) e gli action creators (funzioni come `addItem(payload)` che costruiscono l'oggetto action). Tutto da un unico punto di configurazione.",
       },
       {
         type: "multiple-choice",
-        title: "Immer e immutabilita",
+        title: "Immer e immutabilità",
         description:
-          "Perche in un reducer di createSlice possiamo scrivere state.selectedSite = action.payload?",
+          "Perché in un reducer di `createSlice` possiamo scrivere `state.theme = action.payload`?",
         difficulty: "medio",
         options: [
-          "Perche Redux non richiede immutabilita dello stato",
-          "Perche Immer, integrato in RTK, intercetta la mutazione e crea automaticamente una copia immutabile",
-          "Perche JavaScript permette sempre di modificare oggetti",
-          "Perche createSlice clona lo stato prima di ogni reducer",
+          "Perché Redux non richiede l'immutabilità dello stato",
+          "Perché Immer, integrato in RTK, registra la modifica su una bozza e produce automaticamente un nuovo stato",
+          "Perché JavaScript permette sempre di modificare gli oggetti",
+          "Perché il componente React copia lo stato prima di chiamare il reducer",
         ],
         correct: 1,
         explanation:
-          "Redux Toolkit integra la libreria Immer che usa un proxy JavaScript per intercettare le modifiche. Quando scrivi state.selectedSite = 'valore', Immer registra la modifica e produce un nuovo oggetto stato immutabile. Questo avviene solo nei reducer di createSlice.",
+          "Redux Toolkit integra la libreria Immer: il reducer riceve una *bozza* (draft) dello stato, Immer registra le modifiche e produce un nuovo oggetto, lasciando intatto quello precedente. Questo vale solo dentro i reducer di createSlice: altrove lo stato non va mai modificato direttamente.",
       },
     ],
   },
@@ -322,7 +416,7 @@ console.log(carrelloSlice.state.totale);          // 2.0`,
       {
         type: "text",
         content:
-          "Ora che sappiamo come creare lo store e le slices, vediamo come i componenti React leggono e modificano lo stato Redux. I due hook fondamentali sono useSelector (per leggere) e useDispatch (per scrivere).",
+          "Ora che sappiamo creare lo store e le slice, vediamo come i componenti React leggono e modificano lo stato Redux. Il pacchetto `react-redux` offre due hook fondamentali: `useSelector` (per leggere) e `useDispatch` (per inviare action).",
       },
       {
         type: "heading",
@@ -331,27 +425,31 @@ console.log(carrelloSlice.state.totale);          // 2.0`,
       {
         type: "text",
         content:
-          "Prima di poter usare Redux nei componenti, dobbiamo avvolgere l'applicazione con il componente Provider di react-redux. Questo rende lo store accessibile a tutti i componenti dell'albero.",
+          "Prima di usare Redux nei componenti, bisogna avvolgere l'applicazione con il componente `Provider` di react-redux, passandogli lo store. Funziona come il Provider di Context: rende lo store disponibile a tutti i componenti discendenti.",
       },
       {
         type: "code",
         language: "javascript",
         title: "Setup del Provider",
         code: `import { Provider } from "react-redux";
-import store from "./redux/store";
+import store from "./store";
 
 function App() {
   return (
     <Provider store={store}>
       {/* Tutti i componenti qui dentro possono
           usare useSelector e useDispatch */}
-      <Layout>
-        <Sidebar />
-        <MainContent />
-      </Layout>
+      <Header />
+      <ProductList />
+      <Cart />
     </Provider>
   );
 }`,
+      },
+      {
+        type: "info",
+        content:
+          "Nel modulo Next.js vedremo dove posizionare il Provider in un'app Next.js; il concetto resta lo stesso.",
       },
       {
         type: "heading",
@@ -360,7 +458,7 @@ function App() {
       {
         type: "text",
         content:
-          "useSelector riceve una funzione selettore che estrae la porzione di stato necessaria. Il componente si ri-renderizza SOLO quando il valore estratto cambia, non quando cambiano altre parti dello stato.",
+          "`useSelector` riceve una *funzione selettore* che, dato lo stato globale, restituisce la porzione che serve al componente. Il componente si ri-renderizza SOLO quando il valore restituito cambia, non quando cambiano altre parti dello stato.",
       },
       {
         type: "code",
@@ -368,31 +466,25 @@ function App() {
         title: "Leggere lo stato con useSelector",
         code: `import { useSelector } from "react-redux";
 
-function NavigationInfo() {
-  // Legge un singolo valore dallo stato
-  const siteScelto = useSelector((state) => state.navigation.selectedSite);
+function Header() {
+  // Legge un singolo valore
+  const itemCount = useSelector((state) => state.cart.items.length);
 
-  // Legge più valori con destructuring
-  const { selectedAnalysisType, selectedPage } = useSelector(
-    (state) => state.navigation
-  );
-
-  // Legge da una slice diversa
-  const filtri = useSelector((state) => state.filters);
+  // Legge da un'altra slice
+  const theme = useSelector((state) => state.preferences.theme);
 
   return (
-    <div>
-      <p>Sito: {siteScelto}</p>
-      <p>Analisi: {selectedAnalysisType}</p>
-      <p>Pagina: {selectedPage}</p>
-    </div>
+    <header className={theme === "scuro" ? "header-dark" : "header-light"}>
+      <span>Il mio negozio</span>
+      <span>Carrello: {itemCount}</span>
+    </header>
   );
 }`,
       },
       {
         type: "info",
         content:
-          "useSelector esegue un confronto referenziale (===) sul risultato. Se restituisci un nuovo oggetto ogni volta (ad esempio con .filter() o .map()), il componente si ri-renderizza sempre. Per calcoli derivati, usa un selettore memoizzato o useMemo.",
+          "`useSelector` confronta il nuovo risultato con il precedente usando `===`. Se il selettore restituisce un nuovo oggetto o array a ogni chiamata (ad esempio con `.filter()` o `.map()`), il confronto fallisce sempre e il componente si ri-renderizza a ogni action. Approfondiremo nella lezione sui selettori.",
       },
       {
         type: "heading",
@@ -401,31 +493,38 @@ function NavigationInfo() {
       {
         type: "text",
         content:
-          "useDispatch restituisce la funzione dispatch dello store. La usi per inviare action che attivano i reducer e aggiornano lo stato.",
+          "`useDispatch` restituisce la funzione `dispatch` dello store. La usi per inviare le action create dagli action creators: Redux le passa ai reducer, che aggiornano lo stato, e i componenti interessati si ri-renderizzano.",
       },
       {
         type: "code",
         language: "javascript",
-        title: "Dispatch da event handler",
+        title: "Dispatch da un gestore di eventi",
         code: `import { useSelector, useDispatch } from "react-redux";
-import { setSelectedSite, setSelectedPage } from "../redux/reducers/navigationReducer";
+import { addItem } from "../store/cartSlice";
+import { setTheme } from "../store/preferencesSlice";
 
-function SiteSelector() {
+function ProductCard({ product }) {
   const dispatch = useDispatch();
-  const siteScelto = useSelector((state) => state.navigation.selectedSite);
-
-  const handleCambiaSito = (nuovoSito) => {
-    // Dispatch dell'action: aggiorna lo stato globale
-    dispatch(setSelectedSite(nuovoSito));
-  };
 
   return (
-    <select
-      value={siteScelto}
-      onChange={(e) => handleCambiaSito(e.target.value)}
-    >
-      <option value="Sesto">Sesto Fiorentino</option>
-      <option value="Firenze">Firenze</option>
+    <div className="card">
+      <h3>{product.name}</h3>
+      <p>{product.price} €</p>
+      <button onClick={() => dispatch(addItem(product))}>
+        Aggiungi al carrello
+      </button>
+    </div>
+  );
+}
+
+function ThemeSelector() {
+  const dispatch = useDispatch();
+  const theme = useSelector((state) => state.preferences.theme);
+
+  return (
+    <select value={theme} onChange={(e) => dispatch(setTheme(e.target.value))}>
+      <option value="chiaro">Chiaro</option>
+      <option value="scuro">Scuro</option>
     </select>
   );
 }`,
@@ -437,7 +536,7 @@ function SiteSelector() {
       {
         type: "text",
         content:
-          "Spesso i dispatch avvengono dentro useEffect, ad esempio dopo il caricamento di dati o quando un valore cambia. Questo e un pattern molto comune per sincronizzare lo stato Redux con eventi asincroni.",
+          "Spesso il dispatch avviene dentro `useEffect`, ad esempio dopo aver caricato dei dati dal server. È un pattern molto comune per salvare in Redux il risultato di un'operazione asincrona.",
       },
       {
         type: "code",
@@ -445,186 +544,274 @@ function SiteSelector() {
         title: "Dispatch da useEffect",
         code: `import { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { setFilterRange } from "../redux/reducers/filtersSlice";
+import { setProducts, setLoading } from "../store/productsSlice";
 
-function Filters() {
+function ProductList() {
   const dispatch = useDispatch();
-  const { selectedAnalysisType, selectedPage } = useSelector(
-    (state) => state.navigation
-  );
+  const { list, loading } = useSelector((state) => state.products);
 
-  // Quando cambia la pagina selezionata, resetta i filtri
+  // Al primo render carica i prodotti e li salva nello store
   useEffect(() => {
-    const key = \`\${selectedAnalysisType}/\${selectedPage}\`;
-    dispatch(setFilterRange({ key, range: "1y" }));
-  }, [selectedAnalysisType, selectedPage, dispatch]);
+    const load = async () => {
+      dispatch(setLoading(true));
+      const response = await fetch("/api/products");
+      const data = await response.json();
+      dispatch(setProducts(data));
+      dispatch(setLoading(false));
+    };
+    load();
+  }, [dispatch]);
 
-  return <div>{/* UI dei filtri */}</div>;
-}`,
-      },
-      {
-        type: "subheading",
-        content: "Pattern: passare action creators come props",
-      },
-      {
-        type: "text",
-        content:
-          "Un pattern utile e che un componente padre faccia il dispatch e passi solo la callback ai figli. Questo mantiene i componenti figli semplici e disaccoppiati da Redux.",
-      },
-      {
-        type: "code",
-        language: "javascript",
-        title: "Action creators come props",
-        code: `import { useDispatch, useSelector } from "react-redux";
-import { setFilterValue } from "../redux/reducers/filtersSlice";
-
-function FiltersContainer() {
-  const dispatch = useDispatch();
-  const filtri = useSelector((state) => state.filters);
-
-  // Il padre gestisce il dispatch
-  const handleFilterChange = (key, filter, value) => {
-    dispatch(setFilterValue({ key, filter, value }));
-  };
-
+  if (loading) return <p>Caricamento...</p>;
   return (
-    <div>
-      {/* Il figlio riceve una semplice callback */}
-      <FilterDropdown
-        options={filtri.options}
-        onChange={(value) => handleFilterChange("100/cat", "site", value)}
-      />
-    </div>
-  );
-}
-
-// Il figlio non sa nulla di Redux
-function FilterDropdown({ options, onChange }) {
-  return (
-    <select onChange={(e) => onChange(e.target.value)}>
-      {options?.map((opt) => (
-        <option key={opt} value={opt}>{opt}</option>
+    <ul>
+      {list.map((p) => (
+        <li key={p.id}>{p.name}</li>
       ))}
-    </select>
+    </ul>
   );
 }`,
       },
       {
         type: "warning",
         content:
-          "Ricorda di includere dispatch nell'array delle dipendenze di useEffect. Anche se la funzione dispatch e stabile (non cambia tra i render), ESLint lo richiede per completezza. Il valore stesso e garantito stabile da react-redux.",
+          "Includi `dispatch` nell'array delle dipendenze di useEffect: la funzione è garantita stabile da react-redux (non cambia tra un render e l'altro), quindi l'effetto non si ripete, ma la regola ESLint degli hook lo richiede.",
+      },
+      {
+        type: "subheading",
+        content: "Pattern: il padre fa il dispatch, il figlio riceve una callback",
+      },
+      {
+        type: "text",
+        content:
+          "Un pattern utile è far sì che un componente \"contenitore\" parli con Redux e passi ai figli solo dati e callback. I figli restano semplici, riutilizzabili e non sanno nulla di Redux.",
+      },
+      {
+        type: "code",
+        language: "javascript",
+        title: "Callback come props",
+        code: `import { useDispatch, useSelector } from "react-redux";
+import { removeItem } from "../store/cartSlice";
+
+function CartContainer() {
+  const dispatch = useDispatch();
+  const items = useSelector((state) => state.cart.items);
+
+  // Il padre gestisce il dispatch
+  const handleRemove = (name) => {
+    dispatch(removeItem(name));
+  };
+
+  return <CartList items={items} onRemove={handleRemove} />;
+}
+
+// Il figlio non sa nulla di Redux: riceve dati e una callback
+function CartList({ items, onRemove }) {
+  return (
+    <ul>
+      {items.map((item) => (
+        <li key={item.name}>
+          {item.name} - {item.price} €
+          <button onClick={() => onRemove(item.name)}>Rimuovi</button>
+        </li>
+      ))}
+    </ul>
+  );
+}`,
       },
       {
         type: "tip",
         content:
-          "Nel progetto, quasi ogni componente usa useSelector per leggere lo stato e useDispatch per modificarlo. Ad esempio, il componente Filters legge navigazione e filtri con useSelector, e aggiorna i valori dei filtri con dispatch(setFilterValue(...)).",
+          "Tieni i componenti di presentazione (che ricevono solo props) separati da quelli che usano `useSelector` e `useDispatch`: i primi diventano facili da riutilizzare e da testare, perché non dipendono dallo store.",
       },
     ],
     exercises: [
       {
         type: "code",
-        title: "Simula useSelector e useDispatch",
+        title: "Costruisci uno store in miniatura",
         description:
-          "Crea una simulazione semplificata di uno store Redux con le funzioni getState, dispatch e una funzione select che simula useSelector.\n\nIl store ha uno stato con { contatore: 0, nome: 'Utente' }.\nLe action supportate sono 'incrementa' e 'cambiaNome'.",
+          "Per capire cosa fa lo store dietro le quinte, implementa una versione semplificata di `createStore(reducer)` che restituisce un oggetto con:\n- `getState()`: restituisce lo stato corrente\n- `dispatch(action)`: calcola il nuovo stato con `reducer(statoCorrente, action)` e poi chiama tutte le funzioni registrate con subscribe\n- `subscribe(listener)`: registra una funzione da chiamare dopo ogni dispatch\n\nLo stato iniziale si ottiene chiamando subito `reducer(undefined, { type: \"@@init\" })`.\n\nImplementa poi `select(store, selector)`, che simula useSelector: restituisce `selector(store.getState())`.",
         difficulty: "medio",
-        starterCode: `// Simula uno store Redux
-const store = {
-  state: { contatore: 0, nome: "Utente" },
+        mode: "js",
+        starterCode: `function createStore(reducer) {
+  // Calcola lo stato iniziale e prepara l'array dei listener
 
-  getState() {
-    return this.state;
-  },
-
-  dispatch(action) {
-    // Implementa: gestisci action.type "incrementa" e "cambiaNome"
-    // "incrementa" incrementa contatore di 1
-    // "cambiaNome" imposta nome a action.payload
-
-  },
-};
-
-// Simula useSelector
-function select(selectorFn) {
-  // Esegui la funzione selettore passandole lo stato
-
+  return {
+    getState() {
+      // restituisci lo stato corrente
+    },
+    dispatch(action) {
+      // aggiorna lo stato con il reducer e avvisa i listener
+    },
+    subscribe(listener) {
+      // registra il listener
+    },
+  };
 }
 
-// Test
-store.dispatch({ type: "incrementa" });
-store.dispatch({ type: "incrementa" });
-console.log(select((state) => state.contatore)); // 2
-
-store.dispatch({ type: "cambiaNome", payload: "Mario" });
-console.log(select((state) => state.nome)); // "Mario"
-
-console.log(select((state) => state.contatore + " - " + state.nome)); // "2 - Mario"`,
-        solution: `const store = {
-  state: { contatore: 0, nome: "Utente" },
-
-  getState() {
-    return this.state;
-  },
-
-  dispatch(action) {
-    switch (action.type) {
-      case "incrementa":
-        this.state = { ...this.state, contatore: this.state.contatore + 1 };
-        break;
-      case "cambiaNome":
-        this.state = { ...this.state, nome: action.payload };
-        break;
-    }
-  },
-};
-
-function select(selectorFn) {
-  return selectorFn(store.getState());
+function select(store, selector) {
+  // simula useSelector
 }
 
-store.dispatch({ type: "incrementa" });
-store.dispatch({ type: "incrementa" });
-console.log(select((state) => state.contatore)); // 2
+// Reducer di prova: preferenze dell'utente
+function preferencesReducer(state = { theme: "chiaro", fontSize: 16 }, action) {
+  if (action.type === "preferences/toggleTheme") {
+    return { ...state, theme: state.theme === "chiaro" ? "scuro" : "chiaro" };
+  } else if (action.type === "preferences/setFontSize") {
+    return { ...state, fontSize: action.payload };
+  }
+  return state;
+}
 
-store.dispatch({ type: "cambiaNome", payload: "Mario" });
-console.log(select((state) => state.nome)); // "Mario"
+const store = createStore(preferencesReducer);
+store.subscribe(() => console.log("Stato aggiornato:", store.getState()));
+store.dispatch({ type: "preferences/toggleTheme" });
+store.dispatch({ type: "preferences/setFontSize", payload: 20 });
+console.log(select(store, (state) => state.theme)); // "scuro"`,
+        solution: `function createStore(reducer) {
+  let state = reducer(undefined, { type: "@@init" });
+  const listeners = [];
 
-console.log(select((state) => state.contatore + " - " + state.nome)); // "2 - Mario"`,
-        validate: `try {
-  return select((s) => s.contatore) === 2 && select((s) => s.nome) === "Mario";
-} catch(e) { return false; }`,
-        testCode: "",
+  return {
+    getState() {
+      return state;
+    },
+    dispatch(action) {
+      state = reducer(state, action);
+      listeners.forEach((listener) => listener());
+    },
+    subscribe(listener) {
+      listeners.push(listener);
+    },
+  };
+}
+
+function select(store, selector) {
+  return selector(store.getState());
+}
+
+// Reducer di prova: preferenze dell'utente
+function preferencesReducer(state = { theme: "chiaro", fontSize: 16 }, action) {
+  if (action.type === "preferences/toggleTheme") {
+    return { ...state, theme: state.theme === "chiaro" ? "scuro" : "chiaro" };
+  } else if (action.type === "preferences/setFontSize") {
+    return { ...state, fontSize: action.payload };
+  }
+  return state;
+}
+
+const store = createStore(preferencesReducer);
+store.subscribe(() => console.log("Stato aggiornato:", store.getState()));
+store.dispatch({ type: "preferences/toggleTheme" });
+store.dispatch({ type: "preferences/setFontSize", payload: 20 });
+console.log(select(store, (state) => state.theme)); // "scuro"`,
+        validate: `if (typeof createStore !== "function") return "Definisci la funzione createStore";
+if (typeof select !== "function") return "Definisci la funzione select";
+function counter(state = { count: 0 }, action) {
+  if (action.type === "add") return { count: state.count + action.payload };
+  return state;
+}
+const st = createStore(counter);
+if (!st || typeof st.getState !== "function" || typeof st.dispatch !== "function" || typeof st.subscribe !== "function")
+  return "createStore deve restituire un oggetto con getState, dispatch e subscribe";
+if (!$equal(st.getState(), { count: 0 })) return "Lo stato iniziale deve essere reducer(undefined, { type: \\"@@init\\" })";
+st.dispatch({ type: "add", payload: 5 });
+if (!st.getState() || st.getState().count !== 5) return "dispatch deve aggiornare lo stato con reducer(statoCorrente, action)";
+st.dispatch({ type: "sconosciuta" });
+st.dispatch({ type: "add", payload: 2 });
+if (st.getState().count !== 7) return "Dopo add 5 e add 2 il contatore deve essere 7";
+let calls = 0;
+let seen = null;
+st.subscribe(() => { calls++; seen = st.getState().count; });
+st.subscribe(() => { calls++; });
+st.dispatch({ type: "add", payload: 1 });
+if (calls !== 2) return "Dopo un dispatch devono essere chiamati tutti i listener registrati con subscribe";
+if (seen !== 8) return "I listener vanno chiamati DOPO aver aggiornato lo stato";
+if (select(st, (s) => s.count * 10) !== 80) return "select(store, selector) deve restituire selector(store.getState())";
+const p = createStore(preferencesReducer);
+p.dispatch({ type: "preferences/toggleTheme" });
+if (select(p, (s) => s.theme) !== "scuro") return "Con preferencesReducer, dopo toggleTheme il tema deve essere \\"scuro\\"";
+return true;`,
+      },
+      {
+        type: "code",
+        title: "Collega un componente allo store",
+        description:
+          "Completa il componente `CartSummary`:\n- leggi il numero di prodotti nel carrello con `useSelector((state) => state.cart.items.length)`\n- leggi il totale da `state.cart.total`\n- ottieni `dispatch` con `useDispatch()`\n- al click sul bottone invia l'action `clearCart()`\n\nQuesto codice non viene eseguito: viene controllato il testo.",
+        difficulty: "facile",
+        mode: "static",
+        starterCode: `import { useSelector, useDispatch } from "react-redux";
+import { clearCart } from "../store/cartSlice";
+
+function CartSummary() {
+  // leggi count e total dallo store
+  // ottieni dispatch
+
+  return (
+    <div>
+      <p>Prodotti: {count}</p>
+      <p>Totale: {total} €</p>
+      <button>Svuota carrello</button>
+    </div>
+  );
+}`,
+        solution: `import { useSelector, useDispatch } from "react-redux";
+import { clearCart } from "../store/cartSlice";
+
+function CartSummary() {
+  const count = useSelector((state) => state.cart.items.length);
+  const total = useSelector((state) => state.cart.total);
+  const dispatch = useDispatch();
+
+  return (
+    <div>
+      <p>Prodotti: {count}</p>
+      <p>Totale: {total} €</p>
+      <button onClick={() => dispatch(clearCart())}>Svuota carrello</button>
+    </div>
+  );
+}`,
+        validate: `const c = $codeNoComments;
+if (!/const\\s+count\\s*=\\s*useSelector\\(\\s*\\(?\\s*(\\w+)\\s*\\)?\\s*=>\\s*\\1\\.cart\\.items\\.length\\s*\\)/.test(c))
+  return "Leggi count con useSelector((state) => state.cart.items.length)";
+if (!/const\\s+total\\s*=\\s*useSelector\\(\\s*\\(?\\s*(\\w+)\\s*\\)?\\s*=>\\s*\\1\\.cart\\.total\\s*\\)/.test(c))
+  return "Leggi total con useSelector((state) => state.cart.total)";
+if (!/const\\s+dispatch\\s*=\\s*useDispatch\\(\\s*\\)/.test(c)) return "Ottieni dispatch con const dispatch = useDispatch()";
+if (!/onClick=\\{\\s*\\(\\s*\\)\\s*=>\\s*dispatch\\(\\s*clearCart\\(\\s*\\)\\s*\\)\\s*\\}/.test(c))
+  return "Aggiungi al bottone onClick={() => dispatch(clearCart())}";
+return true;`,
       },
       {
         type: "multiple-choice",
         title: "Quando si ri-renderizza un componente con useSelector?",
         description:
-          "Un componente usa useSelector((state) => state.navigation.selectedSite). Quando si ri-renderizza?",
+          "Un componente usa `useSelector((state) => state.preferences.theme)`. Quando si ri-renderizza a causa di Redux?",
         difficulty: "medio",
         options: [
           "Ogni volta che qualsiasi parte dello stato Redux cambia",
-          "Solo quando state.navigation.selectedSite cambia valore",
+          "Solo quando il valore di state.preferences.theme cambia",
           "Solo quando viene chiamato dispatch() nel componente stesso",
-          "Mai, useSelector non causa re-render",
+          "Mai: useSelector non causa re-render",
         ],
         correct: 1,
         explanation:
-          "useSelector sottoscrive il componente allo store Redux, ma lo ri-renderizza solo quando il valore restituito dalla funzione selettore cambia (confronto ===). Se cambia una slice diversa o un campo diverso di navigation, il componente non si ri-renderizza.",
+          "useSelector iscrive il componente allo store, ma lo ri-renderizza solo quando il valore restituito dal selettore cambia (confronto con ===). Se cambia il carrello o un altro campo delle preferenze, il tema resta uguale e il componente non si ri-renderizza.",
       },
       {
         type: "multiple-choice",
         title: "Provider e gerarchia",
         description:
-          "Cosa succede se un componente chiama useSelector senza essere figlio di un Provider?",
+          "Cosa succede se un componente chiama `useSelector` senza essere discendente di un `Provider`?",
         difficulty: "facile",
         options: [
           "Restituisce undefined silenziosamente",
           "Restituisce lo stato iniziale dello store",
           "Lancia un errore a runtime",
-          "Funziona normalmente perche lo store e globale",
+          "Funziona normalmente perché lo store è globale",
         ],
         correct: 2,
         explanation:
-          "Senza un Provider che fornisce lo store nel contesto React, useSelector non sa da dove leggere lo stato e lancia un errore. Il Provider e obbligatorio e deve avvolgere tutti i componenti che usano hook Redux.",
+          "Senza un Provider che fornisce lo store tramite il contesto React, useSelector non sa da quale store leggere e lancia un errore. Il Provider è obbligatorio e deve avvolgere tutti i componenti che usano gli hook di Redux.",
       },
     ],
   },
@@ -634,7 +821,7 @@ console.log(select((state) => state.contatore + " - " + state.nome)); // "2 - Ma
       {
         type: "text",
         content:
-          "I selettori sono funzioni che estraggono e trasformano dati dallo stato Redux. Vanno da semplici letture di un campo a calcoli complessi che derivano nuovi valori combinando diverse parti dello stato.",
+          "I selettori sono funzioni che ricevono lo stato Redux e ne estraggono o calcolano una parte. Vanno dalla semplice lettura di un campo a calcoli che derivano nuovi valori combinando diverse parti dello stato.",
       },
       {
         type: "heading",
@@ -643,412 +830,493 @@ console.log(select((state) => state.contatore + " - " + state.nome)); // "2 - Ma
       {
         type: "text",
         content:
-          "Il selettore più semplice e una arrow function che accede a un campo dello stato. Questi selettori sono usati direttamente con useSelector nei componenti.",
+          "Il selettore più semplice è una arrow function che accede a un campo dello stato. Si scrive direttamente dentro `useSelector`.",
       },
       {
         type: "code",
         language: "javascript",
-        title: "Selettori semplici",
-        code: `import { useSelector } from "react-redux";
+        title: "Selettori semplici (dentro un componente)",
+        code: `// Legge un singolo campo
+const theme = useSelector((state) => state.preferences.theme);
 
-// Selettore inline: legge un singolo campo
-const sito = useSelector((state) => state.navigation.selectedSite);
+// Legge un'intera slice
+const cart = useSelector((state) => state.cart);
 
-// Selettore inline: legge un oggetto intero
-const navigazione = useSelector((state) => state.navigation);
-
-// Selettore inline: legge un valore annidato
-const filtriPagina = useSelector(
-  (state) => state.filters["100/category_analysis"]
+// Legge un valore annidato
+const emailEnabled = useSelector(
+  (state) => state.preferences.notifications.email
 );
 
-// Selettore inline: legge un booleano derivato
-const haFiltriAttivi = useSelector(
-  (state) => Object.keys(state.filters).length > 0
-);`,
+// Calcola un booleano (un valore primitivo: nessun problema di re-render)
+const isCartEmpty = useSelector((state) => state.cart.items.length === 0);`,
       },
       {
         type: "heading",
-        content: "Selettori derivati (computed)",
+        content: "Selettori derivati",
       },
       {
         type: "text",
         content:
-          "Spesso serve calcolare nuovi valori a partire dallo stato. Questi selettori derivati possono combinare dati da diverse slices, applicare trasformazioni o calcolare aggregazioni.",
+          "Spesso serve calcolare valori che non sono salvati nello stato, ma si possono ricavare da esso: il totale del carrello, il numero di articoli, i prodotti di una categoria. Non conviene salvarli nello store (rischieresti di dimenticare di aggiornarli): meglio calcolarli con un selettore.",
       },
       {
         type: "code",
         language: "javascript",
         title: "Selettori che calcolano valori derivati",
-        code: `import { useSelector } from "react-redux";
-
-function Statistiche() {
-  // Selettore derivato: combina navigazione e filtri
-  const filtriCorrente = useSelector((state) => {
-    const { selectedAnalysisType, selectedPage } = state.navigation;
-    const key = \`\${selectedAnalysisType}/\${selectedPage}\`;
-    return state.filters[key] || { values: {}, options: {}, range: "1y" };
-  });
-
-  // Selettore derivato: conta i filtri attivi
-  const numerofiltriAttivi = useSelector((state) => {
-    const { selectedAnalysisType, selectedPage } = state.navigation;
-    const key = \`\${selectedAnalysisType}/\${selectedPage}\`;
-    const values = state.filters[key]?.values || {};
-    return Object.values(values).filter((v) =>
-      Array.isArray(v) ? v.length > 0 : v !== null && v !== ""
-    ).length;
-  });
-
-  return (
-    <div>
-      <p>Range: {filtriCorrente.range}</p>
-      <p>Filtri attivi: {numerofiltriAttivi}</p>
-    </div>
+        code: `function CartBadge() {
+  // Numero totale di pezzi: somma delle quantità
+  const count = useSelector((state) =>
+    state.cart.items.reduce((sum, item) => sum + item.quantity, 0)
   );
+
+  // Totale in euro: prezzo * quantità per ogni riga
+  const total = useSelector((state) =>
+    state.cart.items.reduce((sum, item) => sum + item.price * item.quantity, 0)
+  );
+
+  return <span>{count} articoli - {total} €</span>;
 }`,
       },
       {
         type: "heading",
-        content: "Selettori custom come funzioni esportate",
+        content: "Selettori riutilizzabili come funzioni esportate",
       },
       {
         type: "text",
         content:
-          "Per selettori complessi o riutilizzabili, la best practice e definirli come funzioni esportate nel file della slice o in un file dedicato. Questo centralizza la logica di accesso allo stato e la rende testabile.",
+          "Quando un selettore serve in più componenti, la buona pratica è definirlo una sola volta come funzione esportata, nel file della slice o in un file dedicato. Così la logica di accesso allo stato è centralizzata: se cambia la forma dello stato, si modifica un solo punto. Per convenzione i nomi iniziano con `select`.",
       },
       {
         type: "code",
         language: "javascript",
-        title: "Selettore custom: selectChartConfig dal progetto",
-        code: `import { defaultChartStyles } from "./defaultChartStyles";
+        title: "store/cartSlice.js: selettori accanto alla slice",
+        code: `// ... createSlice come nella lezione precedente ...
 
-// Funzione helper per navigare oggetti annidati
-const getNestedProperty = (obj, pathKeys) => {
-  return pathKeys.reduce((acc, key) => acc?.[key], obj);
+export const selectCartItems = (state) => state.cart.items;
+
+export const selectCartCount = (state) =>
+  selectCartItems(state).reduce((sum, item) => sum + item.quantity, 0);
+
+export const selectCartTotal = (state) =>
+  selectCartItems(state).reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  );
+
+// Selettore con un parametro in più
+export const selectItemById = (state, id) =>
+  selectCartItems(state).find((item) => item.id === id);`,
+      },
+      {
+        type: "code",
+        language: "javascript",
+        title: "Usare i selettori nei componenti",
+        code: `import { useSelector } from "react-redux";
+import { selectCartCount, selectCartTotal, selectItemById } from "../store/cartSlice";
+
+function CartFooter() {
+  const count = useSelector(selectCartCount);   // si passa la funzione
+  const total = useSelector(selectCartTotal);
+  return <p>{count} articoli, totale {total} €</p>;
+}
+
+function CartRow({ id }) {
+  // Se il selettore ha parametri, si avvolge in una arrow function
+  const item = useSelector((state) => selectItemById(state, id));
+  return <li>{item.name} x {item.quantity}</li>;
+}`,
+      },
+      {
+        type: "heading",
+        content: "Il pattern di merge: valori di default + personalizzazioni",
+      },
+      {
+        type: "text",
+        content:
+          "Un pattern ricorrente è unire valori di default con le personalizzazioni dell'utente, così da avere sempre una configurazione completa anche se l'utente ha modificato solo alcuni campi. Si usa lo spread: prima i default, poi le personalizzazioni (che sovrascrivono).",
+      },
+      {
+        type: "code",
+        language: "javascript",
+        title: "Spread annidato per unire le preferenze",
+        code: `const defaultPreferences = {
+  theme: "chiaro",
+  language: "it",
+  notifications: { email: true, push: false, sms: false },
 };
 
-// Selettore custom che mergia configurazioni default con personalizzazioni
-export const selectChartConfig = (
-  state,
-  chartName,
-  analysisType,
-  page,
-  groupBy
-) => {
-  // Determina il percorso nello stato
-  const targetAnalysisType =
-    analysisType ?? state.navigation.selectedAnalysisType;
-  const targetPage = page ?? state.navigation.selectedPage;
-  const targetGroupBy = groupBy ?? state.navigation.selectedGroupBy;
+// L'utente ha cambiato solo il tema e le notifiche push
+const userPreferences = {
+  theme: "scuro",
+  notifications: { push: true },
+};
 
-  // Naviga nella struttura annidata
-  const path = [targetAnalysisType, targetPage, targetGroupBy, chartName];
-  const custom =
-    getNestedProperty(state.chartConfig.charts, path) || {};
+// Spread semplice: SBAGLIATO per gli oggetti annidati!
+const wrong = { ...defaultPreferences, ...userPreferences };
+console.log(wrong.notifications); // { push: true }  -> email e sms persi!
 
-  // Mergia default + personalizzazioni con spread annidato
-  return {
-    ...defaultChartStyles,
-    ...custom,
-    styles: {
-      ...defaultChartStyles.styles,
-      ...(custom.styles || {}),
-    },
-    customUcl: {
-      ...defaultChartStyles.customUcl,
-      ...(custom.customUcl || {}),
-    },
-    visibleFields:
-      custom.visibleFields ?? defaultChartStyles.visibleFields,
-    yAxisMax: custom.yAxisMax ?? defaultChartStyles.yAxisMax,
-  };
-};`,
+// Merge corretto: lo spread annidato va fatto livello per livello
+const preferences = {
+  ...defaultPreferences,
+  ...userPreferences,
+  notifications: {
+    ...defaultPreferences.notifications,
+    ...(userPreferences.notifications || {}),
+  },
+};
+console.log(preferences);
+// {
+//   theme: "scuro",                 <-- personalizzato
+//   language: "it",                 <-- default
+//   notifications: { email: true, push: true, sms: false },
+// }
+
+// Come selettore:
+const selectPreferences = (state) => ({
+  ...defaultPreferences,
+  ...state.preferences,
+  notifications: {
+    ...defaultPreferences.notifications,
+    ...(state.preferences.notifications || {}),
+  },
+});`,
       },
       {
         type: "info",
         content:
-          "Nota il pattern di merge: prima lo spread dei default, poi lo spread delle personalizzazioni. Per le proprieta annidate come styles, il merge va fatto esplicitamente livello per livello perche lo spread e superficiale (shallow).",
+          "Lo spread è *superficiale* (shallow): copia solo il primo livello. Se una proprietà contiene un oggetto, lo spread delle personalizzazioni lo sostituisce per intero. Per questo le proprietà annidate come `notifications` vanno unite esplicitamente.",
       },
       {
         type: "heading",
-        content: "Il pattern di merge: defaults + overrides",
+        content: "Selettori e re-render: la memoizzazione",
       },
       {
         type: "text",
         content:
-          "Un pattern ricorrente nei selettori e il merge tra valori default e personalizzazioni dell'utente. Questo permette di avere una configurazione completa anche quando l'utente ha modificato solo alcuni campi.",
+          "`useSelector` confronta il risultato con `===`. Un selettore come `selectPreferences` qui sopra, o uno che usa `.filter()` o `.map()`, crea un NUOVO oggetto o array a ogni chiamata: il confronto fallisce sempre e il componente si ri-renderizza a ogni action, anche se i dati non sono cambiati. La soluzione è *memoizzare* il selettore: ricalcolare il risultato solo quando cambiano i dati di partenza, altrimenti restituire lo stesso riferimento di prima (è la stessa idea di `useMemo`).",
       },
       {
         type: "code",
         language: "javascript",
-        title: "Spread annidato per merge profondo",
-        code: `const defaultChartStyles = {
-  yValueKey: "parameter_val",
-  yAxisMax: null,
-  styles: {
-    color: "#1976d2",
-    lineWidth: 2,
-    showPoints: true,
-  },
-  visibleFields: ["parameter_val", "ucl_val"],
-};
+        title: "createSelector di Redux Toolkit",
+        code: `import { createSelector } from "@reduxjs/toolkit";
 
-// L'utente ha personalizzato solo il colore e l'asse Y
-const customConfig = {
-  yAxisMax: 100,
-  styles: {
-    color: "#e91e63",
-  },
-};
+const selectItems = (state) => state.cart.items;
 
-// Merge: i default vengono preservati dove mancano personalizzazioni
-const configFinale = {
-  ...defaultChartStyles,         // yValueKey, visibleFields (default)
-  ...customConfig,                // yAxisMax: 100 (override)
-  styles: {
-    ...defaultChartStyles.styles, // lineWidth: 2, showPoints: true
-    ...(customConfig.styles || {}), // color: "#e91e63" (override)
-  },
-};
+// Il secondo argomento viene ricalcolato SOLO quando selectItems
+// restituisce un riferimento diverso (cioè quando il carrello cambia)
+export const selectExpensiveItems = createSelector(
+  [selectItems],
+  (items) => items.filter((item) => item.price > 50)
+);
 
-// Risultato:
-// {
-//   yValueKey: "parameter_val",
-//   yAxisMax: 100,              <-- personalizzato
-//   styles: {
-//     color: "#e91e63",         <-- personalizzato
-//     lineWidth: 2,             <-- default preservato
-//     showPoints: true,         <-- default preservato
-//   },
-//   visibleFields: ["parameter_val", "ucl_val"],
-// }`,
-      },
-      {
-        type: "subheading",
-        content: "Usare i selettori custom nei componenti",
-      },
-      {
-        type: "code",
-        language: "javascript",
-        title: "Uso di selectChartConfig nel componente Chart",
-        code: `import { useSelector } from "react-redux";
-import { selectChartConfig } from "../redux/reducers/editModeReducer";
-
-function Chart({ chartName }) {
-  const { selectedAnalysisType, selectedPage, selectedGroupBy } =
-    useSelector((state) => state.navigation);
-
-  // Usa il selettore custom passando lo stato completo
-  const config = useSelector((state) =>
-    selectChartConfig(
-      state,
-      chartName,
-      selectedAnalysisType,
-      selectedPage,
-      selectedGroupBy
-    )
-  );
-
-  return (
-    <div>
-      <LineChart
-        color={config.styles.color}
-        lineWidth={config.styles.lineWidth}
-        yMax={config.yAxisMax}
-      />
-    </div>
-  );
-}`,
+// Nel componente: stesso array finché il carrello non cambia,
+// quindi nessun re-render inutile
+const expensive = useSelector(selectExpensiveItems);`,
       },
       {
         type: "warning",
         content:
-          "Attenzione: se il selettore crea un nuovo oggetto ogni volta (con spread o .filter()), useSelector causera un re-render ad ogni dispatch, perche il confronto === fallisce sempre su nuovi oggetti. Per evitarlo, usa useMemo nel componente oppure la funzione createSelector di Redux Toolkit per memoizzare il selettore.",
+          "Non serve memoizzare tutto: un selettore che restituisce un valore già presente nello stato o un valore primitivo (numero, stringa, booleano) non causa re-render inutili. La memoizzazione serve quando il selettore crea nuovi oggetti o array.",
       },
       {
         type: "tip",
         content:
-          "Nel progetto, selectChartConfig e un selettore custom che mergia configurazioni default con quelle personalizzate dall'utente usando spread: { ...defaultChartStyles, ...custom, styles: { ...defaultChartStyles.styles, ...(custom.styles || {}) } }.",
+          "Tieni nello store solo i dati \"di base\" e ricava tutto il resto (totali, conteggi, liste filtrate) con selettori riutilizzabili. Lo stato resta piccolo, non può andare fuori sincrono e la logica di calcolo sta in un solo posto.",
       },
     ],
     exercises: [
       {
         type: "code",
-        title: "Scrivi selettori per uno stato Redux",
+        title: "Scrivi i selettori del carrello",
         description:
-          "Dato lo stato Redux simulato qui sotto, scrivi tre funzioni selettore:\n\n1. selectSitoCorrente: restituisce il sito selezionato\n2. selectFiltriPagina: restituisce i filtri della pagina corrente (combinando analysisType e page)\n3. selectNumeroFiltriAttivi: restituisce quanti filtri hanno un valore non vuoto",
+          "Lo stato del negozio ha la forma `{ cart: { items: [...] }, preferences: { currency } }`, dove ogni item è `{ id, name, price, quantity }`.\n\nScrivi quattro selettori:\n1. `selectCartItems(state)`: restituisce l'array degli item del carrello\n2. `selectCartCount(state)`: restituisce il numero totale di pezzi (somma delle quantità)\n3. `selectCartTotal(state)`: restituisce il totale (somma di price * quantity)\n4. `selectItemById(state, id)`: restituisce l'item con quell'id, oppure `undefined`\n\nUsa `selectCartItems` dentro gli altri selettori.",
         difficulty: "medio",
-        starterCode: `const statoRedux = {
-  navigation: {
-    selectedSite: "Sesto",
-    selectedAnalysisType: "100",
-    selectedPage: "category_analysis",
+        mode: "js",
+        starterCode: `const state = {
+  cart: {
+    items: [
+      { id: 1, name: "Maglietta", price: 15, quantity: 2 },
+      { id: 2, name: "Cappello", price: 10, quantity: 1 },
+      { id: 3, name: "Calzini", price: 4, quantity: 3 },
+    ],
   },
-  filters: {
-    "100/category_analysis": {
-      values: { site: "Sesto", product: "", category: "A" },
-      range: "1y",
-    },
-    "200/phase_analysis": {
-      values: { site: "Firenze", product: "ProdX" },
-      range: "6m",
-    },
-  },
+  preferences: { currency: "EUR" },
 };
 
-// 1. Selettore semplice
-function selectSitoCorrente(state) {
-  // restituisci il sito selezionato
+function selectCartItems(state) {
+  // restituisci gli item del carrello
 }
 
-// 2. Selettore derivato
-function selectFiltriPagina(state) {
-  // combina analysisType + page per ottenere la chiave
-  // restituisci i filtri per quella chiave
+function selectCartCount(state) {
+  // somma delle quantità
 }
 
-// 3. Selettore con calcolo
-function selectNumeroFiltriAttivi(state) {
-  // usa selectFiltriPagina per ottenere i filtri
-  // conta quanti values hanno un valore non vuoto (stringa non vuota)
+function selectCartTotal(state) {
+  // somma di price * quantity
 }
 
-// Test
-console.log(selectSitoCorrente(statoRedux));        // "Sesto"
-console.log(selectFiltriPagina(statoRedux).range);   // "1y"
-console.log(selectNumeroFiltriAttivi(statoRedux));    // 2`,
-        solution: `const statoRedux = {
-  navigation: {
-    selectedSite: "Sesto",
-    selectedAnalysisType: "100",
-    selectedPage: "category_analysis",
+function selectItemById(state, id) {
+  // trova l'item con quell'id
+}
+
+console.log(selectCartCount(state));        // 6
+console.log(selectCartTotal(state));        // 52
+console.log(selectItemById(state, 2).name); // "Cappello"`,
+        solution: `const state = {
+  cart: {
+    items: [
+      { id: 1, name: "Maglietta", price: 15, quantity: 2 },
+      { id: 2, name: "Cappello", price: 10, quantity: 1 },
+      { id: 3, name: "Calzini", price: 4, quantity: 3 },
+    ],
   },
-  filters: {
-    "100/category_analysis": {
-      values: { site: "Sesto", product: "", category: "A" },
-      range: "1y",
-    },
-    "200/phase_analysis": {
-      values: { site: "Firenze", product: "ProdX" },
-      range: "6m",
-    },
-  },
+  preferences: { currency: "EUR" },
 };
 
-function selectSitoCorrente(state) {
-  return state.navigation.selectedSite;
+function selectCartItems(state) {
+  return state.cart.items;
 }
 
-function selectFiltriPagina(state) {
-  const { selectedAnalysisType, selectedPage } = state.navigation;
-  const key = \`\${selectedAnalysisType}/\${selectedPage}\`;
-  return state.filters[key] || { values: {}, range: "" };
+function selectCartCount(state) {
+  return selectCartItems(state).reduce((sum, item) => sum + item.quantity, 0);
 }
 
-function selectNumeroFiltriAttivi(state) {
-  const filtri = selectFiltriPagina(state);
-  return Object.values(filtri.values).filter((v) => v !== "" && v !== null && v !== undefined).length;
+function selectCartTotal(state) {
+  return selectCartItems(state).reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  );
 }
 
-console.log(selectSitoCorrente(statoRedux));        // "Sesto"
-console.log(selectFiltriPagina(statoRedux).range);   // "1y"
-console.log(selectNumeroFiltriAttivi(statoRedux));    // 2`,
-        validate: `try {
-  return selectSitoCorrente(statoRedux) === "Sesto" &&
-    selectFiltriPagina(statoRedux).range === "1y" &&
-    selectNumeroFiltriAttivi(statoRedux) === 2;
-} catch(e) { return false; }`,
-        testCode: "",
+function selectItemById(state, id) {
+  return selectCartItems(state).find((item) => item.id === id);
+}
+
+console.log(selectCartCount(state));        // 6
+console.log(selectCartTotal(state));        // 52
+console.log(selectItemById(state, 2).name); // "Cappello"`,
+        validate: `if (typeof selectCartItems !== "function") return "Definisci la funzione selectCartItems";
+if (typeof selectCartCount !== "function") return "Definisci la funzione selectCartCount";
+if (typeof selectCartTotal !== "function") return "Definisci la funzione selectCartTotal";
+if (typeof selectItemById !== "function") return "Definisci la funzione selectItemById";
+const s1 = {
+  cart: { items: [
+    { id: 1, name: "Maglietta", price: 15, quantity: 2 },
+    { id: 2, name: "Cappello", price: 10, quantity: 1 },
+    { id: 3, name: "Calzini", price: 4, quantity: 3 },
+  ] },
+  preferences: { currency: "EUR" },
+};
+const s2 = {
+  cart: { items: [{ id: 7, name: "Libro", price: 12, quantity: 4 }] },
+  preferences: { currency: "EUR" },
+};
+const empty = { cart: { items: [] }, preferences: { currency: "EUR" } };
+if (selectCartItems(s1) !== s1.cart.items) return "selectCartItems deve restituire state.cart.items (lo stesso array, non una copia)";
+if (selectCartCount(s1) !== 6) return "selectCartCount: con quantità 2, 1 e 3 il risultato deve essere 6";
+if (selectCartCount(s2) !== 4) return "selectCartCount deve funzionare con qualsiasi stato (atteso 4 per il secondo stato di prova)";
+if (selectCartCount(empty) !== 0) return "selectCartCount con carrello vuoto deve restituire 0";
+if (selectCartTotal(s1) !== 52) return "selectCartTotal: 15*2 + 10*1 + 4*3 = 52";
+if (selectCartTotal(s2) !== 48) return "selectCartTotal deve funzionare con qualsiasi stato (atteso 48 per 12*4)";
+if (selectCartTotal(empty) !== 0) return "selectCartTotal con carrello vuoto deve restituire 0";
+const item = selectItemById(s1, 3);
+if (!item || item.name !== "Calzini") return "selectItemById(state, 3) deve restituire l'item Calzini";
+if (selectItemById(s2, 7) !== s2.cart.items[0]) return "selectItemById deve restituire l'item trovato";
+if (selectItemById(s1, 99) !== undefined) return "selectItemById con un id inesistente deve restituire undefined";
+if (!/selectCartItems\\(/.test($codeNoComments.replace(/function\\s+selectCartItems\\s*\\(/, "")))
+  return "Riusa selectCartItems dentro gli altri selettori";
+return true;`,
       },
       {
         type: "code",
-        title: "Merge di configurazioni con spread",
+        title: "Unisci le preferenze con i default",
         description:
-          "Implementa una funzione mergeConfig che combina valori default con personalizzazioni dell'utente, gestendo correttamente le proprieta annidate.\n\nLa funzione deve:\n- Usare lo spread per unire i due oggetti\n- Per la proprieta 'styles' fare un merge annidato (non sovrascrivere tutto)\n- Usare il nullish coalescing (??) per visibleFields",
+          "Implementa `mergePreferences(defaults, custom)` che restituisce un NUOVO oggetto in cui:\n- le proprietà di primo livello di `custom` sovrascrivono quelle di `defaults`\n- `notifications` è unito livello per livello: i canali non specificati in `custom` mantengono il valore di default\n- `defaults` e `custom` non vengono modificati\n\nAttenzione: `custom` potrebbe non avere `notifications`.",
         difficulty: "difficile",
-        starterCode: `const defaults = {
-  yValueKey: "parameter_val",
-  yAxisMax: null,
-  styles: { color: "#1976d2", lineWidth: 2, showPoints: true },
-  visibleFields: ["parameter_val", "ucl_val"],
+        mode: "js",
+        starterCode: `const defaultPreferences = {
+  theme: "chiaro",
+  language: "it",
+  fontSize: 16,
+  notifications: { email: true, push: false, sms: false },
 };
 
-function mergeConfig(defaultConfig, customConfig) {
-  // Implementa il merge profondo
-  // 1. Spread dei default + custom per le proprieta di primo livello
-  // 2. Spread annidato per styles
-  // 3. Nullish coalescing per visibleFields
+function mergePreferences(defaults, custom) {
+  // 1. spread dei default e poi di custom
+  // 2. spread annidato per notifications
 
 }
 
-// Test
-const custom1 = { yAxisMax: 100, styles: { color: "#e91e63" } };
-const result1 = mergeConfig(defaults, custom1);
-console.log(result1.yAxisMax);            // 100
-console.log(result1.styles.color);        // "#e91e63"
-console.log(result1.styles.lineWidth);    // 2 (preservato dal default)
-console.log(result1.styles.showPoints);   // true (preservato dal default)
-console.log(result1.visibleFields.length); // 2
+const result1 = mergePreferences(defaultPreferences, {
+  theme: "scuro",
+  notifications: { push: true },
+});
+console.log(result1);
+// { theme: "scuro", language: "it", fontSize: 16,
+//   notifications: { email: true, push: true, sms: false } }
 
-const custom2 = { visibleFields: ["parameter_val"] };
-const result2 = mergeConfig(defaults, custom2);
-console.log(result2.visibleFields.length); // 1
-console.log(result2.styles.color);         // "#1976d2" (default)`,
-        solution: `const defaults = {
-  yValueKey: "parameter_val",
-  yAxisMax: null,
-  styles: { color: "#1976d2", lineWidth: 2, showPoints: true },
-  visibleFields: ["parameter_val", "ucl_val"],
+const result2 = mergePreferences(defaultPreferences, { fontSize: 20 });
+console.log(result2.notifications); // { email: true, push: false, sms: false }`,
+        solution: `const defaultPreferences = {
+  theme: "chiaro",
+  language: "it",
+  fontSize: 16,
+  notifications: { email: true, push: false, sms: false },
 };
 
-function mergeConfig(defaultConfig, customConfig) {
+function mergePreferences(defaults, custom) {
   return {
-    ...defaultConfig,
-    ...customConfig,
-    styles: {
-      ...defaultConfig.styles,
-      ...(customConfig.styles || {}),
+    ...defaults,
+    ...custom,
+    notifications: {
+      ...defaults.notifications,
+      ...(custom.notifications || {}),
     },
-    visibleFields: customConfig.visibleFields ?? defaultConfig.visibleFields,
   };
 }
 
-const custom1 = { yAxisMax: 100, styles: { color: "#e91e63" } };
-const result1 = mergeConfig(defaults, custom1);
-console.log(result1.yAxisMax);            // 100
-console.log(result1.styles.color);        // "#e91e63"
-console.log(result1.styles.lineWidth);    // 2
-console.log(result1.styles.showPoints);   // true
-console.log(result1.visibleFields.length); // 2
+const result1 = mergePreferences(defaultPreferences, {
+  theme: "scuro",
+  notifications: { push: true },
+});
+console.log(result1);
+// { theme: "scuro", language: "it", fontSize: 16,
+//   notifications: { email: true, push: true, sms: false } }
 
-const custom2 = { visibleFields: ["parameter_val"] };
-const result2 = mergeConfig(defaults, custom2);
-console.log(result2.visibleFields.length); // 1
-console.log(result2.styles.color);         // "#1976d2"`,
-        validate: `try {
-  const t1 = mergeConfig(defaults, { yAxisMax: 100, styles: { color: "#e91e63" } });
-  const t2 = mergeConfig(defaults, { visibleFields: ["parameter_val"] });
-  return t1.styles.lineWidth === 2 && t1.styles.color === "#e91e63" && t1.yAxisMax === 100 &&
-    t2.visibleFields.length === 1 && t2.styles.color === "#1976d2";
-} catch(e) { return false; }`,
-        testCode: "",
+const result2 = mergePreferences(defaultPreferences, { fontSize: 20 });
+console.log(result2.notifications); // { email: true, push: false, sms: false }`,
+        validate: `if (typeof mergePreferences !== "function") return "Definisci la funzione mergePreferences";
+const d = { theme: "chiaro", language: "it", fontSize: 16, notifications: { email: true, push: false, sms: false } };
+const dCopy = structuredClone(d);
+const c1 = { theme: "scuro", notifications: { push: true } };
+const r1 = mergePreferences(d, c1);
+if (!r1 || typeof r1 !== "object") return "mergePreferences deve restituire un oggetto";
+if (!$equal(r1, { theme: "scuro", language: "it", fontSize: 16, notifications: { email: true, push: true, sms: false } }))
+  return "Con custom = { theme: \\"scuro\\", notifications: { push: true } } il risultato è " + $format(r1) + ": controlla lo spread annidato di notifications";
+if (!$equal(d, dCopy)) return "mergePreferences non deve modificare l'oggetto dei default";
+if (r1 === d || r1.notifications === d.notifications) return "Restituisci un nuovo oggetto (anche per notifications), non quello dei default";
+const r2 = mergePreferences(d, { fontSize: 20, language: "en" });
+if (!$equal(r2, { theme: "chiaro", language: "en", fontSize: 20, notifications: { email: true, push: false, sms: false } }))
+  return "Se custom non ha notifications, devono restare quelle di default (ottenuto: " + $format(r2) + ")";
+const r3 = mergePreferences({ theme: "chiaro", notifications: { email: false } }, { notifications: { sms: true } });
+if (!$equal(r3, { theme: "chiaro", notifications: { email: false, sms: true } }))
+  return "La funzione deve funzionare con qualsiasi oggetto di default, non solo con defaultPreferences";
+const r4 = mergePreferences(d, {});
+if (!$equal(r4, d)) return "Con custom vuoto il risultato deve essere uguale ai default";
+return true;`,
+      },
+      {
+        type: "code",
+        title: "Un selettore memoizzato",
+        description:
+          "Implementa una versione semplificata di `createSelector(inputSelector, resultFn)`.\nDeve restituire una nuova funzione `(state) => ...` che:\n- calcola `input = inputSelector(state)`\n- se `input` è lo stesso (`===`) della chiamata precedente, restituisce il risultato salvato SENZA richiamare `resultFn`\n- altrimenti calcola `resultFn(input)`, lo salva insieme a `input` e lo restituisce\n\nSuggerimento: usa due variabili nella closure (ad esempio `lastInput` e `lastResult`) e un flag per sapere se è la prima chiamata.",
+        difficulty: "difficile",
+        mode: "js",
+        starterCode: `function createSelector(inputSelector, resultFn) {
+  // variabili della closure
+
+  return (state) => {
+    // calcola l'input e decidi se ricalcolare
+  };
+}
+
+let calcoli = 0;
+const selectExpensiveItems = createSelector(
+  (state) => state.cart.items,
+  (items) => {
+    calcoli++;
+    return items.filter((item) => item.price > 50);
+  }
+);
+
+const items = [
+  { name: "Giacca", price: 80 },
+  { name: "Calzini", price: 4 },
+];
+const state1 = { cart: { items }, preferences: { theme: "chiaro" } };
+// Cambia solo il tema: il carrello è lo stesso array
+const state2 = { ...state1, preferences: { theme: "scuro" } };
+
+const a = selectExpensiveItems(state1);
+const b = selectExpensiveItems(state2);
+console.log(a === b);  // true: stesso riferimento
+console.log(calcoli);  // 1: il filtro è stato eseguito una sola volta`,
+        solution: `function createSelector(inputSelector, resultFn) {
+  let hasResult = false;
+  let lastInput;
+  let lastResult;
+
+  return (state) => {
+    const input = inputSelector(state);
+    if (hasResult && input === lastInput) {
+      return lastResult;
+    }
+    lastInput = input;
+    lastResult = resultFn(input);
+    hasResult = true;
+    return lastResult;
+  };
+}
+
+let calcoli = 0;
+const selectExpensiveItems = createSelector(
+  (state) => state.cart.items,
+  (items) => {
+    calcoli++;
+    return items.filter((item) => item.price > 50);
+  }
+);
+
+const items = [
+  { name: "Giacca", price: 80 },
+  { name: "Calzini", price: 4 },
+];
+const state1 = { cart: { items }, preferences: { theme: "chiaro" } };
+// Cambia solo il tema: il carrello è lo stesso array
+const state2 = { ...state1, preferences: { theme: "scuro" } };
+
+const a = selectExpensiveItems(state1);
+const b = selectExpensiveItems(state2);
+console.log(a === b);  // true: stesso riferimento
+console.log(calcoli);  // 1: il filtro è stato eseguito una sola volta`,
+        validate: `if (typeof createSelector !== "function") return "Definisci la funzione createSelector";
+let n = 0;
+const sel = createSelector((s) => s.list, (list) => { n++; return list.map((x) => x * 2); });
+if (typeof sel !== "function") return "createSelector deve restituire una funzione (state) => ...";
+const list1 = [1, 2, 3];
+const r1 = sel({ list: list1, other: 1 });
+if (!$equal(r1, [2, 4, 6])) return "Il selettore deve restituire resultFn(inputSelector(state))";
+if (n !== 1) return "Alla prima chiamata resultFn va eseguita una volta";
+const r2 = sel({ list: list1, other: 2 });
+if (n !== 1) return "Se l'input è lo stesso (===) non devi richiamare resultFn";
+if (r2 !== r1) return "Con lo stesso input devi restituire lo stesso riferimento della chiamata precedente";
+const list2 = [5];
+const r3 = sel({ list: list2 });
+if (n !== 2 || !$equal(r3, [10])) return "Quando l'input cambia devi ricalcolare con resultFn";
+const r4 = sel({ list: list2 });
+if (n !== 2 || r4 !== r3) return "Dopo un ricalcolo devi salvare il nuovo input e il nuovo risultato";
+let m = 0;
+const selU = createSelector((s) => s.value, (v) => { m++; return v; });
+selU({});
+selU({});
+if (m !== 1) return "Anche se il primo input è undefined, alla seconda chiamata con lo stesso input non devi ricalcolare: usa un flag per la prima chiamata";
+return true;`,
       },
       {
         type: "multiple-choice",
         title: "Re-render con selettori che creano nuovi oggetti",
-        description:
-          "Quale di questi selettori causera re-render non necessari?",
+        description: "Quale di questi selettori causa re-render non necessari?",
         difficulty: "difficile",
         options: [
-          "`useSelector((state) => state.navigation.selectedSite)`",
-          "`useSelector((state) => state.filters)`",
-          "`useSelector((state) => ({ ...state.navigation, extra: 'valore' }))`",
-          "`useSelector((state) => state.data.items.length)`",
+          "`useSelector((state) => state.preferences.theme)`",
+          "`useSelector((state) => state.cart)`",
+          "`useSelector((state) => ({ ...state.preferences, extra: true }))`",
+          "`useSelector((state) => state.cart.items.length)`",
         ],
         correct: 2,
         explanation:
-          "Il selettore con spread ({ ...state.navigation, extra: 'valore' }) crea un NUOVO oggetto ad ogni esecuzione. Poiche useSelector confronta i risultati con ===, un nuovo oggetto e sempre diverso dal precedente, causando un re-render ad ogni dispatch. Gli altri selettori restituiscono riferimenti stabili o valori primitivi.",
+          "Il selettore con lo spread crea un NUOVO oggetto a ogni esecuzione. Poiché useSelector confronta i risultati con ===, un nuovo oggetto è sempre diverso dal precedente e il componente si ri-renderizza a ogni action. Gli altri selettori restituiscono riferimenti già presenti nello stato o valori primitivi.",
       },
     ],
   },

@@ -4,70 +4,78 @@ export const lessons = {
       {
         type: "text",
         content:
-          "Material UI (MUI) e la libreria di componenti React più popolare, basata sul Material Design di Google. Fornisce componenti pronti all'uso, temi personalizzabili, e un sistema di styling potente tramite la prop `sx`. Nelle applicazioni enterprise, MUI e la base di tutta l'interfaccia.",
+          "Material UI (MUI) è una delle librerie di componenti React più popolari, basata sul Material Design di Google. Fornisce componenti pronti all'uso (bottoni, card, menu, tabelle, campi di input...), temi personalizzabili e un sistema di styling potente tramite la prop `sx`. Invece di scrivere da zero HTML e CSS per ogni elemento, componi l'interfaccia con componenti già curati e accessibili.",
       },
       {
         type: "heading",
-        content: "Installazione e Importazione",
+        content: "Installazione e importazione",
       },
       {
         type: "code",
         language: "javascript",
         title: "Installazione e importazioni base",
-        code: `// Installazione (gia inclusa nel progetto)
+        code: `// Installazione (da terminale, nella cartella del progetto)
 // npm install @mui/material @emotion/react @emotion/styled
+// Per le icone:
+// npm install @mui/icons-material
 
-// Importazione dei componenti - sempre da "@mui/material"
+// Importazione dei componenti: sempre da "@mui/material"
 import {
   Box,
   Stack,
   Typography,
   Button,
   Paper,
-  Grid,
   Chip,
   Divider,
 } from "@mui/material";
 
-// Importazione delle icone - da "@mui/icons-material"
-import { Forward, ZoomIn, ChevronLeft } from "@mui/icons-material";`,
-      },
-      {
-        type: "subheading",
-        content: "Box: Il Div Universale di MUI",
+// Importazione delle icone: da "@mui/icons-material"
+import { ShoppingCart, Delete, ChevronLeft } from "@mui/icons-material";`,
       },
       {
         type: "text",
         content:
-          "Box e il componente layout fondamentale di MUI. Renderizza un `<div>` ma accetta la prop `sx` per lo styling inline avanzato. E il componente più usato in un progetto React reale: wrappa praticamente tutto.",
+          "I componenti MUI si usano come qualsiasi altro componente React: li importi e li scrivi in JSX, passando props. Tutto ciò che hai imparato su props, `children`, stato ed eventi vale anche qui.",
+      },
+      {
+        type: "subheading",
+        content: "Box: il div universale di MUI",
+      },
+      {
+        type: "text",
+        content:
+          "Box è il componente di layout fondamentale di MUI. Renderizza un `<div>`, ma accetta la prop `sx` per lo styling (la vedremo in dettaglio nella prossima lezione). È il componente più usato in assoluto: fa da contenitore praticamente per tutto.",
       },
       {
         type: "code",
         language: "javascript",
-        title: "Box - Il building block del layout",
-        code: `// Box con sx per il layout (pattern dal progetto)
+        title: "Box: il mattone base del layout",
+        code: `import { Box } from "@mui/material";
+
+// Layout a due colonne: barra laterale + contenuto
 <Box sx={{ display: "flex", height: "100%", bgcolor: "#f5f5f5" }}>
   <Box sx={{ width: 240, borderRight: "1px solid #e0e0e0" }}>
-    Sidebar
+    Categorie
   </Box>
   <Box sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
-    Contenuto principale
+    Elenco dei prodotti
   </Box>
 </Box>
 
-// Box con prop component per cambiare il tag HTML
+// Box con la prop component per cambiare il tag HTML
 <Box component="section" sx={{ p: 2 }}>
   Questo renderizza un <section>, non un <div>
 </Box>`,
       },
       {
         type: "subheading",
-        content: "Stack: Flex Container Semplificato",
+        content: "Stack: flex container semplificato",
       },
       {
         type: "text",
         content:
-          "Stack e un shortcut per il layout flex. Imposta automaticamente `display: flex` e `flexDirection: column` (di default). Supporta `direction`, `spacing` e `divider` come props dedicate.",
+          "Stack è una scorciatoia per il layout flex. Imposta automaticamente `display: flex` e `flexDirection: column` (di default). Supporta `direction`, `spacing` e `divider` come props dedicate. Il valore di `spacing` è un multiplo di 8px: `spacing={2}` corrisponde a uno spazio di 16px tra gli elementi.",
       },
       {
         type: "code",
@@ -82,46 +90,46 @@ import { Forward, ZoomIn, ChevronLeft } from "@mui/icons-material";`,
 
 // Stack orizzontale con allineamento centrato
 <Stack direction="row" spacing={1} alignItems="center">
-  <Chip label="Tag 1" />
-  <Chip label="Tag 2" />
-  <Chip label="Tag 3" />
+  <Chip label="Romanzo" />
+  <Chip label="Giallo" />
+  <Chip label="Fantasy" />
 </Stack>
 
-// Stack con divider automatico tra gli elementi
+// Stack con divisore automatico tra gli elementi
 <Stack spacing={2} divider={<Divider flexItem />}>
-  <Typography>Sezione 1</Typography>
-  <Typography>Sezione 2</Typography>
+  <Typography>Capitolo 1</Typography>
+  <Typography>Capitolo 2</Typography>
 </Stack>`,
       },
       {
         type: "subheading",
-        content: "Typography: Testo con Varianti Semantiche",
+        content: "Typography: testo con varianti semantiche",
       },
       {
         type: "text",
         content:
-          "Typography gestisce tutto il testo con varianti predefinite che rispettano la gerarchia tipografica: h1-h6 per i titoli, body1/body2 per il testo, caption per i dettagli. Nel progetto, Typography con variant h4 e usato per il titolo principale, body1 per la versione.",
+          "Typography gestisce tutto il testo con varianti predefinite che rispettano la gerarchia tipografica: h1-h6 per i titoli, body1/body2 per il testo normale, caption per i dettagli piccoli. Per esempio, un titolo di pagina può usare `variant=\"h4\"` e una descrizione `variant=\"body1\"`.",
       },
       {
         type: "code",
         language: "javascript",
-        title: "Typography - Le varianti usate nel progetto",
-        code: `// Titolo principale (da un'app reale)
-<Typography variant="h4" sx={{ fontWeight: 600, color: "#D52B1E" }}>
-  Dashboard App
+        title: "Typography: le varianti più comuni",
+        code: `// Titolo principale
+<Typography variant="h4" sx={{ fontWeight: 600, color: "primary.main" }}>
+  La mia libreria
 </Typography>
 
-// Testo informativo
-<Typography variant="body1">Version 1.0.0</Typography>
+// Testo normale
+<Typography variant="body1">Hai 12 libri nella tua collezione.</Typography>
 
 // Testo secondario / etichette
 <Typography variant="body2" fontWeight="bold">
-  Periodo: Gen / Feb / Mar
+  Generi: Romanzo / Giallo / Fantasy
 </Typography>
 
-// Testo piccolo per dettagli
+// Testo piccolo per i dettagli
 <Typography variant="caption" sx={{ color: "text.secondary" }}>
-  C.I. Number: 12345
+  Ultimo aggiornamento: ieri
 </Typography>
 
 // Varianti disponibili: h1, h2, h3, h4, h5, h6,
@@ -129,31 +137,28 @@ import { Forward, ZoomIn, ChevronLeft } from "@mui/icons-material";`,
       },
       {
         type: "subheading",
-        content: "Button: Tre Varianti Fondamentali",
+        content: "Button: tre varianti fondamentali",
       },
       {
         type: "text",
         content:
-          "Button supporta tre varianti: `contained` (sfondo pieno, azione primaria), `outlined` (solo bordo, azione secondaria) e `text` (solo testo, azione terziaria). Nel progetto, il bottone 'Continua' della Home usa variant='contained' con colore personalizzato.",
+          "Button supporta tre varianti: `contained` (sfondo pieno, azione primaria), `outlined` (solo bordo, azione secondaria) e `text` (solo testo, azione terziaria). Come un normale `<button>`, riceve l'evento `onClick`.",
       },
       {
         type: "code",
         language: "javascript",
-        title: "Button - Varianti e personalizzazione",
-        code: `import { Button, Typography } from "@mui/material";
-import ForwardIcon from "@mui/icons-material/Forward";
+        title: "Button: varianti e personalizzazione",
+        code: `import { Button, ButtonGroup, IconButton } from "@mui/material";
+import { ShoppingCart, Add, Remove, Delete } from "@mui/icons-material";
 
-// Bottone primario (da un'app reale)
+// Bottone primario con icona
 <Button
   variant="contained"
   size="large"
-  disableRipple
-  onClick={handleContinue}
-  sx={{ bgcolor: "#D52B1E" }}
+  startIcon={<ShoppingCart />}
+  onClick={handleAddToCart}
 >
-  <Typography sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-    Continue <ForwardIcon />
-  </Typography>
+  Aggiungi al carrello
 </Button>
 
 // Bottone secondario
@@ -162,14 +167,11 @@ import ForwardIcon from "@mui/icons-material/Forward";
 // Bottone testo
 <Button variant="text" size="small">Dettagli</Button>
 
-// Gruppo di bottoni icona (da un'app reale)
-import { IconButton, ButtonGroup } from "@mui/material";
-import { ZoomIn, ZoomOut, RestartAlt } from "@mui/icons-material";
-
+// Gruppo di bottoni con sole icone
 <ButtonGroup size="small" variant="outlined">
-  <IconButton onClick={handleZoomIn}><ZoomIn /></IconButton>
-  <IconButton onClick={handleZoomOut}><ZoomOut /></IconButton>
-  <IconButton onClick={handleResetZoom}><RestartAlt /></IconButton>
+  <IconButton onClick={handleIncrement}><Add /></IconButton>
+  <IconButton onClick={handleDecrement}><Remove /></IconButton>
+  <IconButton onClick={handleRemove}><Delete /></IconButton>
 </ButtonGroup>`,
       },
       {
@@ -179,15 +181,14 @@ import { ZoomIn, ZoomOut, RestartAlt } from "@mui/icons-material";
       {
         type: "text",
         content:
-          "Paper crea una superficie elevata (con ombra). Chip visualizza tag o etichette compatte. Divider separa visivamente le sezioni. Nel progetto, Paper e usato nel tooltip dei grafici e Chip per mostrare il batch selezionato.",
+          "Paper crea una superficie in rilievo (con ombra), perfetta per card e pannelli. Chip mostra tag o etichette compatte. Divider separa visivamente le sezioni.",
       },
       {
         type: "code",
         language: "javascript",
-        title: "Paper, Chip e Divider dal progetto",
-        code: `import { Paper, Chip, Divider, Box, Typography } from "@mui/material";
+        title: "Una card prodotto con Paper, Chip e Divider",
+        code: `import { Paper, Chip, Divider, Typography } from "@mui/material";
 
-// Paper nel tooltip del grafico (dal progetto)
 <Paper
   elevation={0}
   sx={{
@@ -197,60 +198,58 @@ import { ZoomIn, ZoomOut, RestartAlt } from "@mui/icons-material";
     boxShadow: "0px 4px 20px rgba(0,0,0,0.15)",
   }}
 >
-  {/* Chip come badge del batch */}
+  <Typography variant="h6">Cuffie wireless</Typography>
+
+  {/* Chip come etichetta */}
   <Chip
-    label="Batch: ABC123"
+    label="Disponibile"
     size="small"
-    sx={{
-      height: 20,
-      fontSize: "0.75rem",
-      fontWeight: 700,
-      backgroundColor: "rgba(213, 43, 30, 0.1)",
-      color: "#D52B1E",
-      borderRadius: 1,
-    }}
+    color="success"
+    sx={{ height: 20, fontSize: "0.75rem", fontWeight: 700 }}
   />
 
   {/* Divider per separare le sezioni */}
   <Divider sx={{ my: 1 }} />
 
-  <Typography variant="caption">Dettagli aggiuntivi...</Typography>
+  <Typography variant="caption">Spedizione gratuita in 2 giorni</Typography>
 </Paper>`,
       },
       {
         type: "tip",
         content:
-          "In un progetto React reale, Box e Stack sono i componenti layout più usati. Typography gestisce tutti i testi con variant (h4, h6, body1, body2, caption). Paper e Chip compaiono nel tooltip personalizzato dei grafici.",
+          "Box e Stack coprono quasi tutte le esigenze di layout: usa Stack quando devi solo impilare elementi con uno spazio regolare, Box quando ti serve più controllo. Per i testi usa sempre Typography con la variant adatta, così l'aspetto resta coerente in tutta l'app.",
       },
     ],
     exercises: [
       {
         type: "multiple-choice",
-        title: "Componente Layout Giusto",
+        title: "Componente di layout giusto",
         description:
-          "Vuoi creare un contenitore flex con direzione colonna e gap di 16px tra gli elementi. Qual e il modo più conciso?",
+          "Vuoi creare un contenitore flex con direzione colonna e uno spazio di 16px tra gli elementi. Qual è il modo più conciso?",
         difficulty: "facile",
         options: [
           '<Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>',
           "<Stack spacing={2}>",
           '<div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>',
-          "Tutte le opzioni funzionano, ma Stack e la più concisa",
+          "Tutte le opzioni funzionano, ma Stack è la più concisa",
         ],
         correct: 3,
         explanation:
-          "Tutte e tre producono lo stesso risultato visivo. Tuttavia, Stack e la più concisa perche imposta automaticamente display:flex e flexDirection:column. spacing={2} corrisponde a 16px (2 * 8px). Box richiede più proprieta sx, e div non supporta il sistema di tema MUI.",
+          "Tutte e tre producono lo stesso risultato visivo. Tuttavia Stack è la più concisa, perché imposta automaticamente display: flex e flexDirection: column. spacing={2} corrisponde a 16px (2 × 8px). Box richiede più proprietà in sx, e il div con style non sfrutta il tema di MUI.",
       },
       {
         type: "code",
         title: "Card con Paper e Typography",
         description:
-          "Crea una card usando Paper con elevation 3, padding di 24px (spacing 3), e un titolo h5 seguito da un testo body2 e un Chip con label 'Attivo'.",
+          "Crea una card usando `Paper` con `elevation={3}` e padding di 24px (`sx={{ p: 3 }}`). Dentro, metti un titolo `Typography` con `variant=\"h5\"`, un testo `Typography` con `variant=\"body2\"` e un `Chip` con `label=\"Attivo\"`.",
         difficulty: "medio",
+        mode: "static",
         starterCode: `import { Paper, Typography, Chip, Stack } from "@mui/material";
 
 export default function StatusCard() {
   return (
     // Crea la card qui
+    null
   );
 }`,
         solution: `import { Paper, Typography, Chip, Stack } from "@mui/material";
@@ -259,23 +258,28 @@ export default function StatusCard() {
   return (
     <Paper elevation={3} sx={{ p: 3 }}>
       <Stack spacing={1}>
-        <Typography variant="h5">Stato del Sistema</Typography>
+        <Typography variant="h5">Stato del servizio</Typography>
         <Typography variant="body2">Tutti i servizi sono operativi.</Typography>
         <Chip label="Attivo" color="success" size="small" />
       </Stack>
     </Paper>
   );
 }`,
-        validate: `(code) => {
-  return code.includes("Paper") && code.includes("elevation") && code.includes("Typography") && code.includes("Chip");
-}`,
-        testCode: "",
+        validate: `const c = $codeNoComments;
+if (!/<Paper[\\s>]/.test(c)) return "Usa il componente <Paper> come contenitore della card";
+if (!/<Paper[^>]*elevation=\\{\\s*3\\s*\\}/.test(c)) return "Aggiungi elevation={3} al Paper";
+if (!/<Paper[^>]*sx=\\{\\{[^}]*\\bp\\s*:\\s*3\\b/.test(c)) return "Aggiungi un padding di 24px al Paper con sx={{ p: 3 }}";
+if (!/<Typography[^>]*variant=["']h5["']/.test(c)) return "Aggiungi un titolo <Typography variant=\\"h5\\">";
+if (!/<Typography[^>]*variant=["']body2["']/.test(c)) return "Aggiungi un testo <Typography variant=\\"body2\\">";
+if (!/<Chip[^>]*label=["']Attivo["']/.test(c)) return "Aggiungi un <Chip label=\\"Attivo\\" />";
+if (!/<\\/Paper>/.test(c)) return "Ricordati di chiudere il Paper con </Paper>, mettendo gli altri elementi al suo interno";
+return true;`,
       },
       {
         type: "multiple-choice",
         title: "Variante di Button",
         description:
-          "Per un'azione primaria importante (es. 'Salva' o 'Continua'), quale variante di Button e la più appropriata?",
+          "Per un'azione primaria importante (es. 'Salva' o 'Continua'), quale variante di Button è la più appropriata?",
         difficulty: "facile",
         options: [
           'variant="text"',
@@ -285,7 +289,7 @@ export default function StatusCard() {
         ],
         correct: 2,
         explanation:
-          'variant="contained" ha lo sfondo pieno e la massima prominenza visiva, ideale per l\'azione principale. "outlined" e per azioni secondarie, "text" per azioni terziarie. "icon" non esiste come variante: per le icone si usa IconButton.',
+          'variant="contained" ha lo sfondo pieno e la massima evidenza visiva, ideale per l\'azione principale. "outlined" è per le azioni secondarie, "text" per quelle terziarie. "icon" non esiste come variante: per le icone si usa IconButton.',
       },
     ],
   },
@@ -295,54 +299,59 @@ export default function StatusCard() {
       {
         type: "text",
         content:
-          "La prop `sx` e il sistema di styling inline di MUI, potenziato con accesso al tema, shorthand per spaziature, valori responsive e supporto per pseudo-selettori CSS. E disponibile su tutti i componenti MUI e nelle applicazioni enterprise viene usata praticamente ovunque.",
+          "La prop `sx` è il sistema di styling di MUI: è simile all'attributo `style`, ma in più dà accesso al tema, offre scorciatoie per le spaziature, valori responsive e il supporto per pseudo-selettori CSS. È disponibile su tutti i componenti MUI.",
       },
       {
         type: "heading",
-        content: "Sintassi Base: Oggetto CSS in camelCase",
+        content: "Sintassi base: oggetto CSS in camelCase",
       },
       {
         type: "text",
         content:
-          "La prop `sx` accetta un oggetto con proprieta CSS in camelCase. A differenza dell'attributo `style`, `sx` supporta il tema, shorthand, responsive values e selettori annidati.",
+          "La prop `sx` accetta un oggetto con proprietà CSS in camelCase (`backgroundColor`, `borderRadius`...), proprio come `style`. A differenza di `style`, però, `sx` supporta il tema, le scorciatoie, i valori responsive e i selettori annidati.",
       },
       {
         type: "code",
         language: "javascript",
-        title: "sx base vs style: le differenze",
+        title: "sx e style a confronto",
         code: `// Con style (CSS standard, nessun accesso al tema)
 <div style={{ backgroundColor: "#f5f5f5", padding: "16px", borderRadius: "8px" }}>
 
-// Con sx (accesso al tema, shorthand, responsive)
+// Con sx (accesso al tema, scorciatoie, responsive)
 <Box sx={{ bgcolor: "#f5f5f5", p: 2, borderRadius: 2 }}>
 
-// bgcolor = backgroundColor (shorthand MUI)
+// bgcolor = backgroundColor (scorciatoia MUI)
 // p: 2 = padding: 16px (2 * 8px del tema)
-// borderRadius: 2 = borderRadius: "16px" (2 * 8px)`,
-      },
-      {
-        type: "subheading",
-        content: "Spacing: Il Sistema a Multipli di 8px",
+// borderRadius: 2 = 2 * borderRadius del tema (4px) = 8px`,
       },
       {
         type: "text",
         content:
-          "In MUI, i valori numerici di spaziatura vengono moltiplicati per il fattore del tema (default: 8px). Quindi `p: 1` = 8px, `p: 2` = 16px, `m: 3` = 24px. Esistono shorthand per ogni direzione: m (margin), p (padding), mt (margin-top), px (padding left+right), ecc.",
+          "Con `sx` puoi anche usare i colori del tema scrivendoli come stringhe: `\"primary.main\"`, `\"text.secondary\"`, `\"grey.100\"`, `\"background.paper\"`. Se un domani cambi il colore primario del tema, tutti i componenti si aggiornano da soli.",
+      },
+      {
+        type: "subheading",
+        content: "Spacing: il sistema a multipli di 8px",
+      },
+      {
+        type: "text",
+        content:
+          "In MUI, i valori numerici di spaziatura vengono moltiplicati per il fattore del tema (default: 8px). Quindi `p: 1` = 8px, `p: 2` = 16px, `m: 3` = 24px. Esistono scorciatoie per ogni direzione: m (margin), p (padding), mt (margin-top), px (padding sinistro + destro), ecc.",
       },
       {
         type: "code",
         language: "javascript",
-        title: "Shorthand di spaziatura",
-        code: `// Shorthand completi
+        title: "Scorciatoie di spaziatura",
+        code: `// Scorciatoie complete
 // m  = margin          p  = padding
 // mt = marginTop       pt = paddingTop
 // mr = marginRight     pr = paddingRight
 // mb = marginBottom    pb = paddingBottom
 // ml = marginLeft      pl = paddingLeft
-// mx = marginX (left+right)  px = paddingX (left+right)
-// my = marginY (top+bottom)  py = paddingY (top+bottom)
+// mx = margin left + right   px = padding left + right
+// my = margin top + bottom   py = padding top + bottom
 
-// Esempio da un'app reale (Home page)
+// Esempio: sezione di benvenuto di una pagina
 <Box sx={{
   flex: 1,
   bgcolor: "#fff",
@@ -350,84 +359,86 @@ export default function StatusCard() {
   alignItems: "center",
   justifyContent: "center",
   flexDirection: "column",
-  p: { xs: 4, md: 10 },   // padding responsive
-  pt: { xl: 5 },           // paddingTop solo su xl
+  px: 4,   // 32px a sinistra e a destra
+  py: 2,   // 16px sopra e sotto
+  mb: 1,   // 8px di margine sotto
 }}>`,
       },
       {
         type: "heading",
-        content: "Valori Responsive con Breakpoints",
+        content: "Valori responsive con i breakpoint",
       },
       {
         type: "text",
         content:
-          "Qualsiasi proprieta sx puo accettare un oggetto con breakpoints come chiavi: `xs` (0px+), `sm` (600px+), `md` (900px+), `lg` (1200px+), `xl` (1536px+). MUI genera automaticamente le media query corrispondenti.",
+          "Qualsiasi proprietà di `sx` può accettare un oggetto con i breakpoint come chiavi: `xs` (da 0px), `sm` (da 600px), `md` (da 900px), `lg` (da 1200px), `xl` (da 1536px). MUI genera automaticamente le media query corrispondenti, in ottica mobile-first: il valore di `xs` vale ovunque, finché un breakpoint più grande non lo sovrascrive.",
       },
       {
         type: "code",
         language: "javascript",
-        title: "Layout responsive da un'app reale",
-        code: `// Layout responsive della Home page
+        title: "Layout responsive",
+        code: `// Pagina di un negozio: filtri + prodotti
 <Box sx={{
   minHeight: "100vh",
   display: "flex",
-  // Su mobile: colonna, su desktop: riga
+  // Su mobile: colonna, da md in su: riga
   flexDirection: { xs: "column", md: "row" },
   bgcolor: "grey.100",
 }}>
-  {/* Colonna sinistra */}
+  {/* Colonna dei filtri */}
   <Box sx={{
-    flex: 1,
-    p: { xs: 4, md: 10 },  // Padding ridotto su mobile
-  }}>
-    Contenuto
-  </Box>
-
-  {/* Colonna destra */}
-  <Box sx={{
-    flex: 1,
-    p: { xs: 4, xl: 10 },  // Padding extra su schermi grandi
-    gap: { xs: 4, xl: 8 }, // Gap più ampio su xl
+    width: { xs: "100%", md: 260 },
+    p: { xs: 2, md: 4 },   // padding ridotto su mobile
   }}>
     Filtri
+  </Box>
+
+  {/* Colonna dei prodotti */}
+  <Box sx={{
+    flex: 1,
+    p: { xs: 2, xl: 6 },   // padding extra su schermi grandi
+    gap: { xs: 2, xl: 4 }, // gap più ampio su xl
+  }}>
+    Prodotti
   </Box>
 </Box>`,
       },
       {
         type: "subheading",
-        content: "Pseudo-selettori e Selettori Annidati",
+        content: "Pseudo-selettori e selettori annidati",
       },
       {
         type: "text",
         content:
-          'La prop sx supporta pseudo-selettori CSS come `"&:hover"`, `"&:focus"`, `"&.Mui-selected"` e selettori annidati come `"& .MuiChip-root"`. Questo permette di personalizzare componenti MUI interni senza creare classi CSS separate.',
+          'La prop sx supporta pseudo-selettori CSS come `"&:hover"`, `"&:focus"`, `"&.Mui-selected"` e selettori annidati come `"& .MuiChip-root"`. Il simbolo `&` rappresenta l\'elemento corrente. Questo permette di personalizzare anche le parti interne dei componenti MUI senza creare file CSS separati.',
       },
       {
         type: "code",
         language: "javascript",
-        title: "Pseudo-selettori e selettori annidati dal progetto",
-        code: `// Selettore hover (categoria sidebar nel progetto)
+        title: "Pseudo-selettori e selettori annidati",
+        code: `// Voce di un menu con effetto hover
 <Box sx={{
   cursor: "pointer",
-  bgcolor: isFocused ? "rgba(25, 118, 210, 0.08)" : "transparent",
+  bgcolor: isSelected ? "rgba(25, 118, 210, 0.08)" : "transparent",
   transition: "all 0.2s ease",
   "&:hover": { bgcolor: "rgba(0,0,0,0.04)" },
 }}>
 
-// Selettori annidati per personalizzare componenti MUI interni
+// Selettori annidati per personalizzare i componenti MUI interni
 <Box sx={{
-  // Personalizza tutti i Stack figli
-  "& .MuiStack-root": {
-    justifyContent: "flex-start",
-    alignItems: "flex-start",
+  // Stile applicato a tutti i Chip contenuti nel Box
+  "& .MuiChip-root": {
+    fontWeight: "bold",
+    borderRadius: 1,
   },
   bgcolor: "#f0f0f0",
   borderRadius: 3,
   p: 2,
-  borderLeft: "4px solid #D52B1E",
+  borderLeft: "4px solid",
+  borderLeftColor: "primary.main",
 }}>
 
-// Personalizzazione scrollbar (dal grafico)
+// Personalizzazione della barra di scorrimento
 <Box sx={{
   overflowX: "auto",
   "&::-webkit-scrollbar": { height: "8px" },
@@ -441,72 +452,76 @@ export default function StatusCard() {
       },
       {
         type: "subheading",
-        content: "Sx Condizionale con Spread",
+        content: "sx condizionale con lo spread",
       },
       {
         type: "text",
         content:
-          "Un pattern potente e usare lo spread operator `...()` dentro sx per applicare stili condizionalmente. Nelle applicazioni enterprise, questo pattern e usato estensivamente per evidenziare punti selezionati nei grafici.",
+          "Per stili semplici basta il ternario: `color: isActive ? \"white\" : \"text.primary\"`. Quando invece vuoi aggiungere un intero gruppo di proprietà solo se una condizione è vera, puoi usare lo spread dentro `sx`: `...(condizione && { ... })`. Se la condizione è falsa, `false` viene \"spalmato\" nell'oggetto senza aggiungere nulla; se è vera, vengono aggiunte tutte le proprietà dell'oggetto.",
       },
       {
         type: "code",
         language: "javascript",
-        title: "Sx condizionale con spread dal progetto",
-        code: `// Pattern: spread condizionale in sx
-<LineChart
-  sx={{
-    // Stili base (sempre applicati)
-    [\`& .\${lineClasses.line}\`]: {
-      stroke: styles.lineColor,
-      strokeWidth: styles.lineWidth,
-    },
+        title: "Card di un prodotto evidenziata quando è selezionata",
+        code: `import { Paper, Typography } from "@mui/material";
 
-    // Stili condizionali (solo quando un punto e selezionato)
-    ...(selectedPoint !== null && {
-      [\`& .\${axisClasses.bottom} .MuiChartsAxis-tickContainer:nth-of-type(\${
-        selectedPoint.dataIndex + 1
-      }) .MuiChartsAxis-tickLabel\`]: {
-        fill: "darkorange !important",
-        fontWeight: "bold !important",
-      },
-    }),
+export default function ProductCard({ name, price, isSelected, isOutOfStock }) {
+  return (
+    <Paper
+      sx={{
+        // Stili base (sempre applicati)
+        p: 2,
+        borderRadius: 2,
+        border: "2px solid transparent",
 
-    // Spread con reduce per stili multipli dinamici
-    ...areaSelectedIndices.reduce((acc, dataIdx) => {
-      acc[\`& .\${axisClasses.bottom} .MuiChartsAxis-tickContainer:nth-of-type(\${
-        dataIdx + 1
-      }) .MuiChartsAxis-tickLabel\`] = {
-        fill: "darkorange !important",
-        fontWeight: "bold !important",
-      };
-      return acc;
-    }, {}),
-  }}
-/>`,
+        // Stili aggiunti solo se il prodotto è selezionato
+        ...(isSelected && {
+          borderColor: "primary.main",
+          bgcolor: "rgba(25, 118, 210, 0.08)",
+        }),
+
+        // Stili aggiunti solo se il prodotto è esaurito
+        ...(isOutOfStock && {
+          opacity: 0.5,
+          pointerEvents: "none",
+        }),
+      }}
+    >
+      <Typography variant="h6">{name}</Typography>
+      <Typography
+        variant="body2"
+        sx={{ fontWeight: isSelected ? "bold" : "normal" }}
+      >
+        {price} €
+      </Typography>
+    </Paper>
+  );
+}`,
       },
       {
         type: "tip",
         content:
-          "Quasi ogni componente nel progetto usa sx per lo styling. Esempio reale: sx={{ display: 'flex', flexDirection: 'column', gap: 1, p: 2, bgcolor: 'background.paper', borderRadius: 2 }}. Il pattern spread condizionale e usato nei grafici per evidenziare dinamicamente i punti selezionati.",
+          "Preferisci i valori del tema (`p: 2`, `color: \"primary.main\"`, `bgcolor: \"grey.100\"`) ai valori scritti a mano come \"16px\" o \"#1976d2\": l'interfaccia resta coerente e cambiare il tema aggiorna tutto in un colpo solo.",
       },
     ],
     exercises: [
       {
         type: "multiple-choice",
-        title: "Valore di Spacing",
+        title: "Valore di spacing",
         description: "A quanti pixel corrisponde `p: 3` nella prop sx di MUI?",
         difficulty: "facile",
         options: ["3px", "12px", "24px", "30px"],
         correct: 2,
         explanation:
-          "Il fattore di spaziatura di MUI e 8px per default. Quindi p: 3 = 3 * 8px = 24px. Allo stesso modo, m: 1 = 8px, p: 2 = 16px, gap: 0.5 = 4px.",
+          "Il fattore di spaziatura di MUI è 8px per default. Quindi p: 3 = 3 × 8px = 24px. Allo stesso modo, m: 1 = 8px, p: 2 = 16px, gap: 0.5 = 4px.",
       },
       {
         type: "code",
-        title: "Card Responsive con sx",
+        title: "Card responsive con sx",
         description:
-          "Crea un Box che: su mobile (xs) ha padding 16px e flexDirection column; su desktop (md) ha padding 32px e flexDirection row. Usa gli shorthand di spaziatura MUI.",
+          "Completa il `Box` in modo che:\n- su mobile (`xs`) abbia padding 16px e `flexDirection` `\"column\"`;\n- su desktop (`md`) abbia padding 32px e `flexDirection` `\"row\"`.\nUsa la scorciatoia `p` e i valori numerici del tema (16px = 2, 32px = 4).",
         difficulty: "medio",
+        mode: "static",
         starterCode: `import { Box, Typography } from "@mui/material";
 
 export default function ResponsiveCard() {
@@ -535,17 +550,24 @@ export default function ResponsiveCard() {
     </Box>
   );
 }`,
-        validate: `(code) => {
-  return code.includes("xs:") && code.includes("md:") && code.includes("flexDirection");
-}`,
-        testCode: "",
+        validate: `const c = $codeNoComments;
+const padding = c.match(/\\bp\\s*:\\s*\\{([^}]*)\\}/);
+if (!padding) return "Aggiungi un padding responsive con la scorciatoia p e un oggetto di breakpoint, es. p: { xs: ..., md: ... }";
+if (!/\\bxs\\s*:\\s*2\\b/.test(padding[1])) return "Il padding su mobile deve essere 16px: usa xs: 2 dentro p";
+if (!/\\bmd\\s*:\\s*4\\b/.test(padding[1])) return "Il padding su desktop deve essere 32px: usa md: 4 dentro p";
+const dir = c.match(/flexDirection\\s*:\\s*\\{([^}]*)\\}/);
+if (!dir) return "Aggiungi flexDirection con un oggetto di breakpoint, es. flexDirection: { xs: ..., md: ... }";
+if (!/\\bxs\\s*:\\s*["']column["']/.test(dir[1])) return "Su mobile flexDirection deve essere \\"column\\": usa xs: \\"column\\"";
+if (!/\\bmd\\s*:\\s*["']row["']/.test(dir[1])) return "Su desktop flexDirection deve essere \\"row\\": usa md: \\"row\\"";
+return true;`,
       },
       {
         type: "code",
-        title: "Stili Condizionali con Spread",
+        title: "Stili condizionali con lo spread",
         description:
-          "Completa il componente che cambia bgcolor e fontWeight del Typography quando `isActive` e true, usando lo spread condizionale in sx.",
+          "Completa il componente `ActiveItem`:\n- nel `sx` del `Box`, usa lo spread condizionale `...(isActive && { ... })` per impostare `bgcolor: \"primary.main\"` quando `isActive` è true;\n- nel `sx` del `Typography`, usa il ternario per avere `fontWeight` `\"bold\"` se `isActive` è true e `\"normal\"` altrimenti.",
         difficulty: "difficile",
+        mode: "static",
         starterCode: `import { Box, Typography } from "@mui/material";
 
 export default function ActiveItem({ label, isActive }) {
@@ -588,10 +610,12 @@ export default function ActiveItem({ label, isActive }) {
     </Box>
   );
 }`,
-        validate: `(code) => {
-  return code.includes("isActive") && (code.includes("...(" ) || code.includes("?"));
-}`,
-        testCode: "",
+        validate: `const c = $codeNoComments;
+const spread = c.match(/\\.\\.\\.\\s*\\(\\s*isActive\\s*&&\\s*\\{([\\s\\S]*?)\\}\\s*\\)/);
+if (!spread) return "Nel sx del Box aggiungi lo spread condizionale: ...(isActive && { ... })";
+if (!/bgcolor\\s*:\\s*["']primary\\.main["']/.test(spread[1])) return "Dentro lo spread condizionale imposta bgcolor: \\"primary.main\\"";
+if (!/fontWeight\\s*:\\s*isActive\\s*\\?\\s*["']bold["']\\s*:\\s*["']normal["']/.test(c)) return "Nel sx del Typography imposta fontWeight con il ternario: fontWeight: isActive ? \\"bold\\" : \\"normal\\"";
+return true;`,
       },
     ],
   },
@@ -601,7 +625,7 @@ export default function ActiveItem({ label, isActive }) {
       {
         type: "text",
         content:
-          "MUI fornisce un ricco set di componenti per form e input. In un progetto React reale, Select e usato per i filtri nella Home e nella sidebar, Autocomplete per la selezione multipla con ricerca, e le tabelle per mostrare dati strutturati.",
+          "MUI fornisce un ricco set di componenti per form e input: Select per i menu a tendina, TextField per il testo, Autocomplete per la selezione con ricerca, Checkbox e Switch per le scelte sì/no, e una serie di componenti per costruire tabelle. Si usano con lo stesso schema dei componenti controllati che conosci da React: un valore nello stato e un `onChange` che lo aggiorna.",
       },
       {
         type: "heading",
@@ -610,32 +634,32 @@ export default function ActiveItem({ label, isActive }) {
       {
         type: "text",
         content:
-          "Il componente Select crea un menu a tendina. Ogni opzione e un MenuItem. Puoi wrappare Select in un FormControl con InputLabel per avere un'etichetta flottante. Nel progetto, Select e usato nella Home per scegliere il sito e il tipo di analisi.",
+          "Il componente Select crea un menu a tendina. Ogni opzione è un MenuItem con la sua prop `value`. Puoi avvolgere Select in un FormControl con InputLabel per avere un'etichetta che si sposta sopra il campo quando è selezionato un valore.",
       },
       {
         type: "code",
         language: "javascript",
-        title: "Select base e con FormControl",
+        title: "Select base con FormControl",
         code: `import { useState } from "react";
 import {
   Select, MenuItem, FormControl, InputLabel, Box
 } from "@mui/material";
 
-export default function SiteFilter() {
-  const [site, setSite] = useState("");
+export default function GenreFilter() {
+  const [genre, setGenre] = useState("");
 
   return (
     <Box sx={{ minWidth: 200 }}>
       <FormControl fullWidth size="small">
-        <InputLabel>Sito</InputLabel>
+        <InputLabel>Genere</InputLabel>
         <Select
-          value={site}
-          label="Sito"
-          onChange={(e) => setSite(e.target.value)}
+          value={genre}
+          label="Genere"
+          onChange={(e) => setGenre(e.target.value)}
         >
-          <MenuItem value="LK1">Lilly Kinsale 1</MenuItem>
-          <MenuItem value="LK2">Lilly Kinsale 2</MenuItem>
-          <MenuItem value="IND">Indianapolis</MenuItem>
+          <MenuItem value="romanzo">Romanzo</MenuItem>
+          <MenuItem value="giallo">Giallo</MenuItem>
+          <MenuItem value="fantasy">Fantasy</MenuItem>
         </Select>
       </FormControl>
     </Box>
@@ -644,40 +668,40 @@ export default function SiteFilter() {
       },
       {
         type: "subheading",
-        content: "TextField: Input di Testo",
+        content: "TextField: input di testo",
       },
       {
         type: "text",
         content:
-          "TextField e il componente universale per gli input di testo. Supporta le varianti `outlined` (default), `filled` e `standard`. Puo essere multiline, con helper text, errori di validazione e icone.",
+          "TextField è il componente universale per gli input di testo. Supporta le varianti `outlined` (default), `filled` e `standard`. Può essere su più righe (`multiline`), mostrare un testo di aiuto (`helperText`) e segnalare errori di validazione (`error`).",
       },
       {
         type: "code",
         language: "javascript",
-        title: "TextField con varianti e validazione",
+        title: "Un form di contatto con TextField",
         code: `import { useState } from "react";
 import { TextField, Stack } from "@mui/material";
 
-export default function FormFields() {
-  const [value, setValue] = useState("");
-  const hasError = value.length > 0 && value.length < 3;
+export default function ContactForm() {
+  const [name, setName] = useState("");
+  const hasError = name.length > 0 && name.length < 3;
 
   return (
     <Stack spacing={2}>
-      {/* Input base */}
+      {/* Input base con validazione */}
       <TextField
-        label="Nome batch"
+        label="Nome"
         variant="outlined"
         size="small"
-        value={value}
-        onChange={(e) => setValue(e.target.value)}
+        value={name}
+        onChange={(e) => setName(e.target.value)}
         error={hasError}
         helperText={hasError ? "Minimo 3 caratteri" : ""}
       />
 
-      {/* Input multiline */}
+      {/* Input su più righe */}
       <TextField
-        label="Note"
+        label="Messaggio"
         multiline
         rows={3}
         variant="outlined"
@@ -685,10 +709,10 @@ export default function FormFields() {
 
       {/* Input numerico */}
       <TextField
-        label="Valore UCL"
+        label="Età"
         type="number"
         size="small"
-        inputProps={{ min: 0, step: 0.1 }}
+        inputProps={{ min: 0, step: 1 }}
       />
     </Stack>
   );
@@ -696,65 +720,60 @@ export default function FormFields() {
       },
       {
         type: "subheading",
-        content: "Autocomplete: Selezione con Ricerca",
+        content: "Autocomplete: selezione con ricerca",
       },
       {
         type: "text",
         content:
-          "Autocomplete combina un TextField con un menu filtrato in tempo reale. Supporta selezione singola e multipla, opzioni libere (freeSolo), raggruppamento e renderizzazione personalizzata. Nel progetto, e usato per i filtri a selezione multipla con ricerca testuale.",
+          "Autocomplete combina un TextField con un menu che si filtra mentre scrivi. Supporta la selezione singola e multipla (`multiple`), opzioni libere (`freeSolo`), raggruppamento e personalizzazione della visualizzazione. Riceve le opzioni in `options` e, con `getOptionLabel`, gli dici quale testo mostrare per ciascuna.",
       },
       {
         type: "code",
         language: "javascript",
         title: "Autocomplete singolo e multiplo",
         code: `import { useState } from "react";
-import { Autocomplete, TextField, Chip, Stack } from "@mui/material";
+import { Autocomplete, TextField, Stack } from "@mui/material";
 
-const siti = [
-  { label: "Kinsale 1", value: "LK1" },
-  { label: "Kinsale 2", value: "LK2" },
-  { label: "Indianapolis", value: "IND" },
-  { label: "Fegersheim", value: "FEG" },
+const cities = [
+  { label: "Roma", value: "roma" },
+  { label: "Milano", value: "milano" },
+  { label: "Napoli", value: "napoli" },
+  { label: "Torino", value: "torino" },
 ];
 
-export default function AutocompleteExamples() {
-  const [selectedSiti, setSelectedSiti] = useState([]);
+export default function CityPicker() {
+  const [selectedCities, setSelectedCities] = useState([]);
 
   return (
     <Stack spacing={3}>
       {/* Autocomplete singolo */}
       <Autocomplete
-        options={siti}
+        options={cities}
         getOptionLabel={(option) => option.label}
         renderInput={(params) => (
-          <TextField {...params} label="Seleziona sito" size="small" />
+          <TextField {...params} label="Città di partenza" size="small" />
         )}
       />
 
-      {/* Autocomplete multiplo con Chip */}
+      {/* Autocomplete multiplo: i valori scelti appaiono come Chip */}
       <Autocomplete
         multiple
-        options={siti}
+        options={cities}
         getOptionLabel={(option) => option.label}
-        value={selectedSiti}
-        onChange={(event, newValue) => setSelectedSiti(newValue)}
-        renderTags={(value, getTagProps) =>
-          value.map((option, index) => (
-            <Chip
-              label={option.label}
-              size="small"
-              {...getTagProps({ index })}
-              key={option.value}
-            />
-          ))
-        }
+        value={selectedCities}
+        onChange={(event, newValue) => setSelectedCities(newValue)}
         renderInput={(params) => (
-          <TextField {...params} label="Filtra siti" size="small" />
+          <TextField {...params} label="Città da visitare" size="small" />
         )}
       />
     </Stack>
   );
 }`,
+      },
+      {
+        type: "info",
+        content:
+          "Nota `renderInput={(params) => <TextField {...params} />}`: Autocomplete ti passa un oggetto `params` con tutte le props necessarie al campo di testo, e tu le \"spalmi\" sul TextField con lo spread. È lo stesso spread che conosci per gli oggetti, usato sulle props JSX.",
       },
       {
         type: "heading",
@@ -763,7 +782,7 @@ export default function AutocompleteExamples() {
       {
         type: "text",
         content:
-          "Checkbox e Switch sono componenti di toggle. FormControlLabel li wrappa aggiungendo un'etichetta cliccabile. Switch e ideale per impostazioni on/off, Checkbox per selezioni multiple.",
+          "Checkbox e Switch sono componenti di attivazione/disattivazione. FormControlLabel li avvolge aggiungendo un'etichetta cliccabile. Switch è ideale per impostazioni on/off, Checkbox per selezioni multiple da una lista.",
       },
       {
         type: "code",
@@ -775,48 +794,48 @@ import {
   FormGroup, Stack, Typography
 } from "@mui/material";
 
-export default function ToggleControls() {
-  const [showGrid, setShowGrid] = useState(true);
-  const [showLine, setShowLine] = useState(true);
-  const [selectedLevels, setSelectedLevels] = useState(["Critique"]);
+export default function NotificationSettings() {
+  const [darkMode, setDarkMode] = useState(false);
+  const [sounds, setSounds] = useState(true);
+  const [channels, setChannels] = useState(["Email"]);
 
-  const handleLevelToggle = (level) => {
-    setSelectedLevels((prev) =>
-      prev.includes(level)
-        ? prev.filter((l) => l !== level)
-        : [...prev, level]
+  const handleChannelToggle = (channel) => {
+    setChannels((prev) =>
+      prev.includes(channel)
+        ? prev.filter((c) => c !== channel)
+        : [...prev, channel]
     );
   };
 
   return (
     <Stack spacing={2}>
-      <Typography variant="h6">Impostazioni Grafico</Typography>
+      <Typography variant="h6">Impostazioni</Typography>
 
-      {/* Switch per toggle on/off */}
+      {/* Switch per le impostazioni on/off */}
       <FormControlLabel
-        control={<Switch checked={showGrid} onChange={() => setShowGrid(!showGrid)} />}
-        label="Mostra griglia"
+        control={<Switch checked={darkMode} onChange={() => setDarkMode(!darkMode)} />}
+        label="Tema scuro"
       />
 
       <FormControlLabel
-        control={<Switch checked={showLine} onChange={() => setShowLine(!showLine)} />}
-        label="Mostra linea"
+        control={<Switch checked={sounds} onChange={() => setSounds(!sounds)} />}
+        label="Suoni"
       />
 
-      {/* Checkbox per selezione multipla */}
-      <Typography variant="subtitle2">Livelli di criticita</Typography>
+      {/* Checkbox per la selezione multipla */}
+      <Typography variant="subtitle2">Ricevi notifiche via</Typography>
       <FormGroup>
-        {["Critique", "Majeur", "Mineur"].map((level) => (
+        {["Email", "SMS", "Push"].map((channel) => (
           <FormControlLabel
-            key={level}
+            key={channel}
             control={
               <Checkbox
-                checked={selectedLevels.includes(level)}
-                onChange={() => handleLevelToggle(level)}
+                checked={channels.includes(channel)}
+                onChange={() => handleChannelToggle(channel)}
                 size="small"
               />
             }
-            label={level}
+            label={channel}
           />
         ))}
       </FormGroup>
@@ -831,46 +850,46 @@ export default function ToggleControls() {
       {
         type: "text",
         content:
-          "Le tabelle MUI usano un set di componenti strutturati: TableContainer (wrapper scrollabile), Table, TableHead (intestazione), TableBody (corpo), TableRow (riga) e TableCell (cella). TableContainer spesso wrappa un Paper per l'elevazione.",
+          "Le tabelle MUI usano un insieme di componenti strutturati: TableContainer (contenitore scorrevole), Table, TableHead (intestazione), TableBody (corpo), TableRow (riga) e TableCell (cella). Spesso TableContainer usa `component={Paper}` per avere lo sfondo in rilievo. Le righe si generano con `map` sull'array dei dati, ricordandosi la `key`.",
       },
       {
         type: "code",
         language: "javascript",
-        title: "Tabella completa con dati",
+        title: "Tabella di prodotti",
         code: `import {
   Table, TableBody, TableCell, TableContainer,
   TableHead, TableRow, Paper, Chip
 } from "@mui/material";
 
-const rows = [
-  { batch: "ABC001", site: "LK1", value: 2.5, status: "OK" },
-  { batch: "ABC002", site: "LK2", value: 4.1, status: "Warning" },
-  { batch: "ABC003", site: "IND", value: 1.8, status: "OK" },
+const products = [
+  { id: 1, name: "Tastiera", category: "Informatica", price: 49.9, inStock: true },
+  { id: 2, name: "Lampada", category: "Casa", price: 24.5, inStock: false },
+  { id: 3, name: "Zaino", category: "Viaggi", price: 39, inStock: true },
 ];
 
-export default function BatchTable() {
+export default function ProductTable() {
   return (
     <TableContainer component={Paper} sx={{ maxHeight: 400 }}>
       <Table stickyHeader size="small">
         <TableHead>
           <TableRow>
-            <TableCell sx={{ fontWeight: "bold" }}>Batch</TableCell>
-            <TableCell sx={{ fontWeight: "bold" }}>Sito</TableCell>
-            <TableCell sx={{ fontWeight: "bold" }} align="right">Valore</TableCell>
-            <TableCell sx={{ fontWeight: "bold" }}>Stato</TableCell>
+            <TableCell sx={{ fontWeight: "bold" }}>Prodotto</TableCell>
+            <TableCell sx={{ fontWeight: "bold" }}>Categoria</TableCell>
+            <TableCell sx={{ fontWeight: "bold" }} align="right">Prezzo (€)</TableCell>
+            <TableCell sx={{ fontWeight: "bold" }}>Disponibilità</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
-          {rows.map((row) => (
-            <TableRow key={row.batch} hover>
-              <TableCell>{row.batch}</TableCell>
-              <TableCell>{row.site}</TableCell>
-              <TableCell align="right">{row.value}</TableCell>
+          {products.map((product) => (
+            <TableRow key={product.id} hover>
+              <TableCell>{product.name}</TableCell>
+              <TableCell>{product.category}</TableCell>
+              <TableCell align="right">{product.price}</TableCell>
               <TableCell>
                 <Chip
-                  label={row.status}
+                  label={product.inStock ? "Disponibile" : "Esaurito"}
                   size="small"
-                  color={row.status === "OK" ? "success" : "warning"}
+                  color={product.inStock ? "success" : "warning"}
                 />
               </TableCell>
             </TableRow>
@@ -884,27 +903,27 @@ export default function BatchTable() {
       {
         type: "info",
         content:
-          "MUI fornisce anche DataGrid (@mui/x-data-grid) per tabelle avanzate con ordinamento, filtro, paginazione e editing inline. Per tabelle semplici, i componenti Table base sono sufficienti.",
+          "MUI fornisce anche DataGrid (@mui/x-data-grid) per tabelle avanzate con ordinamento, filtri, paginazione e modifica delle celle. Per tabelle semplici, i componenti Table di base sono sufficienti.",
       },
       {
         type: "tip",
         content:
-          "Nel progetto, Select e usato per filtri e navigazione, Autocomplete per selezione multipla con ricerca, Switch per toggle di configurazione. Le tabelle nella Home mostrano le opzioni disponibili per il sito selezionato.",
+          "Scegli il controllo in base al tipo di scelta: Switch per un'impostazione on/off, Checkbox per selezionare più voci, Select per sceglierne una da un elenco breve, Autocomplete quando le opzioni sono tante e conviene poterle cercare.",
       },
     ],
     exercises: [
       {
         type: "code",
-        title: "Select Controllato",
+        title: "Select controllato",
         description:
-          "Crea un componente con un Select controllato (useState) che mostra tre opzioni di tipo analisi: 'CQA', 'CPP', 'IPC'. Mostra sotto il Select il valore selezionato con un Typography.",
+          "Crea un `Select` controllato con `useState` per scegliere la taglia di una maglietta, con tre `MenuItem` di valore `\"S\"`, `\"M\"` e `\"L\"`.\n- Collega il Select allo stato con `value` e aggiornalo in `onChange` con `e.target.value`.\n- Sotto il Select mostra il valore scelto dentro un `Typography`.",
         difficulty: "medio",
-        starterCode: `"use client";
-import { useState } from "react";
+        mode: "static",
+        starterCode: `import { useState } from "react";
 import { Select, MenuItem, FormControl, InputLabel, Box, Typography } from "@mui/material";
 
-export default function AnalysisTypeSelect() {
-  // Definisci lo stato e il handler
+export default function SizeSelect() {
+  // Definisci lo stato
 
   return (
     <Box sx={{ p: 2 }}>
@@ -914,43 +933,50 @@ export default function AnalysisTypeSelect() {
     </Box>
   );
 }`,
-        solution: `"use client";
-import { useState } from "react";
+        solution: `import { useState } from "react";
 import { Select, MenuItem, FormControl, InputLabel, Box, Typography } from "@mui/material";
 
-export default function AnalysisTypeSelect() {
-  const [analysisType, setAnalysisType] = useState("");
+export default function SizeSelect() {
+  const [size, setSize] = useState("");
 
   return (
     <Box sx={{ p: 2 }}>
       <FormControl fullWidth size="small">
-        <InputLabel>Tipo Analisi</InputLabel>
+        <InputLabel>Taglia</InputLabel>
         <Select
-          value={analysisType}
-          label="Tipo Analisi"
-          onChange={(e) => setAnalysisType(e.target.value)}
+          value={size}
+          label="Taglia"
+          onChange={(e) => setSize(e.target.value)}
         >
-          <MenuItem value="CQA">CQA</MenuItem>
-          <MenuItem value="CPP">CPP</MenuItem>
-          <MenuItem value="IPC">IPC</MenuItem>
+          <MenuItem value="S">S</MenuItem>
+          <MenuItem value="M">M</MenuItem>
+          <MenuItem value="L">L</MenuItem>
         </Select>
       </FormControl>
       <Typography sx={{ mt: 2 }}>
-        Selezionato: {analysisType || "Nessuno"}
+        Selezionata: {size || "nessuna"}
       </Typography>
     </Box>
   );
 }`,
-        validate: `(code) => {
-  return code.includes("useState") && code.includes("Select") && code.includes("MenuItem") && code.includes("onChange");
-}`,
-        testCode: "",
+        validate: `const c = $codeNoComments;
+const state = c.match(/const\\s*\\[\\s*(\\w+)\\s*,\\s*(\\w+)\\s*\\]\\s*=\\s*useState\\(/);
+if (!state) return "Definisci lo stato con useState, es. const [size, setSize] = useState(\\"\\");";
+const [, val, setter] = state;
+if (!/<Select[\\s>]/.test(c)) return "Aggiungi il componente <Select>";
+if (!new RegExp("<Select[^>]*value=\\\\{\\\\s*" + val + "\\\\s*\\\\}").test(c)) return "Collega il Select allo stato con value={" + val + "}";
+if (!new RegExp("<Select[^>]*onChange=\\\\{[^}]*" + setter + "\\\\(\\\\s*\\\\w+\\\\.target\\\\.value\\\\s*\\\\)").test(c)) return "Nell'onChange del Select chiama " + setter + "(e.target.value)";
+for (const s of ["S", "M", "L"]) {
+  if (!new RegExp("<MenuItem[^>]*value=[\\"']" + s + "[\\"']").test(c)) return "Manca il MenuItem con value=\\"" + s + "\\"";
+}
+if (!new RegExp("<Typography[^>]*>[^<]*\\\\{[^}]*\\\\b" + val + "\\\\b[^}]*\\\\}").test(c)) return "Mostra il valore scelto dentro un Typography, es. <Typography>Selezionata: {" + val + "}</Typography>";
+return true;`,
       },
       {
         type: "multiple-choice",
-        title: "Componente per Toggle",
+        title: "Componente per un'impostazione on/off",
         description:
-          "Per un'impostazione on/off come 'Mostra griglia', quale componente MUI e più appropriato?",
+          "Per un'impostazione on/off come 'Tema scuro', quale componente MUI è più appropriato?",
         difficulty: "facile",
         options: [
           "Checkbox",
@@ -960,20 +986,21 @@ export default function AnalysisTypeSelect() {
         ],
         correct: 1,
         explanation:
-          "Switch e progettato specificamente per impostazioni binarie on/off con feedback visivo immediato. Checkbox e più adatto per selezioni multiple in una lista. Radio per scegliere una tra più opzioni. Select sarebbe eccessivo per un toggle binario.",
+          "Switch è progettato proprio per le impostazioni binarie on/off, con un riscontro visivo immediato. Checkbox è più adatto per selezioni multiple in una lista, Radio per scegliere una tra più opzioni. Un Select sarebbe eccessivo per una semplice scelta sì/no.",
       },
       {
         type: "code",
-        title: "Tabella con Dati Dinamici",
+        title: "Tabella di libri",
         description:
-          "Completa la tabella che riceve un array di oggetti `data` (con campi `name`, `value`, `unit`) e li renderizza. Aggiungi hover sulle righe e allineamento a destra per i numeri.",
+          "Completa la tabella che riceve un array `books` di oggetti con i campi `id`, `title`, `author` e `pages`.\n- Aggiungi un `TableHead` con le intestazioni Titolo, Autore e Pagine.\n- Nel `TableBody` genera una `TableRow` per ogni libro con `books.map`, usando `key={book.id}` e la prop `hover`.\n- Allinea a destra la cella del numero di pagine con `align=\"right\"`.",
         difficulty: "difficile",
+        mode: "static",
         starterCode: `import {
   Table, TableBody, TableCell, TableContainer,
   TableHead, TableRow, Paper
 } from "@mui/material";
 
-export default function DataTable({ data }) {
+export default function BookTable({ books }) {
   return (
     <TableContainer component={Paper}>
       <Table size="small">
@@ -987,23 +1014,23 @@ export default function DataTable({ data }) {
   TableHead, TableRow, Paper
 } from "@mui/material";
 
-export default function DataTable({ data }) {
+export default function BookTable({ books }) {
   return (
     <TableContainer component={Paper}>
       <Table size="small">
         <TableHead>
           <TableRow>
-            <TableCell sx={{ fontWeight: "bold" }}>Nome</TableCell>
-            <TableCell sx={{ fontWeight: "bold" }} align="right">Valore</TableCell>
-            <TableCell sx={{ fontWeight: "bold" }}>Unita</TableCell>
+            <TableCell sx={{ fontWeight: "bold" }}>Titolo</TableCell>
+            <TableCell sx={{ fontWeight: "bold" }}>Autore</TableCell>
+            <TableCell sx={{ fontWeight: "bold" }} align="right">Pagine</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
-          {data.map((row, index) => (
-            <TableRow key={index} hover>
-              <TableCell>{row.name}</TableCell>
-              <TableCell align="right">{row.value}</TableCell>
-              <TableCell>{row.unit}</TableCell>
+          {books.map((book) => (
+            <TableRow key={book.id} hover>
+              <TableCell>{book.title}</TableCell>
+              <TableCell>{book.author}</TableCell>
+              <TableCell align="right">{book.pages}</TableCell>
             </TableRow>
           ))}
         </TableBody>
@@ -1011,10 +1038,24 @@ export default function DataTable({ data }) {
     </TableContainer>
   );
 }`,
-        validate: `(code) => {
-  return code.includes("TableHead") && code.includes("TableBody") && code.includes("data.map") && code.includes("hover");
-}`,
-        testCode: "",
+        validate: `const c = $codeNoComments;
+if (!/<TableHead>/.test(c)) return "Aggiungi l'intestazione con <TableHead> ... </TableHead>";
+for (const h of ["Titolo", "Autore", "Pagine"]) {
+  if (!new RegExp("<TableCell[^>]*>\\\\s*" + h + "\\\\s*</TableCell>").test(c)) return "Nell'intestazione manca la cella \\"" + h + "\\"";
+}
+if (!/<TableBody>/.test(c)) return "Aggiungi il corpo della tabella con <TableBody> ... </TableBody>";
+const m = c.match(/books\\.map\\(\\s*\\(?\\s*(\\w+)/);
+if (!m) return "Genera le righe con books.map((book) => ...)";
+const b = m[1];
+const row = c.match(/<TableRow([^>]*)>/g) || [];
+const bodyRow = row.find((r) => new RegExp("key=\\\\{\\\\s*" + b + "\\\\.id\\\\s*\\\\}").test(r));
+if (!bodyRow) return "Dai a ogni TableRow generata la prop key={" + b + ".id}";
+if (!/\\bhover\\b/.test(bodyRow)) return "Aggiungi la prop hover alle TableRow del corpo";
+for (const f of ["title", "author", "pages"]) {
+  if (!new RegExp("\\\\{\\\\s*" + b + "\\\\." + f + "\\\\s*\\\\}").test(c)) return "Mostra il campo " + f + " in una cella: {" + b + "." + f + "}";
+}
+if (!new RegExp("<TableCell[^>]*align=[\\"']right[\\"'][^>]*>\\\\s*\\\\{\\\\s*" + b + "\\\\.pages\\\\s*\\\\}").test(c)) return "Allinea a destra la cella delle pagine: <TableCell align=\\"right\\">{" + b + ".pages}</TableCell>";
+return true;`,
       },
     ],
   },

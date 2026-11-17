@@ -20,8 +20,9 @@ export const modules = [
     lessons: [
       { id: "variables", title: "Variabili, Tipi e Operatori" },
       { id: "functions", title: "Funzioni e Arrow Functions" },
-      { id: "arrays", title: "Array e Metodi degli Array" },
+      { id: "arrays", title: "Array: le Basi" },
       { id: "objects", title: "Oggetti, Destructuring e Spread" },
+      { id: "array-methods", title: "Metodi degli Array: find, reduce e sort" },
       { id: "strings", title: "Template Literals e Stringhe" },
     ],
   },
@@ -75,18 +76,6 @@ export const modules = [
     ],
   },
   {
-    id: "nextjs",
-    title: "Next.js",
-    icon: "rocket_launch",
-    color: "#000000",
-    description: "App Router, routing, server/client components e layout",
-    lessons: [
-      { id: "app-router", title: "App Router e Routing" },
-      { id: "components-types", title: "Server vs Client Components" },
-      { id: "dynamic-routes", title: "Route Dinamiche e Layout" },
-    ],
-  },
-  {
     id: "mui",
     title: "Material UI",
     icon: "design_services",
@@ -99,11 +88,23 @@ export const modules = [
     ],
   },
   {
+    id: "nextjs",
+    title: "Next.js",
+    icon: "rocket_launch",
+    color: "#000000",
+    description: "App Router, routing, server/client components e layout",
+    lessons: [
+      { id: "app-router", title: "App Router e Routing" },
+      { id: "components-types", title: "Server vs Client Components" },
+      { id: "dynamic-routes", title: "Route Dinamiche e Layout" },
+    ],
+  },
+  {
     id: "project",
     title: "Pattern Avanzati",
     icon: "integration_instructions",
     color: "#4caf50",
-    description: "Pattern enterprise: stato annidato, autenticazione, custom hook compositi",
+    description: "Pattern avanzati: stato annidato, autenticazione, custom hook compositi",
     lessons: [
       { id: "patterns", title: "Pattern Avanzati" },
     ],

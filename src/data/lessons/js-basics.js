@@ -7,7 +7,26 @@ export const lessons = {
       {
         type: "text",
         content:
-          "Le variabili sono i mattoncini fondamentali di qualsiasi programma JavaScript. Servono a conservare valori (numeri, testi, oggetti...) per poterli riutilizzare. In JavaScript moderno abbiamo tre parole chiave: `let`, `const` e `var`.",
+          "Le variabili sono i mattoncini fondamentali di qualsiasi programma JavaScript. Servono a conservare valori (numeri, testi, valori vero/falso...) per poterli riutilizzare. In JavaScript moderno abbiamo tre parole chiave per dichiararle: `let`, `const` e `var`.",
+      },
+      {
+        type: "heading",
+        content: "console.log: vedere i valori",
+      },
+      {
+        type: "text",
+        content:
+          "`console.log(...)` stampa nella console uno o più valori. È lo strumento più semplice per capire cosa sta facendo il tuo codice: negli esercizi lo userai continuamente. Puoi passargli più valori separati da virgola.",
+      },
+      {
+        type: "code",
+        language: "javascript",
+        title: "Il primo console.log",
+        code: `console.log("Ciao, mondo!");   // Ciao, mondo!
+console.log(42);               // 42
+console.log("Totale:", 10);    // Totale: 10
+
+// Tutto ciò che segue // è un commento: JavaScript lo ignora`,
       },
       {
         type: "heading",
@@ -16,18 +35,19 @@ export const lessons = {
       {
         type: "text",
         content:
-          "`const` dichiara una variabile il cui *binding* non può essere riassegnato. `let` invece permette la riassegnazione. `var` è la forma più vecchia: ha uno *scope* diverso (function scope anzichè block scope) e oggi si evita quasi sempre.",
+          "`const` dichiara una variabile che non può essere riassegnata. `let` invece permette la riassegnazione. `var` è la forma più vecchia: ha uno *scope* diverso (function scope anziché block scope) e oggi si evita quasi sempre. Un *blocco* è una porzione di codice racchiusa tra parentesi graffe `{ }`.",
       },
       {
         type: "code",
         language: "javascript",
         title: "Dichiarazioni a confronto",
-        code: `const siteName = "MyApp";      // non riassegnabile
-let currentPage = "overview"; // riassegnabile
-currentPage = "details";      // OK
+        code: `const appName = "MyApp";       // non riassegnabile
+let currentPage = "home";      // riassegnabile
+currentPage = "carrello";      // OK
+// appName = "Altro";          // TypeError: assignment to constant variable
 
 // var ha function scope, NON block scope
-if (true) {
+{
   var leaked = "visibile fuori!";
   let blockScoped = "solo qui dentro";
 }
@@ -37,7 +57,7 @@ console.log(leaked);      // "visibile fuori!"
       {
         type: "tip",
         content:
-          "Nelle applicazioni React moderne, si usa sempre const per default e let solo quando serve riassegnare. Non troverai quasi mai var nel codice.",
+          "Usa `const` per default e `let` solo quando devi davvero riassegnare la variabile. Evita `var`: nel codice moderno non serve più.",
       },
       {
         type: "heading",
@@ -46,23 +66,23 @@ console.log(leaked);      // "visibile fuori!"
       {
         type: "text",
         content:
-          "JavaScript ha sette tipi primitivi. I più comuni sono: `string` (testo), `number` (numeri interi e decimali), `boolean` (`true`/`false`), `null` (assenza intenzionale di valore) e `undefined` (valore non ancora assegnato).",
+          "JavaScript ha sette tipi primitivi. I più comuni sono: `string` (testo, tra virgolette), `number` (numeri interi e decimali), `boolean` (`true`/`false`), `null` (assenza intenzionale di valore) e `undefined` (valore non ancora assegnato). L'operatore `typeof` restituisce il tipo di un valore.",
       },
       {
         type: "code",
         language: "javascript",
         title: "I tipi primitivi",
-        code: `const name = "MyApp";          // string
-const version = 3;             // number
-const isActive = true;         // boolean
-const nothing = null;          // null  (assenza intenzionale)
+        code: `const productName = "Zaino";   // string
+const price = 39.9;            // number
+const inStock = true;          // boolean
+const coupon = null;           // null  (assenza intenzionale)
 let notYet;                    // undefined (non assegnato)
 
-console.log(typeof name);      // "string"
-console.log(typeof version);   // "number"
-console.log(typeof isActive);  // "boolean"
-console.log(typeof nothing);   // "object"  (bug storico di JS!)
-console.log(typeof notYet);    // "undefined"`,
+console.log(typeof productName); // "string"
+console.log(typeof price);       // "number"
+console.log(typeof inStock);     // "boolean"
+console.log(typeof coupon);      // "object"  (bug storico di JS!)
+console.log(typeof notYet);      // "undefined"`,
       },
       {
         type: "warning",
@@ -71,18 +91,55 @@ console.log(typeof notYet);    // "undefined"`,
       },
       {
         type: "heading",
+        content: "Operatori aritmetici e concatenazione",
+      },
+      {
+        type: "text",
+        content:
+          "Con i numeri puoi usare `+`, `-`, `*`, `/`, `%` (resto della divisione) e `**` (potenza). Esistono anche le forme abbreviate `+=`, `-=`, `++` e `--` per aggiornare una variabile. Con le stringhe, l'operatore `+` le unisce (*concatenazione*).",
+      },
+      {
+        type: "code",
+        language: "javascript",
+        title: "Calcoli e concatenazione",
+        code: `console.log(7 + 3);   // 10
+console.log(7 - 3);   // 4
+console.log(7 * 3);   // 21
+console.log(7 / 2);   // 3.5
+console.log(7 % 2);   // 1  (resto: utile per sapere se un numero è pari)
+console.log(2 ** 3);  // 8
+
+let cartItems = 2;
+cartItems += 3;       // come cartItems = cartItems + 3  -> 5
+cartItems++;          // aggiunge 1 -> 6
+console.log(cartItems); // 6
+
+// Concatenazione di stringhe con +
+const firstName = "Giulia";
+const greeting = "Ciao, " + firstName + "!";
+console.log(greeting); // "Ciao, Giulia!"
+
+const total = 3 * 12;
+console.log("Totale: " + total + " euro"); // "Totale: 36 euro"`,
+      },
+      {
+        type: "heading",
         content: "Type coercion e confronti",
       },
       {
         type: "text",
         content:
-          "JavaScript può convertire i tipi automaticamente (*coercion*). L'operatore `==` confronta *dopo* la coercion, mentre `===` confronta senza conversioni (strict equality). Usa sempre `===` per evitare sorprese.",
+          "Per confrontare valori si usano `<`, `>`, `<=`, `>=`, l'uguaglianza e la disuguaglianza. JavaScript può convertire i tipi automaticamente (*coercion*). L'operatore `==` confronta *dopo* la coercion, mentre `===` confronta senza conversioni (*strict equality*); lo stesso vale per `!=` e `!==`. Usa sempre `===` e `!==` per evitare sorprese.",
       },
       {
         type: "code",
         language: "javascript",
         title: "== vs === e coercion",
-        code: `// Coercion implicita
+        code: `console.log(5 > 3);       // true
+console.log(5 <= 4);      // false
+console.log(5 !== 3);     // true
+
+// Coercion implicita
 console.log("5" == 5);    // true  (stringa convertita a numero)
 console.log("5" === 5);   // false (tipi diversi)
 console.log(0 == false);  // true
@@ -96,26 +153,64 @@ console.log("3" - 2);  // 1   (coercion a numero)`,
       },
       {
         type: "heading",
+        content: "if, else if ed else",
+      },
+      {
+        type: "text",
+        content:
+          "Per eseguire codice solo quando una condizione è vera si usa `if (condizione) { ... }`. Il blocco `else { ... }` viene eseguito quando la condizione è falsa. Con `else if` puoi controllare più condizioni in sequenza: viene eseguito solo il primo blocco la cui condizione è vera.",
+      },
+      {
+        type: "code",
+        language: "javascript",
+        title: "Condizioni",
+        code: `const temperature = 18;
+
+if (temperature > 25) {
+  console.log("Fa caldo");
+} else if (temperature > 15) {
+  console.log("Si sta bene");   // <- viene eseguito questo
+} else {
+  console.log("Fa freddo");
+}
+
+// Le condizioni possono essere qualsiasi espressione
+const cartTotal = 60;
+let shipping = 5;
+if (cartTotal >= 50) {
+  shipping = 0;
+}
+console.log("Spedizione: " + shipping + " euro"); // "Spedizione: 0 euro"`,
+      },
+      {
+        type: "heading",
         content: "Operatori logici e ternario",
       },
       {
         type: "text",
         content:
-          "Gli operatori logici `&&` (AND), `||` (OR) e `!` (NOT) non restituiscono solo `true`/`false`: restituiscono il primo valore che determina il risultato (*short-circuit evaluation*). L'operatore ternario `condizione ? valoreSeVero : valoreSeFalso` è una forma compatta di `if/else`.",
+          "Gli operatori logici `&&` (AND), `||` (OR) e `!` (NOT) servono a combinare condizioni. In realtà non restituiscono solo `true`/`false`: restituiscono il primo valore che determina il risultato (*short-circuit evaluation*). L'operatore ternario `condizione ? valoreSeVero : valoreSeFalso` è una forma compatta di `if/else` che produce un valore.",
       },
       {
         type: "code",
         language: "javascript",
         title: "Operatori logici e ternario",
-        code: `// Short-circuit: && restituisce il primo falsy, || il primo truthy
-const user = null;
-const displayName = user || "Ospite";   // "Ospite"
-const isAdmin = user && user.role === "admin"; // null (short-circuit)
+        code: `// Combinare condizioni
+const age = 20;
+const hasTicket = true;
+if (age >= 18 && hasTicket) {
+  console.log("Puoi entrare");
+}
+
+// Short-circuit: && restituisce il primo falsy, || il primo truthy
+const userName = "";
+const displayName = userName || "Ospite";   // "Ospite"
+console.log(displayName);
 
 // Ternario
-const range = "1y";
-const label = range === "1y" ? "Ultimo anno" : "Intervallo personalizzato";
-console.log(label); // "Ultimo anno"
+const itemsInCart = 3;
+const label = itemsInCart === 1 ? "1 prodotto" : itemsInCart + " prodotti";
+console.log(label); // "3 prodotti"
 
 // Valori "falsy": false, 0, "", null, undefined, NaN
 console.log(!0);         // true
@@ -125,14 +220,14 @@ console.log(!!0);        // false`,
       {
         type: "info",
         content:
-          "I valori *falsy* in JavaScript sono: `false`, `0`, `\"\"` (stringa vuota), `null`, `undefined` e `NaN`. Tutto il resto e *truthy*, inclusi `[]` e `{}`.",
+          "I valori *falsy* in JavaScript sono: `false`, `0`, `\"\"` (stringa vuota), `null`, `undefined` e `NaN`. Tutto il resto è *truthy*, inclusi `[]` e `{}` (array e oggetti vuoti, che vedremo nelle prossime lezioni).",
       },
     ],
     exercises: [
       {
         type: "multiple-choice",
         title: "typeof e tipi",
-        description: "Qual e il risultato di `typeof null`?",
+        description: "Qual è il risultato di `typeof null`?",
         difficulty: "facile",
         options: [
           '"null"',
@@ -142,7 +237,7 @@ console.log(!!0);        // false`,
         ],
         correct: 1,
         explanation:
-          '`typeof null` restituisce `"object"`. E un bug storico di JavaScript presente fin dalla prima versione del linguaggio e mai corretto per motivi di compatibilita.',
+          '`typeof null` restituisce `"object"`. È un bug storico di JavaScript presente fin dalla prima versione del linguaggio e mai corretto per motivi di compatibilità.',
       },
       {
         type: "code",
@@ -156,39 +251,46 @@ console.log(!!0);        // false`,
 const b = "42";
 const isStrictEqual = a === b;
 console.log(isStrictEqual);`,
-        testCode: "",
         validate: `
-try {
-  const logs = [];
-  const _origLog = console.log;
-  console.log = (...args) => logs.push(args.join(" "));
-  // --- user code already executed above ---
-  console.log = _origLog;
-  return logs.includes("false");
-} catch(e) { return false; }`,
+if (a !== 42) return "a deve contenere il numero 42 (senza virgolette)";
+if (b !== "42") return "b deve contenere la stringa \\"42\\" (con le virgolette)";
+if (!/===/.test($codeNoComments)) return "Usa l'operatore === per confrontare a e b";
+if (isStrictEqual !== false) return "isStrictEqual deve essere il risultato di a === b (cioè false)";
+if (!$logs.includes("false")) return "Stampa isStrictEqual con console.log";
+return true;`,
       },
       {
         type: "code",
-        title: "Ternario e logici",
+        title: "if/else e ternario",
         description:
-          'Hai una variabile `score` (gia dichiarata). Crea una variabile `grade` usando l\'operatore ternario: se `score >= 60` assegna `"Promosso"`, altrimenti `"Bocciato"`. Poi crea `message` usando `||`: se `grade` e truthy usa `grade`, altrimenti `"Nessun risultato"`. Stampa `message`.',
+          'Hai una variabile `score`. Usa `if`, `else if` ed `else` per assegnare alla variabile `grade`: `"Ottimo"` se `score >= 90`, `"Promosso"` se `score >= 60`, altrimenti `"Bocciato"`.\nPoi crea `message` usando l\'operatore ternario: se `grade` è diverso da `"Bocciato"` deve valere `"Esame superato"`, altrimenti `"Riprova"`. Stampa `grade` e `message`.',
         difficulty: "medio",
         starterCode: `const score = 75;
+let grade;
 // Scrivi qui sotto
 `,
         solution: `const score = 75;
-const grade = score >= 60 ? "Promosso" : "Bocciato";
-const message = grade || "Nessun risultato";
+let grade;
+if (score >= 90) {
+  grade = "Ottimo";
+} else if (score >= 60) {
+  grade = "Promosso";
+} else {
+  grade = "Bocciato";
+}
+const message = grade !== "Bocciato" ? "Esame superato" : "Riprova";
+console.log(grade);
 console.log(message);`,
-        testCode: "",
         validate: `
-try {
-  const logs = [];
-  const _origLog = console.log;
-  console.log = (...args) => logs.push(args.join(" "));
-  console.log = _origLog;
-  return logs.includes("Promosso");
-} catch(e) { return false; }`,
+const code = $codeNoComments;
+if (!/\\bif\\s*\\(/.test(code)) return "Usa un'istruzione if (...) { ... }";
+if (!/else\\s+if\\s*\\(/.test(code)) return "Aggiungi un ramo else if (...) per il caso score >= 60";
+if (!/\\belse\\s*\\{/.test(code)) return "Aggiungi un ramo else { ... } finale per il caso \\"Bocciato\\"";
+if (!/\\?[^?]*:/.test(code)) return "Crea message con l'operatore ternario: condizione ? valore1 : valore2";
+if (grade !== "Promosso") return "Con score = 75, grade dovrebbe valere \\"Promosso\\"";
+if (message !== "Esame superato") return "Con grade = \\"Promosso\\", message dovrebbe valere \\"Esame superato\\"";
+if (!$logs.includes("Promosso") || !$logs.includes("Esame superato")) return "Stampa sia grade sia message con console.log";
+return true;`,
       },
     ],
   },
@@ -201,7 +303,7 @@ try {
       {
         type: "text",
         content:
-          "Le funzioni sono blocchi di codice riutilizzabili. In JavaScript ci sono diversi modi per definirle, ognuno con le proprie caratteristiche. Capire le differenze e essenziale per lavorare con React e con il codice moderno.",
+          "Le funzioni sono blocchi di codice riutilizzabili: ricevono dei valori in ingresso (*parametri*), eseguono delle istruzioni e possono restituire un risultato con `return`. In JavaScript ci sono diversi modi per definirle, ognuno con le proprie caratteristiche. Capire le differenze è essenziale per lavorare con React e con il codice moderno.",
       },
       {
         type: "heading",
@@ -210,7 +312,7 @@ try {
       {
         type: "text",
         content:
-          'Una *function declaration* viene "sollevata" (hoisting): può essere chiamata anche prima della riga in cui è scritta. Una *function expression* assegnata a una variabile, invece, segue le regole di `const`/`let` e non è disponibile prima della sua definizione.',
+          'Una *function declaration* viene "sollevata" (*hoisting*): può essere chiamata anche prima della riga in cui è scritta. Una *function expression* assegnata a una variabile, invece, segue le regole di `const`/`let` e non è disponibile prima della sua definizione.',
       },
       {
         type: "code",
@@ -238,7 +340,7 @@ console.log(multiply(2, 3)); // 6`,
       {
         type: "text",
         content:
-          "Le arrow functions (`=>`) sono la forma più concisa e moderna. Se il corpo ha una sola espressione, il `return` e le graffe sono opzionali (*implicit return*). Sono la scelta predefinita nel codice React/Next.js.",
+          "Le arrow functions (`=>`) sono la forma più concisa e moderna. Se il corpo è una sola espressione, `return` e graffe si possono omettere (*implicit return*). Sono la scelta predefinita nel codice React moderno.",
       },
       {
         type: "code",
@@ -258,13 +360,14 @@ const double = n => n * 2;
 // Nessun parametro: parentesi obbligatorie
 const greet = () => "Ciao!";
 
-// Restituire un oggetto: servono le parentesi tonde
-const makeUser = (name) => ({ name, role: "viewer" });`,
+console.log(addShort(2, 3)); // 5
+console.log(double(4));      // 8
+console.log(greet());        // "Ciao!"`,
       },
       {
         type: "tip",
         content:
-          "Nelle applicazioni React, le arrow functions sono usate ovunque: per callback, event handlers e anche per definire componenti. Esempio tipico: `const Filters = ({ analysisType, currentPage }) => { ... }`.",
+          "Preferisci le arrow functions per funzioni brevi e callback: sono più compatte e leggibili. Dai sempre alle funzioni nomi che descrivono cosa fanno (`calculateTotal`, `formatPrice`), non come lo fanno.",
       },
       {
         type: "heading",
@@ -279,18 +382,18 @@ const makeUser = (name) => ({ name, role: "viewer" });`,
         type: "code",
         language: "javascript",
         title: "Parametri di default",
-        code: `const buildKey = (analysisType, page = "overview") => {
-  return analysisType + "/" + page;
+        code: `const formatPrice = (amount, currency = "EUR") => {
+  return amount + " " + currency;
 };
 
-console.log(buildKey("quality"));           // "quality/overview"
-console.log(buildKey("quality", "details")); // "quality/details"
+console.log(formatPrice(25));        // "25 EUR"
+console.log(formatPrice(25, "USD")); // "25 USD"
 
-// Default con destructuring (pattern molto usato in React)
-const Button = ({ label = "Click", disabled = false }) => {
-  console.log(label, disabled);
-};
-Button({ label: "Salva" }); // "Salva" false`,
+function greetUser(name = "Ospite") {
+  return "Benvenuto, " + name + "!";
+}
+console.log(greetUser());          // "Benvenuto, Ospite!"
+console.log(greetUser("Luca"));    // "Benvenuto, Luca!"`,
       },
       {
         type: "heading",
@@ -299,26 +402,62 @@ Button({ label: "Salva" }); // "Salva" false`,
       {
         type: "text",
         content:
-          "In JavaScript le funzioni sono valori: puoi passarle come argomenti ad altre funzioni. Questo pattern si chiama *callback* ed e alla base di `.map()`, `.filter()`, event handlers e molto altro.",
+          "In JavaScript le funzioni sono valori: puoi salvarle in variabili e passarle come argomenti ad altre funzioni. Una funzione passata a un'altra funzione si chiama *callback*. È un pattern fondamentale: lo ritroverai nei metodi degli array (lezione successiva), negli eventi delle pagine web e in React.",
       },
       {
         type: "code",
         language: "javascript",
         title: "Callback in azione",
-        code: `const numbers = [1, 2, 3, 4, 5];
+        code: `// calculate riceve due numeri e una funzione che decide cosa farne
+const calculate = (a, b, operation) => operation(a, b);
 
-// La funzione passata a .filter() e un callback
-const even = numbers.filter((n) => n % 2 === 0);
-console.log(even); // [2, 4]
+const add = (x, y) => x + y;
+const multiply = (x, y) => x * y;
 
-// Callback personalizzato
-const applyToAll = (arr, callback) => arr.map(callback);
+console.log(calculate(4, 5, add));       // 9
+console.log(calculate(4, 5, multiply));  // 20
 
-const doubled = applyToAll(numbers, (n) => n * 2);
-console.log(doubled); // [2, 4, 6, 8, 10]
+// Il callback si può anche scrivere direttamente nella chiamata
+console.log(calculate(10, 3, (x, y) => x - y)); // 7
 
-// Event handler in React (concetto, non eseguibile qui)
-// <Button onClick={() => dispatch(setFilterValue(payload))} />`,
+// Eseguire una funzione due volte su un valore
+const applyTwice = (fn, value) => fn(fn(value));
+console.log(applyTwice((n) => n * 3, 2)); // 18  (2 * 3 * 3)`,
+      },
+      {
+        type: "heading",
+        content: "Funzioni che restituiscono funzioni (closure)",
+      },
+      {
+        type: "text",
+        content:
+          "Una funzione può anche *restituire* un'altra funzione. La funzione interna \"ricorda\" le variabili della funzione esterna in cui è stata creata, anche dopo che questa ha finito di essere eseguita: questo meccanismo si chiama *closure*.",
+      },
+      {
+        type: "code",
+        language: "javascript",
+        title: "Closure",
+        code: `const createGreeter = (greeting) => {
+  return (name) => greeting + ", " + name + "!";
+};
+
+const sayHello = createGreeter("Ciao");
+const sayGoodMorning = createGreeter("Buongiorno");
+console.log(sayHello("Anna"));        // "Ciao, Anna!"
+console.log(sayGoodMorning("Marco")); // "Buongiorno, Marco!"
+
+// Un contatore: count resta "privato" dentro la closure
+const createCounter = () => {
+  let count = 0;
+  return () => {
+    count++;
+    return count;
+  };
+};
+const next = createCounter();
+console.log(next()); // 1
+console.log(next()); // 2
+console.log(next()); // 3`,
       },
       {
         type: "heading",
@@ -327,7 +466,7 @@ console.log(doubled); // [2, 4, 6, 8, 10]
       {
         type: "text",
         content:
-          "Una IIFE e una funzione che viene definita e immediatamente eseguita. Si usa per isolare lo scope o per eseguire codice di inizializzazione senza inquinare il namespace globale.",
+          "Una IIFE è una funzione che viene definita e immediatamente eseguita. Si usa per isolare lo scope o per eseguire codice di inizializzazione senza inquinare lo scope globale.",
       },
       {
         type: "code",
@@ -351,7 +490,7 @@ console.log(result); // 30`,
       {
         type: "info",
         content:
-          "Le IIFE sono meno frequenti nel codice moderno grazie ai moduli ES, ma le trovi ancora per inizializzazione immediata o per creare scope isolati in contesti legacy.",
+          "Le IIFE sono meno frequenti nel codice moderno grazie ai moduli, ma le trovi ancora per inizializzazioni immediate o per creare scope isolati nel codice più datato.",
       },
       {
         type: "heading",
@@ -361,7 +500,7 @@ console.log(result); // 30`,
         type: "list",
         items: [
           "Arrow function: la scelta di default per callback, handler ed espressioni brevi",
-          "Function declaration: utile quando serve l'hoisting o per funzioni helper esportate",
+          "Function declaration: utile quando serve l'hoisting o per funzioni di supporto con un nome chiaro",
           "Function expression: rara, usata quando devi assegnare la funzione a una variabile ma preferisci la sintassi classica",
           "IIFE: per codice da eseguire immediatamente in uno scope isolato",
         ],
@@ -378,42 +517,39 @@ console.log(result); // 30`,
 `,
         solution: `const triple = (n) => n * 3;
 console.log(triple(7));`,
-        testCode: "",
         validate: `
-try {
-  const logs = [];
-  const _origLog = console.log;
-  console.log = (...args) => logs.push(args.join(" "));
-  console.log = _origLog;
-  return logs.includes("21");
-} catch(e) { return false; }`,
+if (typeof triple !== "function") return "Definisci la funzione triple";
+if (!/=>/.test($codeNoComments)) return "Usa una arrow function (=>)";
+if (triple(7) !== 21) return "triple(7) dovrebbe restituire 21";
+if (triple(0) !== 0 || triple(-2) !== -6 || triple(1.5) !== 4.5) return "triple deve funzionare con qualsiasi numero (es. triple(-2) deve restituire -6)";
+if (!$logs.includes("21")) return "Stampa il risultato di triple(7) con console.log";
+return true;`,
       },
       {
         type: "code",
-        title: "Funzione con default e callback",
+        title: "Callback con valore di default",
         description:
-          "Crea una funzione `buildLabel` che accetta `name` (stringa) e `prefix` (stringa con default `\"Filtro\"`). Deve restituire `prefix + \": \" + name`. Poi crea un array `filters` con `[\"Sito\", \"Tipo\", \"Data\"]` e usa `.map()` con `buildLabel` per creare un nuovo array `labels`. Stampa `labels`.",
+          "Crea una funzione `applyOperation(a, b, operation)` che restituisce il risultato di `operation(a, b)`.\nIl parametro `operation` deve avere come valore di default una funzione che somma i due numeri, così `applyOperation(2, 3)` restituisce `5`.\nPoi stampa `applyOperation(2, 3)` e `applyOperation(2, 3, (x, y) => x * y)`.",
         difficulty: "medio",
-        starterCode: `// Scrivi buildLabel, filters e labels qui
+        starterCode: `// Scrivi applyOperation qui
 `,
-        solution: `const buildLabel = (name, prefix = "Filtro") => prefix + ": " + name;
-const filters = ["Sito", "Tipo", "Data"];
-const labels = filters.map((f) => buildLabel(f));
-console.log(labels);`,
-        testCode: "",
+        solution: `const applyOperation = (a, b, operation = (x, y) => x + y) => operation(a, b);
+console.log(applyOperation(2, 3));
+console.log(applyOperation(2, 3, (x, y) => x * y));`,
         validate: `
-try {
-  const logs = [];
-  const _origLog = console.log;
-  console.log = (...args) => logs.push(args.join(" "));
-  console.log = _origLog;
-  const output = logs.join(" ");
-  return output.includes("Filtro: Sito") && output.includes("Filtro: Tipo") && output.includes("Filtro: Data");
-} catch(e) { return false; }`,
+if (typeof applyOperation !== "function") return "Definisci la funzione applyOperation";
+let r;
+try { r = applyOperation(2, 3); } catch (e) { return "applyOperation(2, 3) genera un errore: hai dato un default a operation?"; }
+if (r !== 5) return "applyOperation(2, 3) dovrebbe restituire 5 (default: somma)";
+if (applyOperation(10, 4) !== 14) return "Il default deve sommare a e b: applyOperation(10, 4) dovrebbe restituire 14";
+if (applyOperation(2, 3, (x, y) => x * y) !== 6) return "applyOperation(2, 3, (x, y) => x * y) dovrebbe restituire 6";
+if (applyOperation(10, 4, (x, y) => x - y) !== 6) return "applyOperation deve chiamare operation(a, b) nell'ordine giusto";
+if (!$logs.includes("5") || !$logs.includes("6")) return "Stampa i due risultati richiesti con console.log";
+return true;`,
       },
       {
         type: "code",
-        title: "Funzione di ordine superiore",
+        title: "Funzione che restituisce una funzione",
         description:
           "Crea una funzione `createMultiplier` che accetta un numero `factor` e restituisce una nuova arrow function che moltiplica il suo argomento per `factor`. Poi crea `double` usando `createMultiplier(2)` e `tenTimes` usando `createMultiplier(10)`. Stampa `double(5)` e `tenTimes(5)`.",
         difficulty: "difficile",
@@ -424,375 +560,369 @@ const double = createMultiplier(2);
 const tenTimes = createMultiplier(10);
 console.log(double(5));
 console.log(tenTimes(5));`,
-        testCode: "",
         validate: `
-try {
-  const logs = [];
-  const _origLog = console.log;
-  console.log = (...args) => logs.push(args.join(" "));
-  console.log = _origLog;
-  return logs.includes("10") && logs.includes("50");
-} catch(e) { return false; }`,
+if (typeof createMultiplier !== "function") return "Definisci la funzione createMultiplier";
+const byThree = createMultiplier(3);
+if (typeof byThree !== "function") return "createMultiplier deve restituire una funzione";
+if (byThree(4) !== 12 || createMultiplier(7)(2) !== 14) return "La funzione restituita deve moltiplicare il suo argomento per factor";
+if (typeof double !== "function" || double(5) !== 10 || double(8) !== 16) return "double deve essere createMultiplier(2)";
+if (typeof tenTimes !== "function" || tenTimes(5) !== 50 || tenTimes(3) !== 30) return "tenTimes deve essere createMultiplier(10)";
+if (!$logs.includes("10") || !$logs.includes("50")) return "Stampa double(5) e tenTimes(5)";
+return true;`,
       },
     ],
   },
 
   // ---------------------------------------------------------------------------
-  // ARRAY E METODI DEGLI ARRAY
+  // ARRAY: LE BASI
   // ---------------------------------------------------------------------------
   "arrays": {
     sections: [
       {
         type: "text",
         content:
-          "Gli array sono collezioni ordinate di valori. In un progetto React, sono il modo principale per gestire liste di dati: righe di tabelle, opzioni di filtri, serie di grafici. Imparare i metodi degli array e indispensabile.",
+          "Gli array sono collezioni ordinate di valori. Sono il modo principale per gestire liste di dati: i brani di una playlist, le cose da fare, i prezzi di un carrello. In questa lezione lavoriamo con array di valori semplici (stringhe e numeri); con gli array di oggetti lavoreremo dopo la lezione sugli oggetti.",
       },
       {
         type: "heading",
         content: "Creare e accedere agli array",
       },
       {
+        type: "text",
+        content:
+          "Un array si crea con le parentesi quadre, separando gli elementi con la virgola. Ogni elemento ha un *indice* numerico che parte da **0**. La proprietà `length` indica quanti elementi ci sono, quindi l'ultimo elemento ha indice `length - 1`. Leggere un indice che non esiste restituisce `undefined`.",
+      },
+      {
         type: "code",
         language: "javascript",
         title: "Basi degli array",
-        code: `const sites = ["Milano", "Roma", "Napoli"];
+        code: `const playlist = ["Imagine", "Yesterday", "Hallelujah"];
 
-console.log(sites[0]);      // "Milano" (primo elemento)
-console.log(sites.length);  // 3
-console.log(sites[sites.length - 1]); // "Napoli" (ultimo)
+console.log(playlist[0]);      // "Imagine" (primo elemento)
+console.log(playlist[2]);      // "Hallelujah"
+console.log(playlist.length);  // 3
+console.log(playlist[playlist.length - 1]); // "Hallelujah" (ultimo)
+console.log(playlist[10]);     // undefined (non esiste)
 
-// Aggiungere e rimuovere
-sites.push("Torino");  // aggiunge alla fine
-sites.pop();            // rimuove dall'fine -> "Torino"
-console.log(sites);     // ["Milano", "Roma", "Napoli"]`,
+// Si può modificare un elemento tramite il suo indice
+// (anche se l'array è const: const impedisce di riassegnare la variabile,
+//  non di modificare il contenuto dell'array)
+playlist[1] = "Let It Be";
+console.log(playlist); // ["Imagine", "Let It Be", "Hallelujah"]
+
+const empty = [];
+console.log(empty.length); // 0`,
       },
       {
         type: "heading",
-        content: ".map() - trasformare i dati",
+        content: "Aggiungere e rimuovere: push, pop, shift, unshift",
       },
       {
         type: "text",
         content:
-          "`.map()` crea un nuovo array trasformando ogni elemento. Non modifica l'array originale. In React, e il metodo più usato per trasformare dati in elementi JSX.",
+          "`push` aggiunge elementi alla fine e `pop` rimuove (e restituisce) l'ultimo. `unshift` aggiunge elementi all'inizio e `shift` rimuove (e restituisce) il primo. Tutti e quattro **modificano** l'array originale.",
       },
       {
         type: "code",
         language: "javascript",
-        title: ".map() con esempi pratici",
-        code: `const filters = ["site", "product", "date"];
+        title: "push, pop, shift, unshift",
+        code: `const todos = ["Fare la spesa", "Studiare"];
 
-// Trasformare ogni stringa in un oggetto
-const filterObjects = filters.map((name) => ({
-  id: name,
-  label: name.toUpperCase(),
-}));
-console.log(filterObjects);
-// [{ id: "site", label: "SITE" }, { id: "product", ... }, ...]
+todos.push("Chiamare Anna");      // aggiunge alla fine
+console.log(todos); // ["Fare la spesa", "Studiare", "Chiamare Anna"]
 
-// map con indice (secondo parametro)
-const numbered = filters.map((f, index) => index + ". " + f);
-console.log(numbered); // ["0. site", "1. product", "2. date"]`,
+const last = todos.pop();         // rimuove dalla fine
+console.log(last);  // "Chiamare Anna"
+
+todos.unshift("Fare colazione");  // aggiunge all'inizio
+console.log(todos); // ["Fare colazione", "Fare la spesa", "Studiare"]
+
+const first = todos.shift();      // rimuove dall'inizio
+console.log(first); // "Fare colazione"
+console.log(todos); // ["Fare la spesa", "Studiare"]`,
       },
       {
         type: "heading",
-        content: ".filter() - filtrare i dati",
+        content: "Cercare un valore: includes e indexOf",
       },
       {
         type: "text",
         content:
-          "`.filter()` restituisce un nuovo array con solo gli elementi che soddisfano la condizione. Il callback deve restituire `true` o `false`.",
+          "`includes(valore)` restituisce `true` se il valore è presente nell'array. `indexOf(valore)` restituisce l'indice della prima occorrenza, oppure `-1` se il valore non c'è.",
       },
       {
         type: "code",
         language: "javascript",
-        title: ".filter() per filtrare dati",
-        code: `const entries = [
-  { site: "Milano", value: 95, date: "2024-01-15" },
-  { site: "Roma", value: 42, date: "2024-02-20" },
-  { site: "Milano", value: 88, date: "2024-03-10" },
-  { site: "Napoli", value: 71, date: "2024-01-05" },
-];
+        title: "includes e indexOf",
+        code: `const fruits = ["mela", "pera", "banana", "pera"];
 
-// Filtrare per sito
-const milanoOnly = entries.filter((e) => e.site === "Milano");
-console.log(milanoOnly.length); // 2
+console.log(fruits.includes("banana")); // true
+console.log(fruits.includes("kiwi"));   // false
 
-// Filtrare per date range (pattern comune)
-const startDate = "2024-01-10";
-const endDate = "2024-02-28";
-const inRange = entries.filter(
-  (e) => e.date >= startDate && e.date <= endDate
-);
-console.log(inRange.length); // 2
+console.log(fruits.indexOf("pera"));    // 1 (la prima occorrenza)
+console.log(fruits.indexOf("kiwi"));    // -1 (non trovato)
 
-// Rimuovere valori undefined (pattern reale)
-const values = [10, undefined, 30, undefined, 50];
-const clean = values.filter((v) => v !== undefined);
-console.log(clean); // [10, 30, 50]`,
-      },
-      {
-        type: "tip",
-        content:
-          "Nelle applicazioni React, .map() e usato per rendering liste, .filter() per filtrare dati per date range, .reduce() per costruire oggetti di stili dinamici, .find() per localizzare configurazioni.",
+// Uso tipico in una condizione
+if (!fruits.includes("kiwi")) {
+  fruits.push("kiwi");
+}
+console.log(fruits.length); // 5`,
       },
       {
         type: "heading",
-        content: ".reduce() - accumulare valori",
+        content: "slice e splice",
       },
       {
         type: "text",
         content:
-          "`.reduce()` attraversa l'array accumulando un risultato. Accetta un callback con `(accumulatore, elementoCorrente)` e un valore iniziale. E il metodo più versatile: puo fare tutto cio che fanno `.map()` e `.filter()`.",
+          "`slice(inizio, fine)` restituisce una **copia** di una porzione dell'array (l'indice `fine` è escluso) e non modifica l'originale. `splice(inizio, quanti, nuovo1, nuovo2, ...)` invece **modifica** l'array: rimuove `quanti` elementi a partire da `inizio` e, se vuoi, inserisce i nuovi elementi indicati al loro posto.",
       },
       {
         type: "code",
         language: "javascript",
-        title: ".reduce() in pratica",
-        code: `const numbers = [10, 20, 30, 40];
+        title: "slice vs splice",
+        code: `const letters = ["a", "b", "c", "d", "e"];
 
-// Somma
-const total = numbers.reduce((acc, n) => acc + n, 0);
-console.log(total); // 100
+// slice NON modifica l'originale
+const middle = letters.slice(1, 3);
+console.log(middle);   // ["b", "c"]
+console.log(letters);  // ["a", "b", "c", "d", "e"] (invariato)
+console.log(letters.slice(-2)); // ["d", "e"] (indici negativi: dalla fine)
 
-// Costruire un oggetto (pattern comune per stili sx)
-const styleEntries = [
-  ["color", "red"],
-  ["fontSize", "14px"],
-  ["fontWeight", "bold"],
-];
-const styleObject = styleEntries.reduce((acc, [key, value]) => {
-  acc[key] = value;
-  return acc;
-}, {});
-console.log(styleObject);
-// { color: "red", fontSize: "14px", fontWeight: "bold" }
+// splice MODIFICA l'originale
+const removed = letters.splice(1, 2);  // da indice 1, rimuovi 2 elementi
+console.log(removed);  // ["b", "c"]
+console.log(letters);  // ["a", "d", "e"]
 
-// Contare il numero totale di lezioni per modulo
-const modules = [
-  { name: "CSS", lessons: 3 },
-  { name: "JS", lessons: 5 },
-  { name: "React", lessons: 4 },
-];
-const totalLessons = modules.reduce((sum, mod) => sum + mod.lessons, 0);
-console.log(totalLessons); // 12`,
+letters.splice(1, 0, "x", "y");        // inserisce senza rimuovere
+console.log(letters);  // ["a", "x", "y", "d", "e"]`,
       },
       {
         type: "heading",
-        content: ".find(), .findIndex(), .some(), .every()",
+        content: "Scorrere un array: for e for...of",
+      },
+      {
+        type: "text",
+        content:
+          "Il ciclo `for` classico ha tre parti: inizializzazione (`let i = 0`), condizione (`i < arr.length`) e aggiornamento (`i++`). Il corpo viene ripetuto finché la condizione è vera, e `i` vale di volta in volta 0, 1, 2... Se non ti serve l'indice, il ciclo `for...of` è più semplice: a ogni giro ti dà direttamente l'elemento successivo.",
       },
       {
         type: "code",
         language: "javascript",
-        title: "Ricerca e verifica",
-        code: `const users = [
-  { id: 1, name: "Alice", active: true },
-  { id: 2, name: "Bob", active: false },
-  { id: 3, name: "Clara", active: true },
-];
+        title: "for e for...of",
+        code: `const prices = [12, 5, 30];
 
-// .find() restituisce il PRIMO elemento che soddisfa la condizione
-const bob = users.find((u) => u.name === "Bob");
-console.log(bob); // { id: 2, name: "Bob", active: false }
+// for classico: hai a disposizione l'indice i
+for (let i = 0; i < prices.length; i++) {
+  console.log("Prodotto " + i + ": " + prices[i] + " euro");
+}
+// Prodotto 0: 12 euro
+// Prodotto 1: 5 euro
+// Prodotto 2: 30 euro
 
-// .findIndex() restituisce l'INDICE
-const bobIndex = users.findIndex((u) => u.name === "Bob");
-console.log(bobIndex); // 1
+// for...of: ottieni direttamente ogni elemento
+let total = 0;
+for (const price of prices) {
+  total += price;
+}
+console.log(total); // 47
 
-// .some() -> almeno uno soddisfa la condizione?
-const hasInactive = users.some((u) => !u.active);
-console.log(hasInactive); // true
-
-// .every() -> TUTTI soddisfano la condizione?
-const allActive = users.every((u) => u.active);
-console.log(allActive); // false`,
+// Si può combinare con if
+let expensive = 0;
+for (const price of prices) {
+  if (price > 10) {
+    expensive++;
+  }
+}
+console.log(expensive); // 2`,
       },
       {
         type: "heading",
-        content: ".sort(), .includes(), .slice() vs .splice()",
+        content: "forEach",
+      },
+      {
+        type: "text",
+        content:
+          "`forEach` è un metodo che riceve una funzione *callback* (come visto nella lezione sulle funzioni) e la chiama per ogni elemento, passandole l'elemento e il suo indice. Non restituisce nulla: serve solo a \"fare qualcosa\" per ogni elemento.",
       },
       {
         type: "code",
         language: "javascript",
-        title: "Ordinamento, ricerca e sotto-array",
-        code: `// .sort() MODIFICA l'array originale!
-const scores = [40, 10, 90, 25];
-scores.sort((a, b) => a - b); // ordine crescente
-console.log(scores); // [10, 25, 40, 90]
-scores.sort((a, b) => b - a); // ordine decrescente
-console.log(scores); // [90, 40, 25, 10]
+        title: "forEach",
+        code: `const names = ["Alice", "Bruno", "Carla"];
 
-// .includes() -> l'array contiene il valore?
-const allowedSites = ["Milano", "Roma", "Napoli"];
-console.log(allowedSites.includes("Roma"));    // true
-console.log(allowedSites.includes("Torino"));  // false
+names.forEach((name) => console.log("Ciao, " + name));
+// Ciao, Alice
+// Ciao, Bruno
+// Ciao, Carla
 
-// .slice() NON modifica l'originale (restituisce una copia parziale)
-const first2 = allowedSites.slice(0, 2);
-console.log(first2);        // ["Milano", "Roma"]
-console.log(allowedSites);  // ["Milano", "Roma", "Napoli"] (invariato)
+// Il secondo parametro del callback è l'indice
+names.forEach((name, index) => {
+  console.log((index + 1) + ". " + name);
+});
+// 1. Alice
+// 2. Bruno
+// 3. Carla`,
+      },
+      {
+        type: "heading",
+        content: "map: trasformare ogni elemento",
+      },
+      {
+        type: "text",
+        content:
+          "`map` crea un **nuovo** array della stessa lunghezza, in cui ogni elemento è il valore restituito dal callback. Non modifica l'array originale. È uno dei metodi più usati in assoluto (in React servirà per trasformare liste di dati in elementi della pagina).",
+      },
+      {
+        type: "code",
+        language: "javascript",
+        title: "map",
+        code: `const numbers = [1, 2, 3, 4];
 
-// .splice() MODIFICA l'originale (rimuove/inserisce)
-const items = ["a", "b", "c", "d"];
-items.splice(1, 2); // da indice 1, rimuovi 2 elementi
-console.log(items); // ["a", "d"]`,
+const doubled = numbers.map((n) => n * 2);
+console.log(doubled); // [2, 4, 6, 8]
+console.log(numbers); // [1, 2, 3, 4] (invariato)
+
+const prices = [10, 25, 40];
+const labels = prices.map((p) => p + " euro");
+console.log(labels); // ["10 euro", "25 euro", "40 euro"]
+
+// Anche map riceve l'indice come secondo parametro
+const songs = ["Imagine", "Yesterday"];
+const numbered = songs.map((song, index) => (index + 1) + ". " + song);
+console.log(numbered); // ["1. Imagine", "2. Yesterday"]`,
+      },
+      {
+        type: "heading",
+        content: "filter: tenere solo alcuni elementi",
+      },
+      {
+        type: "text",
+        content:
+          "`filter` restituisce un **nuovo** array con solo gli elementi per cui il callback restituisce `true` (o un valore truthy). Anche `filter` non modifica l'originale.",
+      },
+      {
+        type: "code",
+        language: "javascript",
+        title: "filter",
+        code: `const temperatures = [12, 25, 31, 18, 29];
+
+const hotDays = temperatures.filter((t) => t > 24);
+console.log(hotDays); // [25, 31, 29]
+
+const numbers = [1, 2, 3, 4, 5, 6];
+const even = numbers.filter((n) => n % 2 === 0);
+console.log(even); // [2, 4, 6]
+
+// Rimuovere valori indesiderati
+const votes = [8, null, 6, null, 9];
+const validVotes = votes.filter((v) => v !== null);
+console.log(validVotes); // [8, 6, 9]
+
+// filter e map si possono concatenare
+const evenSquares = numbers.filter((n) => n % 2 === 0).map((n) => n * n);
+console.log(evenSquares); // [4, 16, 36]`,
       },
       {
         type: "warning",
         content:
-          "Attenzione: `.sort()` e `.splice()` modificano l'array originale (sono *mutating*). In React e Redux questo e un problema perche lo stato deve essere immutabile. Usa `.slice()` per copiare prima di ordinare: `[...arr].sort(...)` oppure `arr.slice().sort(...)`.",
-      },
-      {
-        type: "heading",
-        content: ".forEach() e concatenamento",
-      },
-      {
-        type: "text",
-        content:
-          "`.forEach()` esegue una funzione per ogni elemento ma non restituisce nulla (a differenza di `.map()`). I metodi degli array si possono concatenare (*chaining*) per pipeline di trasformazione.",
-      },
-      {
-        type: "code",
-        language: "javascript",
-        title: "forEach e chaining",
-        code: `// forEach non restituisce un nuovo array
-const names = ["Alice", "Bob"];
-names.forEach((name) => console.log("Ciao, " + name));
-// Ciao, Alice
-// Ciao, Bob
-
-// Chaining: filtrare, trasformare e ordinare in una pipeline
-const data = [
-  { name: "Sito A", score: 45 },
-  { name: "Sito B", score: 92 },
-  { name: "Sito C", score: 78 },
-  { name: "Sito D", score: 33 },
-];
-
-const topSites = data
-  .filter((d) => d.score >= 50)         // solo score >= 50
-  .map((d) => d.name)                    // estrai solo il nome
-  .sort();                               // ordine alfabetico
-console.log(topSites); // ["Sito B", "Sito C"]`,
+          "Attenzione a quali metodi modificano l'array originale (*mutating*): `push`, `pop`, `shift`, `unshift` e `splice` lo modificano; `slice`, `map` e `filter` restituiscono un nuovo array lasciando intatto l'originale. In React questa differenza è molto importante, perché i dati dello stato non vanno modificati direttamente.",
       },
       {
         type: "info",
         content:
-          'Ricorda: `.map()` restituisce un nuovo array, `.forEach()` restituisce `undefined`. Se devi trasformare i dati, usa `.map()`. Se devi solo "fare qualcosa" per ogni elemento (es. logging), usa `.forEach()`.',
+          'Ricorda: `map` e `filter` restituiscono un nuovo array, `forEach` restituisce `undefined`. Se devi trasformare o selezionare i dati, usa `map` o `filter`. Se devi solo "fare qualcosa" per ogni elemento (es. stamparlo), usa `forEach` o un ciclo `for...of`.',
       },
     ],
     exercises: [
       {
         type: "code",
-        title: "map e filter",
+        title: "Gestire una playlist",
         description:
-          'Hai un array `products`. Usa `.filter()` per tenere solo i prodotti con `price > 20`, poi `.map()` per estrarre solo il campo `name`. Salva il risultato in `expensiveNames` e stampalo.',
+          'Hai l\'array `playlist`. Usando i metodi visti nella lezione (non riscrivere l\'array a mano):\n1. aggiungi `"Bohemian Rhapsody"` alla fine;\n2. aggiungi `"Imagine"` all\'inizio;\n3. rimuovi `"Yesterday"` usando `indexOf` per trovarne la posizione e `splice` per toglierlo.\nInfine crea `songCount` con il numero di brani (usa `length`) e stampa `playlist`.',
         difficulty: "facile",
-        starterCode: `const products = [
-  { name: "Penna", price: 2 },
-  { name: "Zaino", price: 45 },
-  { name: "Quaderno", price: 5 },
-  { name: "Tablet", price: 350 },
-  { name: "Matita", price: 1 },
-];
+        starterCode: `const playlist = ["Hey Jude", "Yesterday", "Let It Be"];
 
 // Scrivi qui
 `,
-        solution: `const products = [
-  { name: "Penna", price: 2 },
-  { name: "Zaino", price: 45 },
-  { name: "Quaderno", price: 5 },
-  { name: "Tablet", price: 350 },
-  { name: "Matita", price: 1 },
-];
+        solution: `const playlist = ["Hey Jude", "Yesterday", "Let It Be"];
 
-const expensiveNames = products
-  .filter((p) => p.price > 20)
-  .map((p) => p.name);
-console.log(expensiveNames);`,
-        testCode: "",
+playlist.push("Bohemian Rhapsody");
+playlist.unshift("Imagine");
+const index = playlist.indexOf("Yesterday");
+playlist.splice(index, 1);
+const songCount = playlist.length;
+console.log(playlist);`,
         validate: `
-try {
-  const logs = [];
-  const _origLog = console.log;
-  console.log = (...args) => logs.push(JSON.stringify(args));
-  console.log = _origLog;
-  const output = logs.join(" ");
-  return output.includes("Zaino") && output.includes("Tablet") && !output.includes("Penna");
-} catch(e) { return false; }`,
+const code = $codeNoComments;
+if (!/\\.push\\(/.test(code)) return "Usa push per aggiungere \\"Bohemian Rhapsody\\" alla fine";
+if (!/\\.unshift\\(/.test(code)) return "Usa unshift per aggiungere \\"Imagine\\" all'inizio";
+if (!/\\.indexOf\\(/.test(code) || !/\\.splice\\(/.test(code)) return "Usa indexOf per trovare \\"Yesterday\\" e splice per rimuoverlo";
+if (!$equal(playlist, ["Imagine", "Hey Jude", "Let It Be", "Bohemian Rhapsody"])) return "La playlist finale dovrebbe essere [\\"Imagine\\", \\"Hey Jude\\", \\"Let It Be\\", \\"Bohemian Rhapsody\\"]";
+if (songCount !== 4 || !/\\.length/.test(code)) return "songCount deve essere playlist.length (cioè 4)";
+if (!$logs.some((l) => l.includes("Bohemian Rhapsody"))) return "Stampa playlist con console.log";
+return true;`,
       },
       {
         type: "code",
-        title: "reduce per somma",
+        title: "Somma con for...of",
         description:
-          "Usa `.reduce()` sull'array `orders` per calcolare il totale di tutti i campi `amount`. Salva il risultato in `totalAmount` e stampalo.",
+          "Crea una funzione `sumPositive(numbers)` che riceve un array di numeri e restituisce la somma dei soli numeri **maggiori di zero**. Usa un ciclo `for` o `for...of` (non `filter`). Se l'array è vuoto deve restituire `0`.\nEsempio: `sumPositive([3, -2, 5, 0])` restituisce `8`.",
         difficulty: "medio",
-        starterCode: `const orders = [
-  { id: 1, amount: 120 },
-  { id: 2, amount: 85 },
-  { id: 3, amount: 200 },
-  { id: 4, amount: 55 },
-];
+        starterCode: `function sumPositive(numbers) {
+  // Scrivi qui
+}
 
-// Scrivi qui
-`,
-        solution: `const orders = [
-  { id: 1, amount: 120 },
-  { id: 2, amount: 85 },
-  { id: 3, amount: 200 },
-  { id: 4, amount: 55 },
-];
+console.log(sumPositive([3, -2, 5, 0]));`,
+        solution: `function sumPositive(numbers) {
+  let total = 0;
+  for (const n of numbers) {
+    if (n > 0) {
+      total += n;
+    }
+  }
+  return total;
+}
 
-const totalAmount = orders.reduce((acc, order) => acc + order.amount, 0);
-console.log(totalAmount);`,
-        testCode: "",
+console.log(sumPositive([3, -2, 5, 0]));`,
         validate: `
-try {
-  const logs = [];
-  const _origLog = console.log;
-  console.log = (...args) => logs.push(args.join(" "));
-  console.log = _origLog;
-  return logs.includes("460");
-} catch(e) { return false; }`,
+if (typeof sumPositive !== "function") return "Definisci la funzione sumPositive";
+if (!/\\bfor\\s*\\(/.test($codeNoComments)) return "Usa un ciclo for o for...of";
+if (sumPositive([3, -2, 5, 0]) !== 8) return "sumPositive([3, -2, 5, 0]) dovrebbe restituire 8";
+if (sumPositive([]) !== 0) return "Con un array vuoto sumPositive deve restituire 0";
+if (sumPositive([-1, -5]) !== 0) return "Se non ci sono numeri positivi il risultato deve essere 0";
+if (sumPositive([10, 20, 30]) !== 60) return "sumPositive([10, 20, 30]) dovrebbe restituire 60";
+if (sumPositive([1.5, -1, 2.5]) !== 4) return "sumPositive([1.5, -1, 2.5]) dovrebbe restituire 4";
+return true;`,
       },
       {
         type: "code",
-        title: "Pipeline completa: filter, map, sort",
+        title: "filter e map",
         description:
-          'Hai un array `students`. Filtra quelli con `grade >= 6`, trasformali in stringhe del tipo `"Nome: voto"` (es. `"Alice: 8"`), ordinale alfabeticamente e salva il risultato in `passing`. Stampa `passing`.',
+          "Crea una funzione `discountedPrices(prices)` che riceve un array di prezzi e restituisce un **nuovo** array con:\n1. solo i prezzi maggiori o uguali a 20 (usa `filter`);\n2. ognuno ridotto della metà (usa `map`).\nL'array originale non deve essere modificato.\nEsempio: `discountedPrices([10, 40, 20, 5])` restituisce `[20, 10]`.",
         difficulty: "difficile",
-        starterCode: `const students = [
-  { name: "Davide", grade: 5 },
-  { name: "Alice", grade: 8 },
-  { name: "Carlo", grade: 6 },
-  { name: "Beatrice", grade: 9 },
-  { name: "Elena", grade: 4 },
-];
+        starterCode: `const discountedPrices = (prices) => {
+  // Scrivi qui
+};
 
-// Scrivi qui
-`,
-        solution: `const students = [
-  { name: "Davide", grade: 5 },
-  { name: "Alice", grade: 8 },
-  { name: "Carlo", grade: 6 },
-  { name: "Beatrice", grade: 9 },
-  { name: "Elena", grade: 4 },
-];
+console.log(discountedPrices([10, 40, 20, 5]));`,
+        solution: `const discountedPrices = (prices) => {
+  return prices.filter((p) => p >= 20).map((p) => p / 2);
+};
 
-const passing = students
-  .filter((s) => s.grade >= 6)
-  .map((s) => s.name + ": " + s.grade)
-  .sort();
-console.log(passing);`,
-        testCode: "",
+console.log(discountedPrices([10, 40, 20, 5]));`,
         validate: `
-try {
-  const logs = [];
-  const _origLog = console.log;
-  console.log = (...args) => logs.push(JSON.stringify(args));
-  console.log = _origLog;
-  const output = logs.join(" ");
-  return output.includes("Alice: 8") && output.includes("Beatrice: 9") && output.includes("Carlo: 6") && !output.includes("Davide") && !output.includes("Elena");
-} catch(e) { return false; }`,
+if (typeof discountedPrices !== "function") return "Definisci la funzione discountedPrices";
+const code = $codeNoComments;
+if (!/\\.filter\\(/.test(code)) return "Usa filter per tenere solo i prezzi >= 20";
+if (!/\\.map\\(/.test(code)) return "Usa map per dimezzare i prezzi";
+const input = [10, 40, 20, 5];
+const result = discountedPrices(input);
+if (!$equal(input, [10, 40, 20, 5])) return "Non modificare l'array originale";
+if (!$equal(result, [20, 10])) return "discountedPrices([10, 40, 20, 5]) dovrebbe restituire [20, 10], invece restituisce " + $format(result);
+if (!$equal(discountedPrices([100, 19, 50]), [50, 25])) return "discountedPrices([100, 19, 50]) dovrebbe restituire [50, 25]";
+if (!$equal(discountedPrices([1, 2]), [])) return "Se nessun prezzo è >= 20 il risultato deve essere un array vuoto";
+return true;`,
       },
     ],
   },
@@ -805,42 +935,90 @@ try {
       {
         type: "text",
         content:
-          "Gli oggetti sono il modo fondamentale di rappresentare dati strutturati in JavaScript. In un progetto React/Redux, tutto e un oggetto: le props dei componenti, lo stato Redux, le configurazioni dei grafici, le risposte API.",
+          "Gli oggetti sono il modo fondamentale di rappresentare dati strutturati in JavaScript: un insieme di coppie *chiave: valore* (dette *proprietà*). Un libro, un utente, un prodotto: tutto si descrive con un oggetto. In React gli oggetti sono ovunque: le props dei componenti, lo stato, le configurazioni.",
       },
       {
         type: "heading",
-        content: "Object literals e accesso alle proprieta",
+        content: "Object literals e accesso alle proprietà",
+      },
+      {
+        type: "text",
+        content:
+          "Un oggetto si crea con le parentesi graffe. Si accede a una proprietà con la *dot notation* (`book.title`) oppure con la *bracket notation* (`book[\"title\"]`), utile quando il nome della chiave è contenuto in una variabile. Leggere una proprietà che non esiste restituisce `undefined`.",
       },
       {
         type: "code",
         language: "javascript",
         title: "Creare e accedere agli oggetti",
-        code: `// Object literal
-const site = {
-  name: "Milano",
-  region: "Lombardia",
-  active: true,
-  score: 95,
+        code: `const book = {
+  title: "Il nome della rosa",
+  author: "Umberto Eco",
+  year: 1980,
+  available: true,
 };
 
 // Dot notation
-console.log(site.name);    // "Milano"
+console.log(book.title);    // "Il nome della rosa"
 
 // Bracket notation (utile con chiavi dinamiche)
-const key = "region";
-console.log(site[key]);    // "Lombardia"
+const key = "author";
+console.log(book[key]);     // "Umberto Eco"
 
-// Proprieta annidate
-const config = {
-  chart: {
-    title: "Trend",
-    styles: {
-      color: "#1976d2",
-      fontSize: "14px",
-    },
+// Modificare e aggiungere proprietà
+book.available = false;
+book.pages = 503;
+console.log(book.pages);    // 503
+console.log(book.isbn);     // undefined (non esiste)
+
+// Proprietà annidate
+const library = {
+  name: "Biblioteca Civica",
+  address: {
+    city: "Bologna",
+    street: "Via Roma 1",
   },
 };
-console.log(config.chart.styles.color); // "#1976d2"`,
+console.log(library.address.city); // "Bologna"`,
+      },
+      {
+        type: "info",
+        content:
+          "Una arrow function con *implicit return* che restituisce un oggetto deve racchiuderlo tra parentesi tonde, altrimenti le graffe verrebbero interpretate come il corpo della funzione: `const makeBook = (title) => ({ title: title, available: true });`",
+      },
+      {
+        type: "heading",
+        content: "Array di oggetti",
+      },
+      {
+        type: "text",
+        content:
+          "Molto spesso i dati sono liste di oggetti: un catalogo di libri, un elenco di contatti, i prodotti di un carrello. Si combinano gli strumenti già visti: l'indice per scegliere l'elemento, il punto per leggerne la proprietà, i cicli per scorrerli tutti.",
+      },
+      {
+        type: "code",
+        language: "javascript",
+        title: "Lavorare con array di oggetti",
+        code: `const books = [
+  { title: "Il nome della rosa", year: 1980, available: true },
+  { title: "Se questo è un uomo", year: 1947, available: false },
+  { title: "Il barone rampante", year: 1957, available: true },
+];
+
+console.log(books[1].title);  // "Se questo è un uomo"
+console.log(books.length);    // 3
+
+// Scorrere con for...of
+for (const book of books) {
+  if (book.available) {
+    console.log(book.title + " (" + book.year + ")");
+  }
+}
+// Il nome della rosa (1980)
+// Il barone rampante (1957)
+
+// Aggiungere un nuovo oggetto
+books.push({ title: "La coscienza di Zeno", year: 1923, available: true });
+console.log(books.length);    // 4`,
       },
       {
         type: "heading",
@@ -849,71 +1027,107 @@ console.log(config.chart.styles.color); // "#1976d2"`,
       {
         type: "text",
         content:
-          "Questi metodi statici di `Object` permettono di iterare sulle proprieta di un oggetto, trasformandole in array.",
+          "Questi metodi trasformano le proprietà di un oggetto in array, così puoi scorrerle con un ciclo. `Object.keys` restituisce le chiavi, `Object.values` i valori e `Object.entries` un array di coppie `[chiave, valore]`.",
       },
       {
         type: "code",
         language: "javascript",
         title: "Iterare sugli oggetti",
-        code: `const filterValues = {
-  site: "Milano",
-  product: "Farmaco A",
-  status: "active",
+        code: `const contact = {
+  name: "Laura",
+  phone: "333 1234567",
+  city: "Torino",
 };
 
-// Chiavi
-console.log(Object.keys(filterValues));
-// ["site", "product", "status"]
+console.log(Object.keys(contact));
+// ["name", "phone", "city"]
 
-// Valori
-console.log(Object.values(filterValues));
-// ["Milano", "Farmaco A", "active"]
+console.log(Object.values(contact));
+// ["Laura", "333 1234567", "Torino"]
 
-// Coppie chiave-valore (array di array)
-console.log(Object.entries(filterValues));
-// [["site", "Milano"], ["product", "Farmaco A"], ["status", "active"]]
+console.log(Object.entries(contact));
+// [["name", "Laura"], ["phone", "333 1234567"], ["city", "Torino"]]
 
-// Utile per iterare
-Object.entries(filterValues).forEach(([key, value]) => {
-  console.log(key + " = " + value);
-});`,
+// Scorrere le coppie chiave-valore
+for (const entry of Object.entries(contact)) {
+  console.log(entry[0] + " = " + entry[1]);
+}
+// name = Laura
+// phone = 333 1234567
+// city = Torino`,
       },
       {
         type: "heading",
-        content: "Destructuring",
+        content: "Destructuring di oggetti",
       },
       {
         type: "text",
         content:
-          "Il destructuring permette di estrarre valori da oggetti (e array) in modo conciso. E uno dei pattern più usati nel JavaScript moderno e in React.",
+          "Il *destructuring* permette di estrarre proprietà da un oggetto in variabili separate, in modo conciso. È uno dei pattern più usati nel JavaScript moderno e in React. Si possono anche indicare valori di default e rinominare le variabili.",
       },
       {
         type: "code",
         language: "javascript",
         title: "Destructuring semplice e annidato",
-        code: `// Destructuring base
-const action = { type: "SET_FILTER", payload: { key: "site", value: "Roma" } };
-const { type, payload } = action;
-console.log(type);    // "SET_FILTER"
-console.log(payload); // { key: "site", value: "Roma" }
+        code: `const user = {
+  name: "Paolo",
+  email: "paolo@example.com",
+  address: { city: "Napoli", zip: "80100" },
+};
+
+// Destructuring base
+const { name, email } = user;
+console.log(name);   // "Paolo"
+console.log(email);  // "paolo@example.com"
 
 // Destructuring annidato
-const { payload: { key, value } } = action;
-console.log(key);   // "site"
-console.log(value); // "Roma"
+const { address: { city } } = user;
+console.log(city);   // "Napoli"
 
 // Con valori di default
-const { priority = "normal", payload: p } = action;
-console.log(priority); // "normal" (non esiste, usa il default)
+const { role = "utente" } = user;
+console.log(role);   // "utente" (la proprietà non esiste, usa il default)
 
 // Rinominare durante il destructuring
-const { type: actionType } = action;
-console.log(actionType); // "SET_FILTER"`,
+const { name: userName } = user;
+console.log(userName); // "Paolo"`,
       },
       {
-        type: "tip",
+        type: "heading",
+        content: "Destructuring di array",
+      },
+      {
+        type: "text",
         content:
-          'Nelle applicazioni React, il destructuring e usato in ogni componente per estrarre props: ({ label, options, value, onChange }). Lo spread operator e usato per merge di configurazioni: { ...defaultStyles, ...custom }.',
+          "Anche gli array si possono destrutturare, usando le parentesi quadre: le variabili ricevono gli elementi **in base alla posizione**. Puoi saltare elementi lasciando una virgola vuota. È molto comodo con `Object.entries`, che restituisce coppie `[chiave, valore]`.",
+      },
+      {
+        type: "code",
+        language: "javascript",
+        title: "Destructuring di array",
+        code: `const podium = ["Anna", "Bruno", "Carla"];
+
+const [first, second] = podium;
+console.log(first);  // "Anna"
+console.log(second); // "Bruno"
+
+// Saltare un elemento
+const [, , third] = podium;
+console.log(third);  // "Carla"
+
+// Scambiare due variabili
+let a = 1;
+let b = 2;
+[a, b] = [b, a];
+console.log(a, b);   // 2 1
+
+// Con Object.entries, nel ciclo for...of
+const stock = { mele: 10, pere: 4 };
+for (const [fruit, quantity] of Object.entries(stock)) {
+  console.log(fruit + ": " + quantity);
+}
+// mele: 10
+// pere: 4`,
       },
       {
         type: "heading",
@@ -922,69 +1136,96 @@ console.log(actionType); // "SET_FILTER"`,
       {
         type: "text",
         content:
-          "In React, i componenti ricevono un oggetto `props`. Invece di scrivere `props.label`, `props.value` ecc., si usa il destructuring direttamente nella firma della funzione.",
+          "Quando una funzione riceve un oggetto, puoi destrutturarlo direttamente nella lista dei parametri. Invece di scrivere `product.name`, `product.price` ecc. ottieni subito le variabili che ti servono. In React i componenti ricevono un oggetto `props`, e questo pattern si usa in praticamente ogni componente.",
       },
       {
         type: "code",
         language: "javascript",
-        title: "Destructuring nei parametri (pattern React)",
+        title: "Destructuring nei parametri",
         code: `// Senza destructuring
-const FilterBadge = (props) => {
-  console.log(props.label + ": " + props.value);
+const describe = (product) => {
+  return product.name + ": " + product.price + " euro";
 };
 
-// Con destructuring (molto più leggibile)
-const FilterBadgeV2 = ({ label, value, onRemove }) => {
-  console.log(label + ": " + value);
+// Con destructuring (più leggibile)
+const describeV2 = ({ name, price }) => {
+  return name + ": " + price + " euro";
 };
 
-// Pattern comune nelle applicazioni React
-// const Filters = ({ analysisType, currentPage }) => { ... }
+const product = { name: "Zaino", price: 45, color: "blu" };
+console.log(describe(product));    // "Zaino: 45 euro"
+console.log(describeV2(product));  // "Zaino: 45 euro"
 
 // Con default nei parametri
-const Chip = ({ label = "N/A", color = "default" }) => {
+const badge = ({ label = "N/D", color = "grigio" }) => {
   console.log(label, color);
 };
-Chip({ label: "Attivo" }); // "Attivo" "default"`,
+badge({ label: "Nuovo" }); // Nuovo grigio`,
       },
       {
         type: "heading",
-        content: "Spread operator ({...obj})",
+        content: "Spread operator su oggetti e array",
       },
       {
         type: "text",
         content:
-          'Lo spread operator `...` "espande" le proprieta di un oggetto dentro un altro. E fondamentale in React/Redux per aggiornare lo stato in modo immutabile.',
+          'Lo spread operator `...` "espande" le proprietà di un oggetto dentro un altro oggetto, oppure gli elementi di un array dentro un altro array. Serve per copiare e unire dati **senza modificare gli originali**: è fondamentale in React per aggiornare lo stato in modo immutabile.',
       },
       {
         type: "code",
         language: "javascript",
-        title: "Spread operator sugli oggetti",
-        code: `const defaultStyles = {
-  color: "black",
-  fontSize: "12px",
-  fontWeight: "normal",
+        title: "Spread sugli oggetti",
+        code: `const defaultSettings = {
+  theme: "light",
+  fontSize: 14,
+  notifications: true,
 };
 
-const customStyles = {
-  color: "blue",
-  fontWeight: "bold",
+const userSettings = {
+  theme: "dark",
+  notifications: false,
 };
 
-// Merge: le proprieta di customStyles sovrascrivono quelle di defaultStyles
-const finalStyles = { ...defaultStyles, ...customStyles };
-console.log(finalStyles);
-// { color: "blue", fontSize: "12px", fontWeight: "bold" }
+// Merge: le proprietà scritte dopo sovrascrivono quelle prima
+const settings = { ...defaultSettings, ...userSettings };
+console.log(settings);
+// { theme: "dark", fontSize: 14, notifications: false }
 
 // Copiare un oggetto (copia superficiale)
-const copy = { ...defaultStyles };
-copy.color = "red";
-console.log(defaultStyles.color); // "black" (originale invariato)
+const copy = { ...defaultSettings };
+copy.theme = "blue";
+console.log(defaultSettings.theme); // "light" (originale invariato)
 
-// Aggiungere una proprieta (pattern Redux)
-const state = { site: "Milano", page: "overview" };
-const newState = { ...state, page: "details" };
-console.log(newState); // { site: "Milano", page: "details" }`,
+// Creare una versione aggiornata senza toccare l'originale
+const cart = { items: 3, total: 60 };
+const updatedCart = { ...cart, total: 75 };
+console.log(updatedCart); // { items: 3, total: 75 }
+console.log(cart);        // { items: 3, total: 60 }`,
+      },
+      {
+        type: "code",
+        language: "javascript",
+        title: "Spread e rest sugli array",
+        code: `const fruits = ["mela", "pera"];
+const vegetables = ["carota", "zucchina"];
+
+// Unire array
+const shopping = [...fruits, ...vegetables];
+console.log(shopping); // ["mela", "pera", "carota", "zucchina"]
+
+// Copiare un array (la copia si può modificare liberamente)
+const copy = [...fruits];
+copy.push("kiwi");
+console.log(fruits); // ["mela", "pera"] (invariato)
+
+// Aggiungere elementi senza modificare l'originale
+const withBanana = [...fruits, "banana"];
+console.log(withBanana); // ["mela", "pera", "banana"]
+
+// Nel destructuring, ... raccoglie "il resto" (rest)
+const [firstItem, ...others] = shopping;
+console.log(firstItem); // "mela"
+console.log(others);    // ["pera", "carota", "zucchina"]`,
       },
       {
         type: "heading",
@@ -999,42 +1240,49 @@ console.log(newState); // { site: "Milano", page: "details" }`,
         type: "code",
         language: "javascript",
         title: "Chiavi dinamiche",
-        code: `const field = "site";
-const val = "Milano";
+        code: `const field = "city";
+const value = "Firenze";
 
 // Chiave calcolata
-const filter = { [field]: val };
-console.log(filter); // { site: "Milano" }
+const filter = { [field]: value };
+console.log(filter); // { city: "Firenze" }
 
-// Pattern utile: costruire un oggetto da un form
-const buildPayload = (key, value) => ({ [key]: value });
-console.log(buildPayload("status", "active"));
-// { status: "active" }
+// Pattern utile: costruire un oggetto a partire da un campo di un form
+const buildField = (key, val) => ({ [key]: val });
+console.log(buildField("email", "anna@example.com"));
+// { email: "anna@example.com" }
 
-// Combinato con spread (pattern usato in reducer Redux)
-const prevState = { site: "Milano", product: "Farmaco A" };
-const updateField = "product";
-const updateValue = "Farmaco B";
-const nextState = { ...prevState, [updateField]: updateValue };
-console.log(nextState);
-// { site: "Milano", product: "Farmaco B" }`,
+// Combinato con spread: aggiornare un campo qualsiasi
+const form = { name: "Anna", city: "Roma" };
+const fieldToUpdate = "city";
+const updated = { ...form, [fieldToUpdate]: "Milano" };
+console.log(updated); // { name: "Anna", city: "Milano" }`,
       },
       {
-        type: "info",
+        type: "heading",
+        content: "Shorthand properties",
+      },
+      {
+        type: "text",
         content:
-          "Shorthand property: se la variabile ha lo stesso nome della chiave, puoi abbreviare. `{ name: name, age: age }` diventa `{ name, age }`.",
+          "Se una variabile ha lo stesso nome della chiave, puoi abbreviare: `{ name: name, age: age }` diventa `{ name, age }`.",
       },
       {
         type: "code",
         language: "javascript",
         title: "Shorthand properties",
-        code: `const name = "MyApp";
-const version = 3;
-const active = true;
+        code: `const title = "Inception";
+const year = 2010;
+const rating = 8.8;
 
-// Invece di { name: name, version: version, active: active }
-const project = { name, version, active };
-console.log(project); // { name: "MyApp", version: 3, active: true }`,
+// Invece di { title: title, year: year, rating: rating }
+const movie = { title, year, rating };
+console.log(movie); // { title: "Inception", year: 2010, rating: 8.8 }`,
+      },
+      {
+        type: "tip",
+        content:
+          "Usa il destructuring per estrarre solo i dati che ti servono e lo spread per creare copie aggiornate invece di modificare gli oggetti originali: il codice diventa più prevedibile e più facile da correggere.",
       },
     ],
     exercises: [
@@ -1059,21 +1307,19 @@ console.log(project); // { name: "MyApp", version: 3, active: true }`,
 const { name, role = "viewer" } = user;
 console.log(name);
 console.log(role);`,
-        testCode: "",
         validate: `
-try {
-  const logs = [];
-  const _origLog = console.log;
-  console.log = (...args) => logs.push(args.join(" "));
-  console.log = _origLog;
-  return logs.includes("Marco") && logs.includes("viewer");
-} catch(e) { return false; }`,
+if (!/(const|let)\\s*\\{[^}]*\\bname\\b[^}]*\\}\\s*=\\s*user/.test($codeNoComments)) return "Usa il destructuring: const { name, role = ... } = user";
+if (name !== "Marco") return "name dovrebbe valere \\"Marco\\"";
+if (role !== "viewer") return "role dovrebbe valere \\"viewer\\" grazie al valore di default";
+if (!/role\\s*=\\s*["']viewer["']/.test($codeNoComments)) return "Indica il default direttamente nel destructuring: role = \\"viewer\\"";
+if (!$logs.includes("Marco") || !$logs.includes("viewer")) return "Stampa sia name sia role";
+return true;`,
       },
       {
         type: "code",
         title: "Spread e merge",
         description:
-          'Hai `baseConfig` e `userConfig`. Crea `finalConfig` unendoli con lo spread operator (le proprieta di `userConfig` devono sovrascrivere quelle di `baseConfig`). Poi aggiungi la proprieta `timestamp` con valore `"2024-01-01"` nello stesso spread. Stampa `finalConfig`.',
+          'Hai `baseConfig` e `userConfig`. Crea `finalConfig` unendoli con lo spread operator (le proprietà di `userConfig` devono sovrascrivere quelle di `baseConfig`) e aggiungendo, nello stesso oggetto, la proprietà `lastUpdate` con valore `"2024-01-01"`. Gli oggetti originali non devono essere modificati. Stampa `finalConfig`.',
         difficulty: "medio",
         starterCode: `const baseConfig = {
   theme: "light",
@@ -1099,54 +1345,429 @@ const userConfig = {
   fontSize: 16,
 };
 
-const finalConfig = { ...baseConfig, ...userConfig, timestamp: "2024-01-01" };
+const finalConfig = { ...baseConfig, ...userConfig, lastUpdate: "2024-01-01" };
 console.log(finalConfig);`,
-        testCode: "",
         validate: `
-try {
-  const logs = [];
-  const _origLog = console.log;
-  console.log = (...args) => logs.push(JSON.stringify(args));
-  console.log = _origLog;
-  const output = logs.join(" ");
-  return output.includes('"theme":"dark"') && output.includes('"language":"it"') && output.includes('"fontSize":16') && output.includes('"timestamp":"2024-01-01"');
-} catch(e) { return false; }`,
+if (!/\\.\\.\\.\\s*baseConfig/.test($codeNoComments) || !/\\.\\.\\.\\s*userConfig/.test($codeNoComments)) return "Usa lo spread: { ...baseConfig, ...userConfig, ... }";
+if (!$equal(baseConfig, { theme: "light", language: "it", showHeader: true })) return "Non modificare baseConfig";
+if (!$equal(userConfig, { theme: "dark", fontSize: 16 })) return "Non modificare userConfig";
+if (finalConfig.theme !== "dark") return "theme deve valere \\"dark\\": metti ...userConfig dopo ...baseConfig";
+if (!$equal(finalConfig, { theme: "dark", language: "it", showHeader: true, fontSize: 16, lastUpdate: "2024-01-01" })) return "finalConfig non è corretto: contiene " + $format(finalConfig);
+if (!$values.some((args) => args[0] === finalConfig)) return "Stampa finalConfig con console.log";
+return true;`,
       },
       {
         type: "code",
-        title: "Object.entries + reduce",
+        title: "Object.entries e for...of",
         description:
-          "Hai un oggetto `scores` con nomi come chiavi e punteggi come valori. Usa `Object.entries()` e `.reduce()` per calcolare la media dei punteggi. Salva il risultato in `average` e stampalo.",
+          "Crea una funzione `getAverage(scores)` che riceve un oggetto con nomi come chiavi e voti come valori, e restituisce la media dei voti.\nUsa `Object.entries` (o `Object.values`) e un ciclo `for...of`. Se l'oggetto è vuoto deve restituire `0`.\nEsempio: `getAverage({ Alice: 9, Bruno: 7 })` restituisce `8`.",
         difficulty: "difficile",
         starterCode: `const scores = {
   Alice: 90,
-  Bob: 75,
+  Bruno: 75,
   Clara: 88,
   Davide: 67,
 };
 
-// Scrivi qui
-`,
+function getAverage(scores) {
+  // Scrivi qui
+}
+
+console.log(getAverage(scores));`,
         solution: `const scores = {
   Alice: 90,
-  Bob: 75,
+  Bruno: 75,
   Clara: 88,
   Davide: 67,
 };
 
-const entries = Object.entries(scores);
-const sum = entries.reduce((acc, [, score]) => acc + score, 0);
-const average = sum / entries.length;
-console.log(average);`,
-        testCode: "",
+function getAverage(scores) {
+  const entries = Object.entries(scores);
+  if (entries.length === 0) {
+    return 0;
+  }
+  let sum = 0;
+  for (const [, score] of entries) {
+    sum += score;
+  }
+  return sum / entries.length;
+}
+
+console.log(getAverage(scores));`,
         validate: `
-try {
-  const logs = [];
-  const _origLog = console.log;
-  console.log = (...args) => logs.push(args.join(" "));
-  console.log = _origLog;
-  return logs.includes("80");
-} catch(e) { return false; }`,
+if (typeof getAverage !== "function") return "Definisci la funzione getAverage";
+const code = $codeNoComments;
+if (!/Object\\.(entries|values)\\(/.test(code)) return "Usa Object.entries o Object.values per ottenere i voti";
+if (!/\\bfor\\s*\\(/.test(code)) return "Usa un ciclo for...of per sommare i voti";
+if (getAverage(scores) !== 80) return "getAverage(scores) dovrebbe restituire 80";
+if (getAverage({ Alice: 9, Bruno: 7 }) !== 8) return "getAverage({ Alice: 9, Bruno: 7 }) dovrebbe restituire 8";
+if (getAverage({ Solo: 6 }) !== 6) return "Con un solo voto la media è il voto stesso";
+if (getAverage({}) !== 0) return "Con un oggetto vuoto getAverage deve restituire 0";
+return true;`,
+      },
+    ],
+  },
+
+  // ---------------------------------------------------------------------------
+  // METODI DEGLI ARRAY: FIND, REDUCE E SORT
+  // ---------------------------------------------------------------------------
+  "array-methods": {
+    sections: [
+      {
+        type: "text",
+        content:
+          "Ora che conosci array e oggetti, puoi combinarli: nella pratica lavorerai quasi sempre con **array di oggetti** (prodotti, utenti, ordini...). In questa lezione vediamo i metodi che permettono di cercare, verificare, accumulare e ordinare questi dati, e come concatenarli in vere e proprie pipeline.",
+      },
+      {
+        type: "heading",
+        content: "map e filter su array di oggetti",
+      },
+      {
+        type: "text",
+        content:
+          "`map` e `filter` funzionano esattamente come con gli array di primitivi: il callback riceve un oggetto alla volta, e puoi leggerne le proprietà (anche con il destructuring nei parametri).",
+      },
+      {
+        type: "code",
+        language: "javascript",
+        title: "map e filter con oggetti",
+        code: `const products = [
+  { name: "Penna", price: 2, category: "cancelleria" },
+  { name: "Zaino", price: 45, category: "scuola" },
+  { name: "Quaderno", price: 5, category: "cancelleria" },
+  { name: "Tablet", price: 350, category: "elettronica" },
+];
+
+// Estrarre un campo
+const names = products.map((p) => p.name);
+console.log(names); // ["Penna", "Zaino", "Quaderno", "Tablet"]
+
+// Trasformare in nuovi oggetti (con spread)
+const discounted = products.map((p) => ({ ...p, price: p.price * 0.9 }));
+console.log(discounted[1]); // { name: "Zaino", price: 40.5, category: "scuola" }
+
+// Filtrare per proprietà (con destructuring nel parametro)
+const stationery = products.filter(({ category }) => category === "cancelleria");
+console.log(stationery.length); // 2`,
+      },
+      {
+        type: "heading",
+        content: "find e findIndex",
+      },
+      {
+        type: "text",
+        content:
+          "`find` restituisce il **primo elemento** per cui il callback restituisce `true`, oppure `undefined` se non ne trova nessuno. `findIndex` restituisce invece l'**indice** di quell'elemento, oppure `-1`. Sono il modo naturale per cercare un oggetto in base a una proprietà (cosa che `includes` e `indexOf` non sanno fare).",
+      },
+      {
+        type: "code",
+        language: "javascript",
+        title: "Cercare un elemento",
+        code: `const users = [
+  { id: 1, name: "Alice", active: true },
+  { id: 2, name: "Bruno", active: false },
+  { id: 3, name: "Clara", active: true },
+];
+
+const bruno = users.find((u) => u.name === "Bruno");
+console.log(bruno); // { id: 2, name: "Bruno", active: false }
+
+const missing = users.find((u) => u.id === 99);
+console.log(missing); // undefined
+
+const claraIndex = users.findIndex((u) => u.name === "Clara");
+console.log(claraIndex); // 2
+console.log(users.findIndex((u) => u.id === 99)); // -1`,
+      },
+      {
+        type: "heading",
+        content: "some e every",
+      },
+      {
+        type: "text",
+        content:
+          "`some` restituisce `true` se **almeno un** elemento soddisfa la condizione; `every` restituisce `true` se **tutti** la soddisfano. Entrambi restituiscono un boolean e si fermano appena conoscono la risposta.",
+      },
+      {
+        type: "code",
+        language: "javascript",
+        title: "Verificare condizioni",
+        code: `const users = [
+  { id: 1, name: "Alice", active: true },
+  { id: 2, name: "Bruno", active: false },
+  { id: 3, name: "Clara", active: true },
+];
+
+const hasInactive = users.some((u) => !u.active);
+console.log(hasInactive); // true
+
+const allActive = users.every((u) => u.active);
+console.log(allActive);   // false
+
+const temperatures = [18, 21, 24];
+console.log(temperatures.every((t) => t > 15)); // true
+console.log(temperatures.some((t) => t > 30));  // false`,
+      },
+      {
+        type: "heading",
+        content: "reduce: accumulare un risultato",
+      },
+      {
+        type: "text",
+        content:
+          "`reduce` attraversa l'array accumulando un unico risultato. Il callback riceve `(accumulatore, elementoCorrente)` e deve restituire il nuovo valore dell'accumulatore; il secondo argomento di `reduce` è il **valore iniziale**. È il metodo più versatile: può produrre un numero, una stringa, un oggetto o un altro array.",
+      },
+      {
+        type: "code",
+        language: "javascript",
+        title: "reduce in pratica",
+        code: `const numbers = [10, 20, 30, 40];
+
+// Somma: acc parte da 0
+const total = numbers.reduce((acc, n) => acc + n, 0);
+console.log(total); // 100
+// giro 1: acc = 0,  n = 10 -> 10
+// giro 2: acc = 10, n = 20 -> 30
+// giro 3: acc = 30, n = 30 -> 60
+// giro 4: acc = 60, n = 40 -> 100
+
+// Totale di un carrello
+const cart = [
+  { name: "Libro", price: 15, quantity: 2 },
+  { name: "Penna", price: 2, quantity: 5 },
+];
+const cartTotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+console.log(cartTotal); // 40
+
+// Costruire un oggetto: contare i prodotti per categoria
+const categories = ["libri", "musica", "libri", "film", "libri"];
+const counts = categories.reduce((acc, cat) => {
+  acc[cat] = (acc[cat] || 0) + 1;
+  return acc;
+}, {});
+console.log(counts); // { libri: 3, musica: 1, film: 1 }`,
+      },
+      {
+        type: "warning",
+        content:
+          "Indica sempre il valore iniziale di `reduce` (es. `0` o `{}`). Senza, `reduce` usa il primo elemento come valore iniziale e, su un array vuoto, lancia un errore.",
+      },
+      {
+        type: "heading",
+        content: "sort: ordinare (con una copia!)",
+      },
+      {
+        type: "text",
+        content:
+          "`sort` ordina gli elementi e **modifica l'array originale**. Senza argomenti ordina come se fossero stringhe (va bene per parole semplici, non per i numeri!). Per ordinare numeri o oggetti passa una funzione di confronto `(a, b) => ...` che restituisce un numero negativo se `a` va prima di `b`, positivo se va dopo, `0` se sono equivalenti. Per non modificare l'originale, ordina una copia fatta con lo spread: `[...arr].sort(...)`.",
+      },
+      {
+        type: "code",
+        language: "javascript",
+        title: "Ordinare in modo sicuro",
+        code: `// Attenzione: senza funzione di confronto i numeri sono trattati come testo
+console.log([10, 9, 100].sort()); // [10, 100, 9]  (!)
+
+const scores = [40, 10, 90, 25];
+const ascending = [...scores].sort((a, b) => a - b);
+const descending = [...scores].sort((a, b) => b - a);
+console.log(ascending);  // [10, 25, 40, 90]
+console.log(descending); // [90, 40, 25, 10]
+console.log(scores);     // [40, 10, 90, 25] (originale invariato)
+
+// Ordinare oggetti per una proprietà numerica
+const movies = [
+  { title: "Matrix", year: 1999 },
+  { title: "Casablanca", year: 1942 },
+  { title: "Inception", year: 2010 },
+];
+const byYear = [...movies].sort((a, b) => a.year - b.year);
+console.log(byYear[0].title); // "Casablanca"
+
+// Parole semplici: sort() senza argomenti va bene
+const cities = ["Roma", "Bari", "Milano"];
+console.log([...cities].sort()); // ["Bari", "Milano", "Roma"]`,
+      },
+      {
+        type: "heading",
+        content: "Chaining: pipeline di trasformazione",
+      },
+      {
+        type: "text",
+        content:
+          "Poiché `filter`, `map` e `sort` restituiscono array, puoi concatenarli (*chaining*): il risultato di un metodo diventa l'input del successivo. Questo permette di descrivere trasformazioni complesse in pochi passaggi leggibili.",
+      },
+      {
+        type: "code",
+        language: "javascript",
+        title: "Chaining",
+        code: `const students = [
+  { name: "Davide", grade: 5 },
+  { name: "Alice", grade: 8 },
+  { name: "Carlo", grade: 6 },
+  { name: "Beatrice", grade: 9 },
+];
+
+const topStudents = students
+  .filter((s) => s.grade >= 6)          // solo i promossi
+  .sort((a, b) => b.grade - a.grade)    // dal voto più alto
+  .map((s) => s.name);                  // solo il nome
+console.log(topStudents); // ["Beatrice", "Alice", "Carlo"]
+
+// filter restituisce già un nuovo array, quindi qui sort
+// non modifica students. Se ordini direttamente l'originale, copialo prima.
+
+// Somma dei voti dei promossi: filter + reduce
+const passedTotal = students
+  .filter((s) => s.grade >= 6)
+  .reduce((sum, s) => sum + s.grade, 0);
+console.log(passedTotal); // 23`,
+      },
+      {
+        type: "tip",
+        content:
+          "Nelle pipeline scrivi un metodo per riga, con un breve commento se serve: il codice si legge come una ricetta. Se una pipeline diventa troppo lunga, spezzala in variabili intermedie con nomi chiari.",
+      },
+    ],
+    exercises: [
+      {
+        type: "code",
+        title: "filter e map su oggetti",
+        description:
+          "Crea una funzione `getExpensiveNames(products)` che restituisce i **nomi** dei prodotti con `price > 20`, nello stesso ordine. Usa `filter` e poi `map`.\nEsempio: con l'array `products` qui sotto il risultato è `[\"Zaino\", \"Tablet\"]`.",
+        difficulty: "facile",
+        starterCode: `const products = [
+  { name: "Penna", price: 2 },
+  { name: "Zaino", price: 45 },
+  { name: "Quaderno", price: 5 },
+  { name: "Tablet", price: 350 },
+  { name: "Matita", price: 1 },
+];
+
+const getExpensiveNames = (products) => {
+  // Scrivi qui
+};
+
+console.log(getExpensiveNames(products));`,
+        solution: `const products = [
+  { name: "Penna", price: 2 },
+  { name: "Zaino", price: 45 },
+  { name: "Quaderno", price: 5 },
+  { name: "Tablet", price: 350 },
+  { name: "Matita", price: 1 },
+];
+
+const getExpensiveNames = (products) => {
+  return products
+    .filter((p) => p.price > 20)
+    .map((p) => p.name);
+};
+
+console.log(getExpensiveNames(products));`,
+        validate: `
+if (typeof getExpensiveNames !== "function") return "Definisci la funzione getExpensiveNames";
+const code = $codeNoComments;
+if (!/\\.filter\\(/.test(code) || !/\\.map\\(/.test(code)) return "Usa filter per selezionare i prodotti e map per estrarre il nome";
+const r = getExpensiveNames(products);
+if (!$equal(r, ["Zaino", "Tablet"])) return "Con products il risultato dovrebbe essere [\\"Zaino\\", \\"Tablet\\"], invece è " + $format(r);
+if (!$equal(getExpensiveNames([{ name: "A", price: 20 }, { name: "B", price: 21 }]), ["B"])) return "Il prezzo deve essere strettamente maggiore di 20";
+if (!$equal(getExpensiveNames([]), [])) return "Con un array vuoto deve restituire []";
+return true;`,
+      },
+      {
+        type: "code",
+        title: "reduce per il totale",
+        description:
+          "Crea una funzione `getTotal(orders)` che usa `reduce` per calcolare la somma dei campi `amount` di tutti gli ordini. Con un array vuoto deve restituire `0`.\nPoi stampa `getTotal(orders)` (deve dare `460`).",
+        difficulty: "medio",
+        starterCode: `const orders = [
+  { id: 1, amount: 120 },
+  { id: 2, amount: 85 },
+  { id: 3, amount: 200 },
+  { id: 4, amount: 55 },
+];
+
+const getTotal = (orders) => {
+  // Scrivi qui
+};
+
+console.log(getTotal(orders));`,
+        solution: `const orders = [
+  { id: 1, amount: 120 },
+  { id: 2, amount: 85 },
+  { id: 3, amount: 200 },
+  { id: 4, amount: 55 },
+];
+
+const getTotal = (orders) => {
+  return orders.reduce((acc, order) => acc + order.amount, 0);
+};
+
+console.log(getTotal(orders));`,
+        validate: `
+if (typeof getTotal !== "function") return "Definisci la funzione getTotal";
+if (!/\\.reduce\\(/.test($codeNoComments)) return "Usa il metodo reduce";
+if (getTotal(orders) !== 460) return "getTotal(orders) dovrebbe restituire 460";
+if (getTotal([{ id: 9, amount: 7 }, { id: 10, amount: 3 }]) !== 10) return "getTotal deve funzionare con qualsiasi array di ordini";
+let empty;
+try { empty = getTotal([]); } catch (e) { return "Con un array vuoto reduce lancia un errore: indica il valore iniziale 0"; }
+if (empty !== 0) return "Con un array vuoto getTotal deve restituire 0 (valore iniziale di reduce)";
+if (!$logs.includes("460")) return "Stampa getTotal(orders)";
+return true;`,
+      },
+      {
+        type: "code",
+        title: "Pipeline completa: filter, sort, map",
+        description:
+          'Crea una funzione `getRanking(students)` che:\n1. tiene solo gli studenti con `grade >= 6`;\n2. li ordina dal voto più **alto** al più basso;\n3. li trasforma in stringhe del tipo `"Nome: voto"` (es. `"Alice: 8"`).\nL\'array originale non deve essere modificato. Usa `filter`, `sort` e `map`.',
+        difficulty: "difficile",
+        starterCode: `const students = [
+  { name: "Davide", grade: 5 },
+  { name: "Alice", grade: 8 },
+  { name: "Carlo", grade: 6 },
+  { name: "Beatrice", grade: 9 },
+  { name: "Elena", grade: 4 },
+];
+
+const getRanking = (students) => {
+  // Scrivi qui
+};
+
+console.log(getRanking(students));`,
+        solution: `const students = [
+  { name: "Davide", grade: 5 },
+  { name: "Alice", grade: 8 },
+  { name: "Carlo", grade: 6 },
+  { name: "Beatrice", grade: 9 },
+  { name: "Elena", grade: 4 },
+];
+
+const getRanking = (students) => {
+  return students
+    .filter((s) => s.grade >= 6)
+    .sort((a, b) => b.grade - a.grade)
+    .map((s) => s.name + ": " + s.grade);
+};
+
+console.log(getRanking(students));`,
+        validate: `
+if (typeof getRanking !== "function") return "Definisci la funzione getRanking";
+const code = $codeNoComments;
+if (!/\\.filter\\(/.test(code) || !/\\.sort\\(/.test(code) || !/\\.map\\(/.test(code)) return "Usa filter, sort e map";
+const input = [
+  { name: "Davide", grade: 5 },
+  { name: "Alice", grade: 8 },
+  { name: "Carlo", grade: 6 },
+  { name: "Beatrice", grade: 9 },
+  { name: "Elena", grade: 4 },
+];
+const snapshot = input.map((s) => s.name);
+const r = getRanking(input);
+if (!$equal(input.map((s) => s.name), snapshot)) return "Non modificare l'ordine dell'array originale (ordina una copia)";
+if (!$equal(r, ["Beatrice: 9", "Alice: 8", "Carlo: 6"])) return "Risultato atteso: [\\"Beatrice: 9\\", \\"Alice: 8\\", \\"Carlo: 6\\"], ottenuto " + $format(r);
+const r2 = getRanking([{ name: "Zoe", grade: 6 }, { name: "Ugo", grade: 10 }, { name: "Ivo", grade: 2 }]);
+if (!$equal(r2, ["Ugo: 10", "Zoe: 6"])) return "Controlla l'ordinamento numerico: con voti 6 e 10 il 10 deve venire prima (usa (a, b) => b.grade - a.grade)";
+return true;`,
       },
     ],
   },
@@ -1159,7 +1780,7 @@ try {
       {
         type: "text",
         content:
-          "Le stringhe in JavaScript hanno molti metodi utili per manipolare testo. Con ES6 sono arrivati i *template literals* (backtick strings), che rendono l'interpolazione e le stringhe multilinea molto più semplici.",
+          "Le stringhe in JavaScript hanno molti metodi utili per manipolare il testo. Con ES6 sono arrivati anche i *template literals* (stringhe con i backtick), che rendono l'interpolazione e le stringhe su più righe molto più semplici rispetto alla concatenazione con `+` usata finora.",
       },
       {
         type: "heading",
@@ -1174,15 +1795,15 @@ try {
         type: "code",
         language: "javascript",
         title: "Template literals",
-        code: `const site = "Milano";
-const page = "overview";
+        code: `const author = "anna";
+const postId = 42;
 
 // Concatenazione classica (scomoda)
-const urlOld = "/" + site + "/" + page;
+const urlOld = "/blog/" + author + "/" + postId;
 
 // Template literal (molto meglio!)
-const url = \`/\${site}/\${page}\`;
-console.log(url); // "/Milano/overview"
+const url = \`/blog/\${author}/\${postId}\`;
+console.log(url); // "/blog/anna/42"
 
 // Qualsiasi espressione dentro \${}
 const price = 19.99;
@@ -1191,20 +1812,20 @@ console.log(\`Doppio: \${price * 2} EUR\`);         // "Doppio: 39.98 EUR"
 
 // Stringhe multilinea
 const message = \`
-  Benvenuto nell'applicazione.
-  Sito selezionato: \${site}.
-  Pagina corrente: \${page}.
+  Benvenuto nel blog.
+  Autore: \${author}.
+  Articolo numero: \${postId}.
 \`;
 console.log(message);`,
       },
       {
         type: "tip",
         content:
-          "Nelle applicazioni React, i template literals sono usati per costruire URL: `/${site}/${analysisType}/${page}` e per valori CSS dinamici: `${value}rem`.",
+          "Preferisci i template literals alla concatenazione con `+` ogni volta che inserisci variabili in un testo: sono più leggibili e riducono gli errori con spazi e virgolette.",
       },
       {
         type: "heading",
-        content: "Metodi di ricerca: .includes(), .startsWith(), .endsWith()",
+        content: "Metodi di ricerca: includes, startsWith, endsWith",
       },
       {
         type: "code",
@@ -1228,75 +1849,78 @@ console.log(csvFiles); // ["data.csv", "report.csv"]`,
       },
       {
         type: "heading",
-        content: ".split() e .join()",
+        content: "split e join",
       },
       {
         type: "text",
         content:
-          "`.split()` divide una stringa in un array usando un separatore. `.join()` fa l'opposto: unisce un array in una stringa. Sono spesso usati insieme.",
+          "`.split()` divide una stringa in un array usando un separatore. `.join()` fa l'opposto: unisce gli elementi di un array in una stringa. Sono spesso usati insieme.",
       },
       {
         type: "code",
         language: "javascript",
         title: "split e join",
         code: `// split: stringa -> array
-const path = "quality/details/overview";
+const path = "blog/2024/javascript";
 const parts = path.split("/");
-console.log(parts); // ["quality", "details", "overview"]
+console.log(parts); // ["blog", "2024", "javascript"]
 
 // join: array -> stringa
 const tags = ["urgente", "bug", "frontend"];
 const tagString = tags.join(", ");
 console.log(tagString); // "urgente, bug, frontend"
 
-// Pattern: trasformare un percorso
-const key = "analysisType/page";
-const [analysisType, page] = key.split("/");
-console.log(analysisType); // "analysisType"
-console.log(page);         // "page"
+// Con il destructuring di array
+const fullName = "Mario Rossi";
+const [firstName, lastName] = fullName.split(" ");
+console.log(firstName); // "Mario"
+console.log(lastName);  // "Rossi"
 
-// Rimuovere spazi extra
+// Rimuovere spazi extra tra le parole
 const messy = "  ciao   mondo  ";
-const clean = messy.split(/\\s+/).filter(Boolean).join(" ");
+const clean = messy
+  .split(" ")
+  .filter((word) => word !== "")
+  .join(" ");
 console.log(clean); // "ciao mondo"`,
       },
       {
         type: "heading",
-        content: ".replace() e .substring() / .slice()",
+        content: "replace, substring e slice",
       },
       {
         type: "code",
         language: "javascript",
         title: "Sostituzione e sotto-stringhe",
         code: `// .replace() sostituisce solo la PRIMA occorrenza
-const text = "il gatto e sul tetto, il gatto dorme";
+const text = "il gatto è sul tetto, il gatto dorme";
 console.log(text.replace("gatto", "cane"));
-// "il cane e sul tetto, il gatto dorme"
+// "il cane è sul tetto, il gatto dorme"
 
 // .replaceAll() sostituisce TUTTE le occorrenze
 console.log(text.replaceAll("gatto", "cane"));
-// "il cane e sul tetto, il cane dorme"
+// "il cane è sul tetto, il cane dorme"
 
-// .substring(start, end) - estrae una porzione
+// .substring(start, end) - estrae una porzione (end escluso)
 const code = "ERR-404-NOT_FOUND";
-console.log(code.substring(0, 3));  // "ERR"
+console.log(code.substring(0, 3)); // "ERR"
 console.log(code.substring(4, 7)); // "404"
 
-// .slice() funziona come substring ma accetta indici negativi
-const name = "Alessandro";
-console.log(name.slice(0, 4));  // "Ales"
-console.log(name.slice(-3));    // "dro" (ultimi 3 caratteri)
+// .slice() funziona come per gli array e accetta indici negativi
+const word = "JavaScript";
+console.log(word.slice(0, 4));  // "Java"
+console.log(word.slice(-6));    // "Script" (ultimi 6 caratteri)
 
-// Pattern comune: troncare nomi lunghi
-const longName = "Alessandro Terranova";
-const display = longName.length > 15
-  ? longName.slice(0, 13) + "..."
-  : longName;
-console.log(display); // "Alessandro Te..."`,
+// Pattern comune: troncare titoli lunghi
+const title = "Guida completa al JavaScript moderno";
+const display = title.length > 20
+  ? title.slice(0, 17) + "..."
+  : title;
+console.log(display); // "Guida completa al..."`,
       },
       {
         type: "heading",
-        content: ".toLowerCase(), .toUpperCase(), .trim()",
+        content: "toLowerCase, toUpperCase, trim",
       },
       {
         type: "code",
@@ -1304,11 +1928,11 @@ console.log(display); // "Alessandro Te..."`,
         title: "Trasformazioni comuni",
         code: `const input = "  Ciao Mondo  ";
 
-console.log(input.trim());          // "Ciao Mondo" (rimuove spazi)
+console.log(input.trim());          // "Ciao Mondo" (rimuove gli spazi ai lati)
 console.log(input.toLowerCase());   // "  ciao mondo  "
 console.log(input.toUpperCase());   // "  CIAO MONDO  "
 
-// Confronto case-insensitive
+// Confronto che ignora maiuscole/minuscole
 const userInput = "Milano";
 const expected = "milano";
 console.log(userInput.toLowerCase() === expected); // true
@@ -1320,12 +1944,12 @@ console.log(padded.trimEnd());   // "   test"`,
       },
       {
         type: "heading",
-        content: ".padStart() e .padEnd()",
+        content: "padStart e padEnd",
       },
       {
         type: "text",
         content:
-          "`.padStart()` e `.padEnd()` aggiungono caratteri di riempimento fino a raggiungere la lunghezza desiderata. Utili per formattare numeri e codici.",
+          "`.padStart()` e `.padEnd()` aggiungono caratteri di riempimento (all'inizio o alla fine) fino a raggiungere la lunghezza desiderata. Utili per formattare numeri e codici. Funzionano sulle stringhe: per usarli con un numero convertilo prima con `String(numero)`.",
       },
       {
         type: "code",
@@ -1358,7 +1982,7 @@ items.forEach((item) => {
       {
         type: "text",
         content:
-          "Spesso i dati arrivano come stringhe (da input utente, URL, API) e devono essere convertiti in numeri. JavaScript offre diversi modi per farlo.",
+          "Spesso i dati arrivano come stringhe (dai campi di un form, dall'URL, da un server) e devono essere convertiti in numeri. JavaScript offre diversi modi per farlo.",
       },
       {
         type: "code",
@@ -1367,7 +1991,7 @@ items.forEach((item) => {
         code: `// parseInt: converte in intero (ignora la parte decimale)
 console.log(parseInt("42"));      // 42
 console.log(parseInt("42.7"));    // 42
-console.log(parseInt("10px"));    // 10 (si ferma al primo non-numero)
+console.log(parseInt("10px"));    // 10 (si ferma al primo carattere non numerico)
 console.log(parseInt("abc"));     // NaN
 
 // parseFloat: mantiene i decimali
@@ -1380,19 +2004,24 @@ console.log(Number("42.7"));   // 42.7
 console.log(Number("10px"));   // NaN (non tollera "px"!)
 console.log(Number(""));       // 0
 
-// Verifica se e un numero valido
+// Verificare se il risultato è un numero valido
 console.log(isNaN(Number("abc")));  // true
 console.log(isNaN(Number("42")));   // false
 
-// Pattern comune: convertire il valore di un input
-const inputValue = "14";
-const fontSize = \`\${Number(inputValue)}rem\`; // "14rem"
-console.log(fontSize);`,
+// Da numero a stringa
+console.log(String(42));        // "42"
+console.log((3.14159).toFixed(2)); // "3.14"
+
+// Pattern comune: sommare valori letti da un form
+const quantityInput = "3";
+const priceInput = "12.5";
+const total = Number(quantityInput) * Number(priceInput);
+console.log(\`Totale: \${total} euro\`); // "Totale: 37.5 euro"`,
       },
       {
         type: "info",
         content:
-          'Usa `Number()` quando vuoi una conversione stretta. Usa `parseInt()`/`parseFloat()` quando la stringa potrebbe contenere unita (es. "14px"). Controlla sempre con `isNaN()` se il risultato e valido.',
+          'Usa `Number()` quando vuoi una conversione stretta. Usa `parseInt()`/`parseFloat()` quando la stringa potrebbe contenere unità di misura (es. "14px"). Controlla sempre con `isNaN()` se il risultato è valido.',
       },
     ],
     exercises: [
@@ -1400,84 +2029,83 @@ console.log(fontSize);`,
         type: "code",
         title: "Template literal e interpolazione",
         description:
-          'Hai le variabili `site`, `analysisType` e `page`. Usa un template literal per creare la stringa `url` nel formato `"/{site}/{analysisType}/{page}"` (es. `"/Milano/quality/overview"`). Stampala.',
+          'Crea una funzione `buildUrl(author, section, postId)` che usa un template literal per restituire una stringa nel formato `"/{author}/{section}/{postId}"`.\nEsempio: `buildUrl("anna", "blog", 42)` restituisce `"/anna/blog/42"`. Stampa il risultato di questo esempio.',
         difficulty: "facile",
-        starterCode: `const site = "Milano";
-const analysisType = "quality";
-const page = "overview";
+        starterCode: `const buildUrl = (author, section, postId) => {
+  // Scrivi qui
+};
 
-// Scrivi qui
-`,
-        solution: `const site = "Milano";
-const analysisType = "quality";
-const page = "overview";
+console.log(buildUrl("anna", "blog", 42));`,
+        solution: `const buildUrl = (author, section, postId) => {
+  return \`/\${author}/\${section}/\${postId}\`;
+};
 
-const url = \`/\${site}/\${analysisType}/\${page}\`;
-console.log(url);`,
-        testCode: "",
+console.log(buildUrl("anna", "blog", 42));`,
         validate: `
-try {
-  const logs = [];
-  const _origLog = console.log;
-  console.log = (...args) => logs.push(args.join(" "));
-  console.log = _origLog;
-  return logs.includes("/Milano/quality/overview");
-} catch(e) { return false; }`,
+if (typeof buildUrl !== "function") return "Definisci la funzione buildUrl";
+if (!/\\$\\{/.test($codeNoComments)) return "Usa un template literal con i backtick e \${...}";
+if (buildUrl("anna", "blog", 42) !== "/anna/blog/42") return "buildUrl(\\"anna\\", \\"blog\\", 42) dovrebbe restituire \\"/anna/blog/42\\"";
+if (buildUrl("luca", "ricette", 7) !== "/luca/ricette/7") return "buildUrl deve usare i parametri ricevuti (prova buildUrl(\\"luca\\", \\"ricette\\", 7))";
+if (!$logs.includes("/anna/blog/42")) return "Stampa il risultato di buildUrl(\\"anna\\", \\"blog\\", 42)";
+return true;`,
       },
       {
         type: "code",
         title: "split, map e join",
         description:
-          'Hai una stringa `csvLine` con valori separati da virgola. Usa `.split(",")` per ottenere un array, `.map()` per applicare `.trim()` a ogni elemento e `.toUpperCase()`, poi `.join(" | ")` per riunirli. Salva il risultato in `formatted` e stampalo.',
+          'Crea una funzione `formatCities(csvLine)` che riceve una stringa con valori separati da virgola e restituisce una nuova stringa in cui ogni valore è senza spazi ai lati (`.trim()`), in maiuscolo (`.toUpperCase()`) e separato dal successivo da `" | "`.\nUsa `.split(",")`, `.map()` e `.join(" | ")`.\nEsempio: `formatCities(" milano , roma ")` restituisce `"MILANO | ROMA"`.',
         difficulty: "medio",
-        starterCode: `const csvLine = " milano , roma , napoli , torino ";
+        starterCode: `const formatCities = (csvLine) => {
+  // Scrivi qui
+};
 
-// Scrivi qui
-`,
-        solution: `const csvLine = " milano , roma , napoli , torino ";
+console.log(formatCities(" milano , roma , napoli , torino "));`,
+        solution: `const formatCities = (csvLine) => {
+  return csvLine
+    .split(",")
+    .map((city) => city.trim().toUpperCase())
+    .join(" | ");
+};
 
-const formatted = csvLine
-  .split(",")
-  .map((city) => city.trim().toUpperCase())
-  .join(" | ");
-console.log(formatted);`,
-        testCode: "",
+console.log(formatCities(" milano , roma , napoli , torino "));`,
         validate: `
-try {
-  const logs = [];
-  const _origLog = console.log;
-  console.log = (...args) => logs.push(args.join(" "));
-  console.log = _origLog;
-  return logs.includes("MILANO | ROMA | NAPOLI | TORINO");
-} catch(e) { return false; }`,
+if (typeof formatCities !== "function") return "Definisci la funzione formatCities";
+const code = $codeNoComments;
+if (!/\\.split\\(/.test(code) || !/\\.join\\(/.test(code)) return "Usa split per dividere la stringa e join per riunirla";
+if (formatCities(" milano , roma ") !== "MILANO | ROMA") return "formatCities(\\" milano , roma \\") dovrebbe restituire \\"MILANO | ROMA\\", invece restituisce " + $format(formatCities(" milano , roma "));
+if (formatCities(" milano , roma , napoli , torino ") !== "MILANO | ROMA | NAPOLI | TORINO") return "Controlla trim e toUpperCase su ogni elemento";
+if (formatCities("bari") !== "BARI") return "Con un solo valore il risultato è solo quel valore in maiuscolo";
+return true;`,
       },
       {
         type: "code",
         title: "Formattazione data con padStart",
         description:
-          'Hai le variabili `year`, `month` e `day` (numeri). Crea una stringa `dateFormatted` nel formato `"YYYY-MM-DD"` usando template literals e `.padStart(2, "0")` per mese e giorno. Stampa il risultato.',
+          'Crea una funzione `formatDate(year, month, day)` che riceve tre numeri e restituisce una stringa nel formato `"YYYY-MM-DD"`, usando un template literal e `.padStart(2, "0")` per mese e giorno.\nEsempi: `formatDate(2024, 3, 7)` restituisce `"2024-03-07"`, `formatDate(2023, 12, 25)` restituisce `"2023-12-25"`.',
         difficulty: "difficile",
-        starterCode: `const year = 2024;
-const month = 3;
-const day = 7;
+        starterCode: `const formatDate = (year, month, day) => {
+  // Scrivi qui
+};
 
-// Scrivi qui
-`,
-        solution: `const year = 2024;
-const month = 3;
-const day = 7;
+console.log(formatDate(2024, 3, 7));`,
+        solution: `const formatDate = (year, month, day) => {
+  const mm = String(month).padStart(2, "0");
+  const dd = String(day).padStart(2, "0");
+  return \`\${year}-\${mm}-\${dd}\`;
+};
 
-const dateFormatted = \`\${year}-\${String(month).padStart(2, "0")}-\${String(day).padStart(2, "0")}\`;
-console.log(dateFormatted);`,
-        testCode: "",
+console.log(formatDate(2024, 3, 7));`,
         validate: `
-try {
-  const logs = [];
-  const _origLog = console.log;
-  console.log = (...args) => logs.push(args.join(" "));
-  console.log = _origLog;
-  return logs.includes("2024-03-07");
-} catch(e) { return false; }`,
+if (typeof formatDate !== "function") return "Definisci la funzione formatDate";
+const code = $codeNoComments;
+if (!/\\.padStart\\(/.test(code)) return "Usa .padStart(2, \\"0\\") per mese e giorno";
+if (!/\\$\\{/.test(code)) return "Componi la data con un template literal";
+let r;
+try { r = formatDate(2024, 3, 7); } catch (e) { return "formatDate genera un errore: ricorda che padStart esiste solo sulle stringhe (usa String(month))"; }
+if (r !== "2024-03-07") return "formatDate(2024, 3, 7) dovrebbe restituire \\"2024-03-07\\", invece restituisce " + $format(r);
+if (formatDate(2023, 12, 25) !== "2023-12-25") return "formatDate(2023, 12, 25) dovrebbe restituire \\"2023-12-25\\" (niente zeri se il numero ha già due cifre)";
+if (formatDate(1999, 1, 31) !== "1999-01-31") return "formatDate(1999, 1, 31) dovrebbe restituire \\"1999-01-31\\"";
+return true;`,
       },
     ],
   },

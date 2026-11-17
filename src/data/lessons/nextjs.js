@@ -4,16 +4,16 @@ export const lessons = {
       {
         type: "text",
         content:
-          "Next.js e un framework React che aggiunge funzionalita fondamentali per la produzione: Server-Side Rendering (SSR), Static Site Generation (SSG), routing basato su file, bundling ottimizzato e molto altro. Invece di configurare manualmente webpack, router e server, Next.js fornisce tutto pronto all'uso.",
+          "Next.js è un framework React che aggiunge funzionalità fondamentali per la produzione: Server-Side Rendering (SSR), Static Site Generation (SSG), routing basato su file, bundling ottimizzato e molto altro. Invece di configurare manualmente bundler, router e server, Next.js fornisce tutto pronto all'uso.",
       },
       {
         type: "heading",
-        content: "L'App Router e il Routing Basato su File",
+        content: "L'App Router e il routing basato su file",
       },
       {
         type: "text",
         content:
-          "A partire da Next.js 13, l'App Router (cartella `app/`) sostituisce il vecchio Pages Router. Ogni cartella dentro `app/` corrisponde a un segmento dell'URL, e ogni file `page.js` definisce il contenuto di quella rotta. Non servono configurazioni: la struttura delle cartelle E il routing.",
+          "A partire da Next.js 13, l'App Router (cartella `app/`) sostituisce il vecchio Pages Router. Ogni cartella dentro `app/` corrisponde a un segmento dell'URL, e ogni file `page.js` definisce il contenuto di quella rotta. Non servono configurazioni: la struttura delle cartelle **è** il routing.",
       },
       {
         type: "code",
@@ -21,13 +21,16 @@ export const lessons = {
         title: "Struttura tipica della cartella app/",
         code: `// Struttura del filesystem:
 // app/
-// ├── page.js            →  /
-// ├── layout.js           →  Layout root (wrappa tutte le pagine)
-// ├── loading.js          →  Loading UI globale
-// ├── not-found.js        →  Pagina 404 personalizzata
-// └── (app)/
-//     └── [...params]/
-//         └── page.js     →  /site/analysisType/page
+// ├── page.js             →  /
+// ├── layout.js           →  layout root (avvolge tutte le pagine)
+// ├── loading.js          →  interfaccia di caricamento globale
+// ├── not-found.js        →  pagina 404 personalizzata
+// ├── chi-siamo/
+// │   └── page.js         →  /chi-siamo
+// └── blog/
+//     ├── page.js         →  /blog
+//     └── [slug]/
+//         └── page.js     →  /blog/il-mio-primo-articolo
 
 // Esempio di page.js root (la Home):
 export default function Home() {
@@ -36,74 +39,93 @@ export default function Home() {
       },
       {
         type: "subheading",
-        content: "page.js: Il Cuore di Ogni Rotta",
+        content: "page.js: il cuore di ogni rotta",
       },
       {
         type: "text",
         content:
-          "Il file `page.js` e l'unico file che rende una rotta accessibile pubblicamente. Se una cartella non contiene `page.js`, non sara navigabile dall'utente. Ogni `page.js` esporta un componente React di default che rappresenta l'interfaccia di quella pagina.",
+          "Il file `page.js` è l'unico file che rende una rotta accessibile pubblicamente. Se una cartella non contiene `page.js`, non sarà navigabile dall'utente. Ogni `page.js` esporta di default un componente React che rappresenta l'interfaccia di quella pagina.",
       },
       {
         type: "subheading",
-        content: "layout.js: Il Wrapper Condiviso",
+        content: "layout.js: il wrapper condiviso",
       },
       {
         type: "text",
         content:
-          "Il file `layout.js` definisce un involucro (wrapper) che viene condiviso tra tutte le pagine discendenti. Il layout root (in `app/layout.js`) e obbligatorio e contiene i tag `<html>` e `<body>`. I layout non vengono ri-renderizzati quando si naviga tra pagine figlie, ottimizzando le prestazioni.",
+          "Il file `layout.js` definisce un involucro (wrapper) condiviso da tutte le pagine discendenti: riceve la pagina corrente come prop `children`. Il layout root (in `app/layout.js`) è obbligatorio e contiene i tag `<html>` e `<body>`. I layout non vengono ri-renderizzati quando si naviga tra pagine figlie, a vantaggio delle prestazioni.",
       },
       {
         type: "code",
         language: "javascript",
-        title: "Layout root di un progetto Next.js",
-        code: `// app/layout.js - Layout root del progetto
+        title: "Layout root di un'applicazione Next.js",
+        code: `// app/layout.js - Layout root
 import { Box } from "@mui/material";
-import ProviderWrapper from "./context/Provider";
+import StoreProvider from "./StoreProvider"; // avvolge l'app nel <Provider> di Redux
 
 export const metadata = {
-  title: "Dashboard App",
-  description: "La mia applicazione web",
+  title: "Il mio blog",
+  description: "Articoli su programmazione e dintorni",
 };
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" style={{ height: "100%" }}>
+    <html lang="it" style={{ height: "100%" }}>
       <body style={{ margin: 0, height: "100%" }}>
-        <ProviderWrapper>
+        <StoreProvider>
           <Box sx={{ height: "100%" }}>
             {children}
           </Box>
-        </ProviderWrapper>
+        </StoreProvider>
       </body>
     </html>
   );
 }`,
       },
       {
+        type: "info",
+        content:
+          "L'oggetto `metadata` esportato da un layout o da una pagina imposta il titolo e la descrizione della pagina (i tag `<title>` e `<meta>` nell'`<head>`): Next.js li legge e li inserisce automaticamente.",
+      },
+      {
         type: "subheading",
-        content: "File Speciali: loading.js, error.js, not-found.js",
+        content: "File speciali: loading.js, error.js, not-found.js",
       },
       {
         type: "list",
         items: [
-          "`loading.js` — Mostra un'interfaccia di caricamento automatica (Suspense boundary) mentre il contenuto della pagina viene caricato.",
-          "`error.js` — Cattura errori runtime nella rotta e mostra un'interfaccia di fallback. Deve avere 'use client' in cima.",
-          "`not-found.js` — Interfaccia personalizzata per le pagine 404. Si attiva con la funzione notFound() o per URL non corrispondenti.",
+          "`loading.js` — Mostra automaticamente un'interfaccia di caricamento mentre il contenuto della pagina viene preparato.",
+          "`error.js` — Cattura gli errori che avvengono durante il rendering della rotta e mostra un'interfaccia di riserva (fallback). Deve avere `\"use client\"` in cima (vedremo cosa significa nella prossima lezione).",
+          "`not-found.js` — Interfaccia personalizzata per le pagine 404. Si attiva chiamando la funzione `notFound()` oppure quando l'URL non corrisponde a nessuna rotta.",
         ],
       },
       {
         type: "subheading",
-        content: "Route Group: Le Parentesi Tonde (app)",
+        content: "Route group: le parentesi tonde",
       },
       {
         type: "text",
         content:
-          "Una cartella con nome tra parentesi, come `(app)`, crea un Route Group: organizza i file senza aggiungere segmenti all'URL. La cartella `(app)` in un progetto Next.js raggruppa le pagine della dashboard senza che '(app)' appaia nell'URL.",
+          "Una cartella con il nome tra parentesi tonde, come `(negozio)`, crea un *route group*: serve a organizzare i file (e, se vuoi, a dare a quelle pagine un layout comune) senza aggiungere segmenti all'URL. Ad esempio `app/(negozio)/carrello/page.js` risponde all'URL `/carrello`, non a `/(negozio)/carrello`.",
+      },
+      {
+        type: "code",
+        language: "javascript",
+        title: "Route group con un layout dedicato",
+        code: `// app/
+// ├── page.js                  →  /
+// ├── (negozio)/
+// │   ├── layout.js            →  layout con barra del carrello, solo per queste pagine
+// │   ├── prodotti/page.js     →  /prodotti
+// │   └── carrello/page.js     →  /carrello
+// └── (account)/
+//     ├── layout.js            →  layout con menu del profilo
+//     └── profilo/page.js      →  /profilo`,
       },
       {
         type: "tip",
         content:
-          "Questo esempio usa Next.js 16 con App Router. La struttura e: / (Home) e /[site]/[analysisType]/[page] (Dashboard). Il route group (app) raggruppa le pagine della dashboard senza alterare l'URL.",
+          "Usa i route group per separare aree dell'applicazione che hanno bisogno di layout diversi (es. area pubblica e area riservata), mantenendo URL brevi e puliti.",
       },
     ],
     exercises: [
@@ -111,54 +133,50 @@ export default function RootLayout({ children }) {
         type: "multiple-choice",
         title: "Ruolo di page.js",
         description:
-          "Quale file rende una cartella navigabile come rotta in Next.js App Router?",
+          "Quale file rende una cartella navigabile come rotta nell'App Router di Next.js?",
         difficulty: "facile",
-        options: [
-          "layout.js",
-          "page.js",
-          "route.js",
-          "index.js",
-        ],
+        options: ["layout.js", "page.js", "route.js", "index.js"],
         correct: 1,
         explanation:
-          "Solo page.js rende una rotta pubblicamente accessibile. layout.js definisce un wrapper condiviso, route.js gestisce le API Routes, e index.js era usato nel vecchio Pages Router.",
+          "Solo page.js rende una rotta pubblicamente accessibile. layout.js definisce un wrapper condiviso, route.js serve a creare endpoint API (non pagine) e index.js era usato nel vecchio Pages Router.",
       },
       {
         type: "multiple-choice",
-        title: "Route Group",
+        title: "Route group",
         description:
-          "Cosa succede quando crei una cartella chiamata `(dashboard)` dentro `app/`?",
+          "Cosa succede quando crei una cartella chiamata `(account)` dentro `app/`?",
         difficulty: "medio",
         options: [
-          "Aggiunge '/dashboard' all'URL",
+          "Aggiunge '/account' all'URL",
           "Crea un gruppo organizzativo senza influenzare l'URL",
-          "Genera un errore perche le parentesi non sono valide",
-          "Crea una rotta dinamica con parametro 'dashboard'",
+          "Genera un errore perché le parentesi non sono valide",
+          "Crea una rotta dinamica con parametro 'account'",
         ],
         correct: 1,
         explanation:
-          "Le parentesi tonde creano un Route Group: organizzano i file in cartelle logiche senza aggiungere segmenti all'URL. In un progetto Next.js reale, (app) raggruppa le pagine della dashboard.",
+          "Le parentesi tonde creano un route group: organizzano i file in cartelle logiche (eventualmente con un layout comune) senza aggiungere segmenti all'URL. app/(account)/profilo/page.js risponde a /profilo.",
       },
       {
         type: "code",
-        title: "Crea un Layout con Sidebar",
+        title: "Crea un layout con sidebar",
         description:
-          "Scrivi un layout.js che wrappa i children in un Box con display flex: una sidebar a sinistra (larghezza fissa 240px) e il contenuto principale a destra (flex: 1).",
+          "Completa il layout `app/(account)/layout.js`: deve restituire un `Box` con `display: \"flex\"` che contiene due `Box`:\n- una sidebar a sinistra con larghezza fissa `width: 240`;\n- il contenuto principale a destra con `flex: 1`, che mostra `{children}`.",
         difficulty: "medio",
-        starterCode: `// app/(dashboard)/layout.js
+        mode: "static",
+        starterCode: `// app/(account)/layout.js
 import { Box } from "@mui/material";
 
-export default function DashboardLayout({ children }) {
+export default function AccountLayout({ children }) {
   // Completa il layout con sidebar + contenuto principale
 }`,
-        solution: `// app/(dashboard)/layout.js
+        solution: `// app/(account)/layout.js
 import { Box } from "@mui/material";
 
-export default function DashboardLayout({ children }) {
+export default function AccountLayout({ children }) {
   return (
     <Box sx={{ display: "flex", height: "100vh" }}>
       <Box sx={{ width: 240, bgcolor: "#f5f5f5", borderRight: "1px solid #e0e0e0" }}>
-        Sidebar
+        Menu del profilo
       </Box>
       <Box sx={{ flex: 1, overflow: "auto" }}>
         {children}
@@ -166,10 +184,15 @@ export default function DashboardLayout({ children }) {
     </Box>
   );
 }`,
-        validate: `(code) => {
-  return code.includes("display") && code.includes("flex") && code.includes("children") && code.includes("240");
-}`,
-        testCode: "",
+        validate: `const c = $codeNoComments;
+if (!/return\\s*\\(?\\s*<Box/.test(c)) return "Il layout deve restituire (return) un <Box> esterno";
+if (!/display\\s*:\\s*["']flex["']/.test(c)) return "Il Box esterno deve avere sx={{ display: \\"flex\\" }}";
+if (!/width\\s*:\\s*["']?240(px)?["']?/.test(c)) return "La sidebar deve avere una larghezza fissa: width: 240";
+if (!/flex\\s*:\\s*["']?1["']?\\s*[,}]/.test(c)) return "Il contenuto principale deve occupare lo spazio rimanente con flex: 1";
+if (!/\\{\\s*children\\s*\\}/.test(c)) return "Mostra le pagine figlie inserendo {children} nel Box del contenuto";
+const boxes = c.match(/<Box\\b/g) || [];
+if (boxes.length < 3) return "Servono tre Box: quello esterno, la sidebar e il contenuto principale";
+return true;`,
       },
     ],
   },
@@ -179,171 +202,161 @@ export default function DashboardLayout({ children }) {
       {
         type: "text",
         content:
-          "Next.js con l'App Router introduce una distinzione fondamentale: Server Components e Client Components. Capire quando usare l'uno o l'altro e essenziale per scrivere applicazioni performanti e corrette.",
+          "Next.js con l'App Router introduce una distinzione fondamentale: Server Components e Client Components. Capire quando usare l'uno o l'altro è essenziale per scrivere applicazioni performanti e corrette.",
       },
       {
         type: "heading",
-        content: "Server Components: Il Default",
+        content: "Server Components: il default",
       },
       {
         type: "text",
         content:
-          "In Next.js App Router, tutti i componenti sono Server Components per default. Vengono eseguiti solo sul server: il browser riceve HTML gia renderizzato. Questo significa bundle più piccoli (il codice del componente non viene inviato al client) e la possibilita di accedere direttamente a database, filesystem e API interne.",
+          "Nell'App Router tutti i componenti sono Server Components per default. Vengono eseguiti solo sul server: il browser riceve HTML già renderizzato. Questo significa bundle più piccoli (il codice del componente non viene inviato al browser) e la possibilità di leggere dati direttamente da database, file e API interne. Un Server Component può anche essere una funzione `async` e usare `await` per caricare i dati prima di renderizzare.",
       },
       {
         type: "warning",
         content:
-          "Nei Server Components NON puoi usare: useState, useEffect, useRef e qualsiasi hook React; event handler (onClick, onChange, ecc.); API del browser (window, document, localStorage); Context API (useContext).",
+          "Nei Server Components NON puoi usare: useState, useEffect, useRef e gli altri hook React; event handler (onClick, onChange, ecc.); API del browser (window, document, localStorage); Context (useContext) e quindi nemmeno gli hook di Redux (useSelector, useDispatch).",
       },
       {
         type: "code",
         language: "javascript",
-        title: "Esempio di Server Component (layout.js del progetto)",
-        code: `// app/layout.js - Server Component (nessuna direttiva "use client")
-// Puo' usare: metadata, import di font, accesso a dati server-side
-import localFont from "next/font/local";
-import { Box } from "@mui/material";
-import ProviderWrapper from "./context/Provider";
+        title: "Esempio di Server Component",
+        code: `// app/blog/page.js - Server Component (nessuna direttiva "use client")
+import { Box, Typography } from "@mui/material";
+import { getArticoli } from "../../lib/articoli"; // legge gli articoli dal database
 
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-  weight: "100 900",
-});
-
-// metadata e disponibile SOLO nei Server Components
+// metadata è disponibile SOLO nei Server Components
 export const metadata = {
-  title: "Dashboard App",
-  description: "La mia applicazione web",
+  title: "Blog",
+  description: "Tutti gli articoli",
 };
 
-export default function RootLayout({ children }) {
+export default async function BlogPage() {
+  // Il codice gira sul server: possiamo attendere i dati prima del rendering
+  const articoli = await getArticoli();
+
   return (
-    <html lang="en" style={{ height: "100%" }}>
-      <body className={geistSans.variable} style={{ margin: 0, height: "100%" }}>
-        <ProviderWrapper>
-          <Box sx={{ height: "100%" }}>{children}</Box>
-        </ProviderWrapper>
-      </body>
-    </html>
+    <Box sx={{ p: 4 }}>
+      <Typography variant="h4">Articoli</Typography>
+      {articoli.map((articolo) => (
+        <Typography key={articolo.id}>{articolo.titolo}</Typography>
+      ))}
+    </Box>
   );
 }`,
       },
       {
         type: "heading",
-        content: 'Client Components: La Direttiva "use client"',
+        content: 'Client Components: la direttiva "use client"',
       },
       {
         type: "text",
         content:
-          'Per usare hook, stato, event handler o API del browser, devi aggiungere "use client" come prima riga del file. Questo trasforma il componente in un Client Component: viene eseguito (anche) nel browser e puo gestire interattivita.',
+          'Per usare hook, stato, event handler o API del browser devi scrivere `"use client"` come prima riga del file. Questo trasforma il componente in un Client Component: viene eseguito (anche) nel browser e può gestire l\'interattività. Anche i componenti che usano Redux (`useSelector`, `useDispatch`) devono essere Client Components.',
       },
       {
         type: "code",
         language: "javascript",
-        title: "Client Component con hooks e interattivita",
+        title: "Client Component con hook e interattività",
         code: `"use client";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { Box, Button, Typography } from "@mui/material";
+import { aggiungiAlCarrello } from "../store/carrelloSlice";
 
-export default function Home() {
-  const router = useRouter();
-  const selectedSite = useSelector(state => state.navigation.selectedSite);
-
-  const handleContinue = () => {
-    router.push("/" + selectedSite + "/analysis/overview");
-  };
+export default function BottoneCarrello({ prodotto }) {
+  const dispatch = useDispatch();
+  const numeroArticoli = useSelector((state) => state.carrello.prodotti.length);
 
   return (
-    <Box sx={{ p: 4 }}>
-      <Typography variant="h4">Sito selezionato: {selectedSite}</Typography>
-      <Button variant="contained" onClick={handleContinue}>
-        Continua
+    <Box sx={{ p: 2 }}>
+      <Typography>Articoli nel carrello: {numeroArticoli}</Typography>
+      <Button variant="contained" onClick={() => dispatch(aggiungiAlCarrello(prodotto))}>
+        Aggiungi al carrello
       </Button>
     </Box>
   );
 }`,
       },
       {
+        type: "text",
+        content:
+          "Un Server Component può importare e renderizzare un Client Component: è il modo tipico di lavorare. La pagina (server) carica i dati e li passa come props ai piccoli componenti interattivi (client), come il bottone qui sopra.",
+      },
+      {
         type: "subheading",
-        content: "Quando Usare Server vs Client",
+        content: "Quando usare Server o Client",
       },
       {
         type: "list",
         items: [
-          "Server Component: layout statici, pagine senza interattivita, componenti che mostrano dati senza stato, accesso a database/API.",
-          "Client Component: form, bottoni, filtri, qualsiasi componente con useState/useEffect, grafici interattivi, Redux, router programmatico.",
+          "Server Component: layout, pagine senza interattività, componenti che mostrano dati senza stato, accesso a database o API.",
+          "Client Component: form, bottoni, filtri, qualsiasi componente con useState/useEffect, grafici interattivi, componenti collegati a Redux, navigazione da codice.",
         ],
       },
       {
         type: "subheading",
-        content: "use() di React 19: Unwrapping delle Promise",
+        content: "use() di React 19: leggere una Promise",
       },
       {
         type: "text",
         content:
-          "React 19 introduce l'hook `use()` che permette di 'scartare' (unwrap) Promise e Context direttamente nel componente. In Next.js, i parametri delle route dinamiche vengono ora passati come Promise, e `use(params)` li risolve.",
+          "Nelle versioni recenti di Next.js (15 e successive) le pagine ricevono i parametri dell'URL nella prop `params`, che però è una **Promise**. In un Server Component `async` basta scrivere `await params`. In un Client Component non si può usare `await` nel corpo del componente: React 19 offre l'hook `use()`, che \"scarta\" (unwrap) la Promise e restituisce il valore risolto.",
       },
       {
         type: "code",
         language: "javascript",
         title: "use() per i parametri di rotta",
         code: `"use client";
-import { use, useEffect } from "react";
-import { useDispatch } from "react-redux";
-import { Box } from "@mui/material";
+import { use } from "react";
+import { Box, Typography } from "@mui/material";
 
-// In Next.js 15+ con React 19, params e una Promise
-export default function DashboardPage({ params }) {
-  const filteredParams = use(params);
-  const [site, analysisType, currentPage] = filteredParams.params || [];
-
-  const dispatch = useDispatch();
-
-  useEffect(() => {
-    dispatch(setSelectedSite(site));
-    dispatch(setSelectedAnalysisType(analysisType));
-    dispatch(setSelectedPage(currentPage));
-  }, [site, analysisType, currentPage, dispatch]);
+// app/blog/[slug]/page.js  -  params è una Promise
+export default function ArticoloPage({ params }) {
+  const { slug } = use(params);
 
   return (
-    <Box sx={{ display: "flex", height: "100%" }}>
-      {/* ... contenuto dashboard ... */}
+    <Box sx={{ p: 4 }}>
+      <Typography variant="h4">Articolo: {slug}</Typography>
     </Box>
   );
-}`,
+}
+
+// Equivalente come Server Component:
+// export default async function ArticoloPage({ params }) {
+//   const { slug } = await params;
+//   ...
+// }`,
       },
       {
         type: "tip",
         content:
-          "Nel progetto, layout.js e un Server Component (nessun hook), mentre tutti i componenti interattivi hanno 'use client' in cima. Le pagine della dashboard usano use(params) di React 19 per leggere i parametri dall'URL.",
+          'Mantieni Server Components il più possibile (layout e pagine) e aggiungi "use client" solo ai componenti che hanno davvero bisogno di interattività: meno JavaScript viene inviato al browser, più la pagina è veloce.',
       },
     ],
     exercises: [
       {
         type: "multiple-choice",
         title: "Server vs Client Component",
-        description:
-          'Quale di queste operazioni richiede obbligatoriamente "use client"?',
+        description: 'Quale di queste operazioni richiede obbligatoriamente "use client"?',
         difficulty: "facile",
         options: [
           "Esportare metadata",
           "Usare useState per gestire un filtro",
-          "Importare un font locale",
+          "Caricare dati con await in una pagina",
           "Renderizzare HTML statico",
         ],
         correct: 1,
         explanation:
-          'useState e un hook React che funziona solo nel browser. Qualsiasi componente che usa hook, event handler o API del browser deve avere "use client" in cima al file.',
+          'useState è un hook React che funziona solo nel browser. Qualsiasi componente che usa hook, event handler o API del browser deve avere "use client" in cima al file. Esportare metadata e usare await per caricare dati sono invece tipici dei Server Components.',
       },
       {
         type: "code",
         title: "Converti in Client Component",
         description:
-          'Questo componente usa useState ma manca la direttiva "use client". Aggiungila e correggi il componente per renderlo funzionante.',
+          'Questo componente usa useState e onClick, ma manca la direttiva "use client". Aggiungila nel punto giusto per renderlo funzionante.',
         difficulty: "facile",
+        mode: "static",
         starterCode: `import { useState } from "react";
 import { Box, Button, Typography } from "@mui/material";
 
@@ -376,27 +389,27 @@ export default function Counter() {
     </Box>
   );
 }`,
-        validate: `(code) => {
-  const trimmed = code.trim();
-  return trimmed.startsWith('"use client"') || trimmed.startsWith("'use client'");
-}`,
-        testCode: "",
+        validate: `const c = $codeNoComments.trim();
+if (!/["']use client["']/.test(c)) return 'Aggiungi la direttiva "use client"';
+if (!/^["']use client["']\\s*;?/.test(c)) return '"use client" deve essere la PRIMA riga del file, prima degli import';
+if (!/useState\\(\\s*0\\s*\\)/.test(c) || !/onClick/.test(c)) return "Non rimuovere il resto del componente: aggiungi solo la direttiva";
+return true;`,
       },
       {
         type: "multiple-choice",
         title: "use() in React 19",
         description:
-          "Perche in un'applicazione Next.js reale si usa `use(params)` nella pagina dashboard?",
+          "Perché in un Client Component di Next.js si scrive `const { slug } = use(params)`?",
         difficulty: "medio",
         options: [
-          "Perche use() e più veloce di useEffect per leggere i parametri",
-          "Perche in Next.js 15+ i params delle route dinamiche sono Promise e use() le risolve",
-          "Perche use() sostituisce completamente useEffect",
-          "Perche i Server Components richiedono use() per qualsiasi prop",
+          "Perché use() è più veloce di useEffect per leggere i parametri",
+          "Perché nelle versioni recenti di Next.js params è una Promise e use() ne restituisce il valore risolto",
+          "Perché use() sostituisce completamente useEffect",
+          "Perché i Server Components richiedono use() per qualsiasi prop",
         ],
         correct: 1,
         explanation:
-          "A partire da Next.js 15 con React 19, i parametri delle route dinamiche (params) vengono passati come Promise. L'hook use() di React 19 permette di scartare questa Promise direttamente nel componente.",
+          "Da Next.js 15, i parametri delle route dinamiche (params) vengono passati come Promise. In un Server Component async si usa await params; in un Client Component, dove await non è disponibile nel corpo del componente, si usa l'hook use() di React 19.",
       },
     ],
   },
@@ -406,89 +419,104 @@ export default function Counter() {
       {
         type: "text",
         content:
-          "Le route dinamiche permettono di creare pagine il cui URL contiene segmenti variabili. Invece di creare una cartella per ogni possibile valore, si usa una sintassi speciale con le parentesi quadre.",
+          "Le route dinamiche permettono di creare pagine il cui URL contiene segmenti variabili. Invece di creare una cartella per ogni possibile valore (un articolo, un prodotto, un utente...), si usa una sintassi speciale con le parentesi quadre.",
       },
       {
         type: "heading",
-        content: "Segmenti Dinamici: [param]",
+        content: "Segmenti dinamici: [param]",
       },
       {
         type: "text",
         content:
-          "Una cartella con il nome tra parentesi quadre, come `[id]` o `[site]`, definisce un segmento dinamico. Il valore dell'URL viene passato come prop `params` al componente page.js. Ad esempio, `app/products/[id]/page.js` gestisce URL come `/products/123`, `/products/abc`, ecc.",
+          "Una cartella con il nome tra parentesi quadre, come `[id]` o `[slug]`, definisce un segmento dinamico. Il valore presente nell'URL viene passato al componente di `page.js` dentro la prop `params`. Ad esempio, `app/blog/[slug]/page.js` gestisce URL come `/blog/ciao-mondo`, `/blog/guida-a-react`, ecc.",
       },
       {
         type: "code",
         language: "javascript",
         title: "Segmento dinamico semplice",
-        code: `// app/products/[id]/page.js
-// URL: /products/42  →  params = { id: "42" }
+        code: `// app/blog/[slug]/page.js
+// URL: /blog/ciao-mondo  →  params = { slug: "ciao-mondo" }
 
-"use client";
-import { use } from "react";
+export default async function ArticoloPage({ params }) {
+  const { slug } = await params;
 
-export default function ProductPage({ params }) {
-  const { id } = use(params);
-
-  return <h1>Prodotto numero: {id}</h1>;
+  return <h1>Stai leggendo: {slug}</h1>;
 }`,
       },
       {
         type: "subheading",
-        content: "Catch-All Routes: [...params]",
+        content: "Più segmenti dinamici",
       },
       {
         type: "text",
         content:
-          "La sintassi `[...params]` crea una rotta catch-all che cattura tutti i segmenti rimanenti dell'URL come array. Questo e un pattern comune per gestire URL come `/LK1/Analysis/Overview` con un'unica page.js.",
+          "Puoi annidare più cartelle dinamiche: ogni segmento diventa una proprietà di `params`. Per un negozio online, `app/prodotti/[categoria]/[id]/page.js` risponde a URL come `/prodotti/libri/42`.",
       },
       {
         type: "code",
         language: "javascript",
-        title: "Catch-all route in un progetto Next.js",
-        code: `// app/(app)/[...params]/page.js
-// URL: /LK1/CQA/Overview
-// params.params = ["LK1", "CQA", "Overview"]
+        title: "Due segmenti dinamici annidati",
+        code: `// app/prodotti/[categoria]/[id]/page.js
+// URL: /prodotti/libri/42  →  params = { categoria: "libri", id: "42" }
+import { notFound } from "next/navigation";
+import { Box, Typography } from "@mui/material";
+import { getProdotto } from "../../../../lib/prodotti";
 
-"use client";
-import { use, useEffect } from "react";
-import { useDispatch } from "react-redux";
-import { Box } from "@mui/material";
-import SideBar from "../../components/sidebar/SideBar";
-import Header from "../../components/header/Header";
-import MainContent from "../../components/dashboard/MainContent";
+export default async function ProdottoPage({ params }) {
+  const { categoria, id } = await params;
+  const prodotto = await getProdotto(id);
 
-export default function DashboardPage({ params }) {
-  const filteredParams = use(params);
-  const [site, analysisType, currentPage] = filteredParams.params || [];
-
-  const dispatch = useDispatch();
-
-  useEffect(() => {
-    dispatch(setSelectedSite(site));
-    dispatch(setSelectedAnalysisType(analysisType));
-    dispatch(setSelectedPage(currentPage));
-  }, [site, analysisType, currentPage, dispatch]);
+  // Se il prodotto non esiste mostriamo la pagina 404 (not-found.js)
+  if (!prodotto) notFound();
 
   return (
-    <Box sx={{ display: "flex", height: "100%" }}>
-      <SideBar analysisType={analysisType} currentPage={currentPage} />
-      <Box sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
-        <Header analysisType={analysisType} />
-        <MainContent site={site} analysisType={analysisType} currentPage={currentPage} />
-      </Box>
+    <Box sx={{ p: 4 }}>
+      <Typography variant="overline">{categoria}</Typography>
+      <Typography variant="h4">{prodotto.nome}</Typography>
+      <Typography>{prodotto.prezzo} €</Typography>
     </Box>
   );
 }`,
       },
       {
         type: "subheading",
-        content: "Route Groups: Organizzazione senza URL",
+        content: "Catch-all routes: [...slug]",
       },
       {
         type: "text",
         content:
-          "Come visto nella lezione precedente, le cartelle tra parentesi tonde `(nome)` creano gruppi organizzativi. Nel progetto, `(app)` contiene le pagine della dashboard, separandole dalla Home che sta direttamente in `app/page.js`. L'URL risultante e `/LK1/CQA/Overview`, non `/(app)/LK1/CQA/Overview`.",
+          "La sintassi `[...slug]` (con tre puntini) crea una rotta *catch-all*: cattura tutti i segmenti rimanenti dell'URL e li passa come **array**. È utile quando il numero di livelli è variabile, ad esempio per una documentazione: `/docs/react`, `/docs/react/hooks`, `/docs/react/hooks/use-state` sono gestiti tutti da un'unica `page.js`.",
+      },
+      {
+        type: "code",
+        language: "javascript",
+        title: "Catch-all route per una documentazione",
+        code: `// app/docs/[...slug]/page.js
+// URL: /docs/react/hooks/use-state
+// params = { slug: ["react", "hooks", "use-state"] }
+import { Box, Stack, Typography } from "@mui/material";
+
+export default async function DocsPage({ params }) {
+  const { slug } = await params;
+  const [sezione, ...resto] = slug;
+
+  return (
+    <Box sx={{ p: 4 }}>
+      <Stack direction="row" spacing={1}>
+        {slug.map((parte) => (
+          <Typography key={parte}>{parte}</Typography>
+        ))}
+      </Stack>
+      <Typography variant="h4">Sezione: {sezione}</Typography>
+      <Typography>Livelli successivi: {resto.length}</Typography>
+    </Box>
+  );
+}`,
+      },
+      {
+        type: "text",
+        content:
+          "Le route dinamiche si combinano con i route group visti nella prima lezione: `app/(negozio)/prodotti/[categoria]/[id]/page.js` risponde ancora a `/prodotti/libri/42`, perché `(negozio)` non compare nell'URL.",
       },
       {
         type: "heading",
@@ -497,7 +525,7 @@ export default function DashboardPage({ params }) {
       {
         type: "text",
         content:
-          "Next.js offre due modi principali per navigare: il componente `<Link>` per la navigazione dichiarativa (HTML-like) e l'hook `useRouter()` per la navigazione programmatica (da codice JavaScript).",
+          "Next.js offre due modi principali per navigare: il componente `<Link>` (da `next/link`) per la navigazione dichiarativa, simile a un tag `<a>`, e l'hook `useRouter()` (da `next/navigation`) per la navigazione programmatica, cioè da codice JavaScript, ad esempio dopo il click su un bottone o l'invio di un form. `useRouter` è un hook, quindi si usa solo nei Client Components.",
       },
       {
         type: "code",
@@ -508,27 +536,26 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button, Stack, Typography } from "@mui/material";
 
-export default function Navigation() {
+export default function Navigazione() {
   const router = useRouter();
 
-  // Navigazione programmatica: utile dopo un'azione (es. submit form)
-  const handleNavigate = () => {
-    const site = "LK1";
-    const analysisType = "CQA";
-    const firstPage = "Overview";
-    router.push("/" + site + "/" + analysisType + "/" + firstPage);
+  // Navigazione programmatica: utile dopo un'azione (es. invio di un form)
+  const vaiAlProdotto = () => {
+    const categoria = "libri";
+    const id = 42;
+    router.push(\`/prodotti/\${categoria}/\${id}\`);
   };
 
   return (
     <Stack spacing={2}>
-      {/* Link dichiarativo: pre-fetching automatico */}
-      <Link href="/LK1/CQA/Overview">
-        <Typography>Vai alla Dashboard</Typography>
+      {/* Link dichiarativo: Next.js precarica la pagina in anticipo */}
+      <Link href="/prodotti/libri">
+        <Typography>Vai ai libri</Typography>
       </Link>
 
       {/* Navigazione programmatica */}
-      <Button variant="contained" onClick={handleNavigate}>
-        Continua
+      <Button variant="contained" onClick={vaiAlProdotto}>
+        Apri il prodotto 42
       </Button>
     </Stack>
   );
@@ -536,37 +563,37 @@ export default function Navigation() {
       },
       {
         type: "subheading",
-        content: "usePathname: Conoscere la Rotta Corrente",
+        content: "usePathname: conoscere la rotta corrente",
       },
       {
         type: "text",
         content:
-          "L'hook `usePathname()` restituisce il percorso corrente dell'URL. E utilissimo per evidenziare il link attivo nella navigazione, applicare stili condizionali o eseguire logica basata sulla pagina corrente.",
+          "L'hook `usePathname()` restituisce il percorso corrente dell'URL (es. `\"/profilo/ordini\"`). È utilissimo per evidenziare il link attivo nella navigazione, applicare stili condizionali o eseguire logica basata sulla pagina corrente.",
       },
       {
         type: "code",
         language: "javascript",
-        title: "usePathname per il link attivo nella sidebar",
+        title: "usePathname per il link attivo nel menu",
         code: `"use client";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { Box, Typography } from "@mui/material";
 
-const navItems = [
-  { label: "Overview", href: "/LK1/CQA/Overview" },
-  { label: "Dettaglio", href: "/LK1/CQA/Detail" },
-  { label: "Trend", href: "/LK1/CQA/Trend" },
+const voci = [
+  { label: "Profilo", href: "/profilo" },
+  { label: "Ordini", href: "/profilo/ordini" },
+  { label: "Impostazioni", href: "/profilo/impostazioni" },
 ];
 
-export default function SidebarNav() {
+export default function MenuProfilo() {
   const pathname = usePathname();
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-      {navItems.map((item) => {
-        const isActive = pathname === item.href;
+      {voci.map((voce) => {
+        const isActive = pathname === voce.href;
         return (
-          <Link key={item.href} href={item.href} style={{ textDecoration: "none" }}>
+          <Link key={voce.href} href={voce.href} style={{ textDecoration: "none" }}>
             <Typography
               sx={{
                 p: 1,
@@ -577,7 +604,7 @@ export default function SidebarNav() {
                 "&:hover": { bgcolor: isActive ? "primary.dark" : "grey.100" },
               }}
             >
-              {item.label}
+              {voce.label}
             </Typography>
           </Link>
         );
@@ -589,37 +616,37 @@ export default function SidebarNav() {
       {
         type: "tip",
         content:
-          "Nel progetto: /[...params]/page.js cattura site, analysisType e page come array. usePathname() e usato per evidenziare il link attivo nella navigazione laterale.",
+          "Preferisci `<Link>` per i normali collegamenti tra pagine (è accessibile e Next.js precarica la destinazione) e riserva `router.push()` ai casi in cui la navigazione dipende da un'azione o da una condizione nel codice.",
       },
     ],
     exercises: [
       {
         type: "multiple-choice",
-        title: "Catch-All vs Segmento Singolo",
-        description:
-          "Qual e la differenza tra `[id]` e `[...params]` nel routing di Next.js?",
+        title: "Catch-all vs segmento singolo",
+        description: "Qual è la differenza tra `[id]` e `[...slug]` nel routing di Next.js?",
         difficulty: "facile",
         options: [
           "Nessuna differenza, sono sinonimi",
-          "[id] cattura un singolo segmento, [...params] cattura tutti i segmenti rimanenti come array",
-          "[...params] e più veloce di [id]",
-          "[id] funziona solo con numeri, [...params] con qualsiasi stringa",
+          "[id] cattura un singolo segmento, [...slug] cattura tutti i segmenti rimanenti come array",
+          "[...slug] è più veloce di [id]",
+          "[id] funziona solo con numeri, [...slug] con qualsiasi stringa",
         ],
         correct: 1,
         explanation:
-          "[id] cattura esattamente un segmento dell'URL (es. /products/42 -> id = '42'). [...params] cattura uno o più segmenti come array (es. /LK1/CQA/Overview -> params = ['LK1', 'CQA', 'Overview']).",
+          "[id] cattura esattamente un segmento dell'URL (es. /prodotti/42 → id = '42'). [...slug] cattura uno o più segmenti come array (es. /docs/react/hooks → slug = ['react', 'hooks']).",
       },
       {
         type: "code",
         title: "Navigazione con useRouter",
         description:
-          "Scrivi una funzione handleNavigate che, dati `site`, `analysisType` e `page`, usa useRouter() per navigare alla rotta corretta. La rotta deve essere nel formato `/{site}/{analysisType}/{page}`.",
+          "Il componente `ApriProdotto` riceve le props `categoria` e `id`. Completa `handleNavigate` in modo che usi `router.push()` per andare alla rotta `/prodotti/{categoria}/{id}` (es. `/prodotti/libri/42`). Puoi costruire il percorso con un template literal o con la concatenazione.",
         difficulty: "medio",
+        mode: "static",
         starterCode: `"use client";
 import { useRouter } from "next/navigation";
 import { Button } from "@mui/material";
 
-export default function NavigateButton({ site, analysisType, page }) {
+export default function ApriProdotto({ categoria, id }) {
   const router = useRouter();
 
   const handleNavigate = () => {
@@ -628,7 +655,7 @@ export default function NavigateButton({ site, analysisType, page }) {
 
   return (
     <Button variant="contained" onClick={handleNavigate}>
-      Vai alla Dashboard
+      Vedi il prodotto
     </Button>
   );
 }`,
@@ -636,30 +663,40 @@ export default function NavigateButton({ site, analysisType, page }) {
 import { useRouter } from "next/navigation";
 import { Button } from "@mui/material";
 
-export default function NavigateButton({ site, analysisType, page }) {
+export default function ApriProdotto({ categoria, id }) {
   const router = useRouter();
 
   const handleNavigate = () => {
-    router.push("/" + site + "/" + analysisType + "/" + page);
+    router.push(\`/prodotti/\${categoria}/\${id}\`);
   };
 
   return (
     <Button variant="contained" onClick={handleNavigate}>
-      Vai alla Dashboard
+      Vedi il prodotto
     </Button>
   );
 }`,
-        validate: `(code) => {
-  return code.includes("router.push") && (code.includes("site") && code.includes("analysisType") && code.includes("page"));
-}`,
-        testCode: "",
+        validate: `const c = $codeNoComments;
+if (!/const\\s+router\\s*=\\s*useRouter\\(\\s*\\)/.test(c)) return "Ottieni il router con const router = useRouter()";
+const m = c.match(/router\\.push\\(([\\s\\S]*?)\\)\\s*;?\\s*\\n/);
+if (!m) return "Dentro handleNavigate chiama router.push(...) con il percorso";
+const arg = m[1].replace(/\\s+/g, "");
+const tpl = /^\`\\/prodotti\\/\\$\\{categoria\\}\\/\\$\\{id\\}\`$/.test(arg);
+const concat = /^["']\\/prodotti\\/["']\\+categoria\\+["']\\/["']\\+id$/.test(arg);
+if (!tpl && !concat) {
+  if (!/categoria/.test(arg) || !/id/.test(arg)) return "Il percorso deve usare entrambe le props: categoria e id";
+  return "Il percorso deve essere /prodotti/{categoria}/{id}, ad esempio \`/prodotti/\${categoria}/\${id}\`";
+}
+if (!/onClick=\\{\\s*handleNavigate\\s*\\}/.test(c)) return "Il Button deve chiamare handleNavigate al click (onClick={handleNavigate})";
+return true;`,
       },
       {
         type: "code",
-        title: "Link Attivo con usePathname",
+        title: "Link attivo con usePathname",
         description:
-          "Completa il componente NavLink che applica uno stile diverso quando il link e attivo (cioe quando il pathname corrente corrisponde all'href del link).",
+          "Completa il componente `NavLink`:\n- crea una costante `isActive` che vale `true` quando il `pathname` corrente è uguale all'`href` del link;\n- nell'`sx` del `Typography` usa `isActive` con l'operatore ternario per impostare `bgcolor` (`\"primary.main\"` se attivo, `\"transparent\"` altrimenti) e `color` (`\"white\"` se attivo, `\"text.primary\"` altrimenti).",
         difficulty: "difficile",
+        mode: "static",
         starterCode: `"use client";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
@@ -667,7 +704,7 @@ import { Typography } from "@mui/material";
 
 export default function NavLink({ href, label }) {
   const pathname = usePathname();
-  // Determina se il link e attivo
+  // Determina se il link è attivo
 
   return (
     <Link href={href} style={{ textDecoration: "none" }}>
@@ -708,10 +745,12 @@ export default function NavLink({ href, label }) {
     </Link>
   );
 }`,
-        validate: `(code) => {
-  return code.includes("usePathname") && code.includes("isActive") && code.includes("pathname");
-}`,
-        testCode: "",
+        validate: `const c = $codeNoComments;
+if (!/const\\s+pathname\\s*=\\s*usePathname\\(\\s*\\)/.test(c)) return "Mantieni const pathname = usePathname()";
+if (!/const\\s+isActive\\s*=\\s*(\\(?\\s*pathname\\s*===?\\s*href|\\(?\\s*href\\s*===?\\s*pathname)/.test(c)) return "Definisci const isActive = pathname === href";
+if (!/bgcolor\\s*:\\s*isActive\\s*\\?\\s*["']primary\\.main["']\\s*:\\s*["']transparent["']/.test(c)) return 'Imposta bgcolor: isActive ? "primary.main" : "transparent"';
+if (!/color\\s*:\\s*isActive\\s*\\?\\s*["']white["']\\s*:\\s*["']text\\.primary["']/.test(c)) return 'Imposta color: isActive ? "white" : "text.primary"';
+return true;`,
       },
     ],
   },

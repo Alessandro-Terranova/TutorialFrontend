@@ -14,50 +14,194 @@ import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import RestartAltIcon from "@mui/icons-material/RestartAlt";
+import RichText from "@/components/RichText";
+
+const RUN_TIMEOUT_MS = 5000;
+
+const LOG_COLORS = {
+  log: "#cdd6f4",
+  info: "#89b4fa",
+  warn: "#f9e2af",
+  error: "#f38ba8",
+};
+
+// Esegue il codice in un Web Worker isolato (public/sandbox-worker.js):
+// niente accesso alla pagina e un ciclo infinito viene interrotto dopo RUN_TIMEOUT_MS.
+function runInSandbox(payload) {
+  return new Promise((resolve) => {
+    let worker;
+    try {
+      worker = new Worker("/sandbox-worker.js");
+    } catch (err) {
+      resolve({ logs: [], error: `Impossibile avviare la sandbox: ${err.message}`, passed: false });
+      return;
+    }
+    const timer = setTimeout(() => {
+      worker.terminate();
+      resolve({
+        logs: [],
+        error: `Tempo scaduto: il codice ha impiegato più di ${RUN_TIMEOUT_MS / 1000} secondi. Hai forse scritto un ciclo infinito?`,
+        passed: false,
+      });
+    }, RUN_TIMEOUT_MS);
+    worker.onmessage = (event) => {
+      clearTimeout(timer);
+      worker.terminate();
+      resolve(event.data);
+    };
+    worker.onerror = (event) => {
+      clearTimeout(timer);
+      worker.terminate();
+      resolve({ logs: [], error: event.message || "Errore sconosciuto", passed: false });
+    };
+    worker.postMessage(payload);
+  });
+}
+
+function ConsoleOutput({ result }) {
+  const { logs = [], error } = result;
+  return (
+    <Box
+      sx={{
+        bgcolor: "#11111b",
+        color: "#cdd6f4",
+        borderRadius: 1,
+        p: 1.5,
+        mb: 1,
+        fontFamily: "'Fira Code', 'Consolas', monospace",
+        fontSize: 13,
+        maxHeight: 360,
+        overflow: "auto",
+      }}
+    >
+      <Typography variant="caption" sx={{ color: "#6c7086", display: "block", mb: 0.5 }}>
+        Console
+      </Typography>
+      {logs.length === 0 && !error && (
+        <Box component="span" sx={{ color: "#6c7086", fontStyle: "italic" }}>
+          Nessun output. Usa console.log(...) per stampare dei valori.
+        </Box>
+      )}
+      {logs.map((line, i) => (
+        <Box
+          key={i}
+          component="pre"
+          sx={{
+            m: 0,
+            py: 0.25,
+            whiteSpace: "pre-wrap",
+            wordBreak: "break-word",
+            color: LOG_COLORS[line.level] || LOG_COLORS.log,
+            borderBottom: i < logs.length - 1 ? "1px solid #1e1e2e" : "none",
+            fontFamily: "inherit",
+          }}
+        >
+          {line.text}
+        </Box>
+      ))}
+      {error && (
+        <Box
+          component="pre"
+          sx={{ m: 0, mt: logs.length ? 1 : 0, whiteSpace: "pre-wrap", color: LOG_COLORS.error, fontFamily: "inherit" }}
+        >
+          {error}
+        </Box>
+      )}
+    </Box>
+  );
+}
+
+// Anteprima live per gli esercizi CSS: il CSS dell'utente viene applicato
+// all'HTML dell'esercizio dentro un iframe isolato.
+function CssPreview({ css, html }) {
+  const doc = `<!doctype html><html><head><style>
+body { font-family: -apple-system, 'Segoe UI', Roboto, sans-serif; margin: 12px; color: #222; }
+</style><style>${css.replace(/<\/style/gi, "")}</style></head><body>${html}</body></html>`;
+  return (
+    <Box sx={{ mb: 1 }}>
+      <Typography variant="caption" color="text.secondary" sx={{ display: "block", mb: 0.5 }}>
+        Anteprima (si aggiorna mentre scrivi)
+      </Typography>
+      <Box
+        component="iframe"
+        title="Anteprima CSS"
+        sandbox=""
+        srcDoc={doc}
+        sx={{ width: "100%", height: 220, border: "1px solid #e0e0e0", borderRadius: 1, bgcolor: "#fff", resize: "both", maxWidth: "100%", minWidth: 240 }}
+      />
+    </Box>
+  );
+}
 
 function CodeExercise({ exercise }) {
-  const [code, setCode] = useState(exercise.starterCode || "");
-  const [output, setOutput] = useState("");
-  const [status, setStatus] = useState(null);
+  const initialCode = exercise.starterCode || "";
+  const [code, setCode] = useState(initialCode);
+  const [result, setResult] = useState(null);
+  const [running, setRunning] = useState(false);
   const [showSolution, setShowSolution] = useState(false);
+  // mode:
+  //  - "js" (default): il codice viene eseguito nella sandbox e si vede la console
+  //  - "css": il CSS viene applicato a `exercise.previewHtml` in un'anteprima live
+  //  - "static": codice React/JSX che non si può eseguire, si verifica solo il testo
+  const mode = exercise.mode || "js";
+  const isStatic = mode !== "js";
 
-  const runCode = () => {
-    try {
-      const logs = [];
-      const mockConsole = { log: (...args) => logs.push(args.map(String).join(" ")) };
-      const fn = new Function("console", code + "\n" + (exercise.testCode || ""));
-      const result = fn(mockConsole);
-      const logOutput = logs.join("\n");
+  const runCode = async () => {
+    setRunning(true);
+    const res = await runInSandbox({
+      code,
+      validate: exercise.validate || "",
+      mode,
+    });
+    setResult(res);
+    setRunning(false);
+  };
 
-      if (exercise.validate) {
-        const testFn = new Function("console", "userCode", exercise.validate);
-        const passed = testFn(mockConsole, code);
-        if (passed) {
-          setStatus("success");
-          setOutput(logOutput || "Corretto!");
-        } else {
-          setStatus("error");
-          setOutput(logOutput || "Non ancora corretto. Riprova!");
-        }
-      } else {
-        setStatus("info");
-        setOutput(logOutput || (result !== undefined ? String(result) : "Nessun output"));
-      }
-    } catch (err) {
-      setStatus("error");
-      setOutput(`Errore: ${err.message}`);
+  // Tab inserisce due spazi, Ctrl/Cmd+Invio esegue il codice
+  const handleKeyDown = (e) => {
+    if (e.key === "Tab" && !e.shiftKey) {
+      e.preventDefault();
+      const el = e.target;
+      const { selectionStart, selectionEnd } = el;
+      setCode(code.slice(0, selectionStart) + "  " + code.slice(selectionEnd));
+      requestAnimationFrame(() => {
+        el.selectionStart = el.selectionEnd = selectionStart + 2;
+      });
+    } else if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
+      e.preventDefault();
+      runCode();
     }
   };
 
+  let verdict = null;
+  if (result && exercise.validate) {
+    if (result.passed) {
+      verdict = { severity: "success", text: "Corretto! Ottimo lavoro." };
+    } else if (result.error && !isStatic) {
+      verdict = { severity: "error", text: "Il codice ha generato un errore: correggilo e riprova." };
+    } else {
+      verdict = { severity: "warning", text: result.message || "Non ancora corretto. Rileggi la consegna e riprova!" };
+    }
+  }
+
   return (
     <Box>
+      {mode === "static" && (
+        <Alert severity="info" sx={{ mb: 1 }}>
+          Questo codice usa React/JSX e non viene eseguito qui: il pulsante &quot;Verifica&quot; controlla che la
+          struttura del codice sia corretta.
+        </Alert>
+      )}
       <TextField
         multiline
         fullWidth
         minRows={4}
-        maxRows={20}
+        maxRows={24}
         value={code}
         onChange={(e) => setCode(e.target.value)}
+        onKeyDown={handleKeyDown}
+        slotProps={{ htmlInput: { spellCheck: false, autoCapitalize: "off", autoCorrect: "off" } }}
         sx={{
           mb: 1,
           "& .MuiInputBase-root": {
@@ -71,14 +215,20 @@ function CodeExercise({ exercise }) {
           },
         }}
       />
-      <Box sx={{ display: "flex", gap: 1, mb: 1 }}>
+      <Box sx={{ display: "flex", gap: 1, mb: 1, alignItems: "center", flexWrap: "wrap" }}>
+        <Button variant="contained" startIcon={<PlayArrowIcon />} onClick={runCode} size="small" disabled={running}>
+          {running ? "In esecuzione..." : isStatic ? "Verifica" : "Esegui"}
+        </Button>
         <Button
-          variant="contained"
-          startIcon={<PlayArrowIcon />}
-          onClick={runCode}
+          variant="text"
+          startIcon={<RestartAltIcon />}
+          onClick={() => {
+            setCode(initialCode);
+            setResult(null);
+          }}
           size="small"
         >
-          Esegui
+          Ripristina
         </Button>
         {exercise.solution && (
           <Button
@@ -90,10 +240,19 @@ function CodeExercise({ exercise }) {
             {showSolution ? "Nascondi" : "Soluzione"}
           </Button>
         )}
+        <Typography variant="caption" color="text.secondary" sx={{ ml: "auto" }}>
+          Ctrl+Invio per {isStatic ? "verificare" : "eseguire"}
+        </Typography>
       </Box>
-      {output && (
-        <Alert severity={status || "info"} sx={{ mb: 1, fontFamily: "monospace", fontSize: 13 }}>
-          <pre style={{ margin: 0, whiteSpace: "pre-wrap" }}>{output}</pre>
+      {mode === "css" && exercise.previewHtml && <CssPreview css={code} html={exercise.previewHtml} />}
+      {result && !isStatic && <ConsoleOutput result={result} />}
+      {verdict && (
+        <Alert
+          severity={verdict.severity}
+          icon={verdict.severity === "success" ? <CheckCircleIcon /> : undefined}
+          sx={{ mb: 1, whiteSpace: "pre-line" }}
+        >
+          <RichText text={verdict.text} />
         </Alert>
       )}
       {showSolution && exercise.solution && (
@@ -146,12 +305,9 @@ function MultipleChoice({ exercise }) {
             control={<Radio size="small" />}
             label={
               <Typography
-                sx={{
-                  fontFamily: option.startsWith("`") ? "monospace" : "inherit",
-                  fontSize: 14,
-                }}
+                sx={{ fontSize: 14 }}
               >
-                {option.replace(/`/g, "")}
+                <RichText text={option} />
               </Typography>
             }
             sx={{
@@ -184,7 +340,7 @@ function MultipleChoice({ exercise }) {
         <Alert severity={isCorrect ? "success" : "error"} sx={{ mt: 1 }}>
           {isCorrect
             ? "Corretto!"
-            : exercise.explanation || "Non corretto. Riprova!"}
+            : <RichText text={exercise.explanation || "Non corretto. Riprova!"} />}
         </Alert>
       )}
     </Box>
@@ -229,7 +385,7 @@ export default function Exercise({ exercise, index }) {
         {exercise.title}
       </Typography>
       <Typography variant="body2" color="text.secondary" sx={{ mb: 2, whiteSpace: "pre-line" }}>
-        {exercise.description}
+        <RichText text={exercise.description} />
       </Typography>
 
       {exercise.type === "code" && <CodeExercise exercise={exercise} />}

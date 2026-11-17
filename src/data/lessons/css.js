@@ -4,13 +4,74 @@ export const lessons = {
       {
         type: "text",
         content:
-          "CSS (Cascading Style Sheets) e il linguaggio che definisce l'aspetto visivo delle pagine web. Se l'HTML e lo scheletro della pagina, il CSS e la pelle, i vestiti e il trucco. Ogni regola CSS e composta da un selettore (che indica quali elementi modificare) e un blocco di dichiarazioni (che specifica come modificarli).",
+          "Una pagina web nasce da due linguaggi che lavorano insieme: l'**HTML**, che descrive il *contenuto* e la sua struttura (titoli, paragrafi, immagini, link...), e il **CSS** (Cascading Style Sheets), che ne definisce l'*aspetto* (colori, dimensioni, spaziature, disposizione). Se l'HTML è lo scheletro della pagina, il CSS è la pelle e i vestiti.",
+      },
+      {
+        type: "heading",
+        content: "Come HTML e CSS si collegano",
+      },
+      {
+        type: "text",
+        content:
+          "L'HTML è fatto di **tag**: parole racchiuse tra parentesi angolari, come `<h1>` (titolo), `<p>` (paragrafo), `<a>` (link), `<img>` (immagine), `<ul>`/`<li>` (elenco e suoi elementi), `<div>` (contenitore generico) e `<span>` (porzione di testo). Quasi tutti i tag hanno un'apertura e una chiusura (`<p>...</p>`): l'insieme di tag e contenuto si chiama **elemento**. Gli elementi possono stare uno dentro l'altro (annidati), formando un albero: un elemento che ne contiene un altro è il suo *genitore*, quello contenuto è il *figlio*.",
+      },
+      {
+        type: "text",
+        content:
+          "Dentro il tag di apertura si possono aggiungere degli **attributi**. Per il CSS i due più importanti sono `class` (un nome che si può dare a più elementi, anche più nomi separati da spazio) e `id` (un nome unico nella pagina). Servono a dire al CSS *quali* elementi stilizzare.",
+      },
+      {
+        type: "code",
+        language: "html",
+        title: "Una piccola pagina HTML",
+        code: `<!DOCTYPE html>
+<html>
+  <head>
+    <title>Il mio negozio</title>
+    <!-- Modo 1 (il più usato): collegare un file CSS esterno -->
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Modo 2: scrivere il CSS direttamente nella pagina -->
+    <style>
+      h1 { color: #1976d2; }
+    </style>
+  </head>
+  <body>
+    <h1 id="titolo">Prodotti in offerta</h1>
+
+    <div class="card">
+      <h2>Cuffie wireless</h2>
+      <p class="price">49,90 €</p>
+      <a href="/carrello">Aggiungi al carrello</a>
+    </div>
+
+    <!-- Modo 3: attributo style sul singolo elemento (da evitare) -->
+    <p style="color: gray;">Spedizione gratuita sopra i 30 €</p>
+  </body>
+</html>`,
+      },
+      {
+        type: "list",
+        items: [
+          "`<link rel=\"stylesheet\" href=\"style.css\">` nel `<head>` collega un file CSS esterno: è il modo consigliato, perché lo stesso file può servire tutte le pagine del sito",
+          "`<style>...</style>` contiene CSS valido solo per quella pagina",
+          "L'attributo `style=\"...\"` applica stili a un solo elemento: comodo per una prova veloce, ma difficile da mantenere",
+        ],
+      },
+      {
+        type: "heading",
+        content: "Anatomia di una regola CSS",
+      },
+      {
+        type: "text",
+        content:
+          "Ogni regola CSS è composta da un **selettore** (che indica quali elementi modificare) e da un blocco di **dichiarazioni** tra parentesi graffe. Ogni dichiarazione è una coppia `proprietà: valore;` terminata dal punto e virgola. I commenti si scrivono tra `/*` e `*/`.",
       },
       {
         type: "code",
         language: "css",
         title: "Anatomia di una regola CSS",
-        code: `/* selettore { proprieta: valore; } */
+        code: `/* selettore { proprietà: valore; } */
 h1 {
   color: #1976d2;
   font-size: 2rem;
@@ -24,7 +85,7 @@ h1 {
       {
         type: "text",
         content:
-          "I selettori sono il meccanismo con cui CSS identifica gli elementi HTML da stilizzare. Esistono diversi tipi di selettori, ognuno con un livello di specificita diverso.",
+          "I selettori sono il meccanismo con cui il CSS identifica gli elementi HTML da stilizzare. Esistono diversi tipi di selettori, ognuno con un livello di *specificità* (priorità) diverso.",
       },
       {
         type: "subheading",
@@ -39,23 +100,32 @@ p {
   line-height: 1.6;
 }
 
-/* Selettore di classe: seleziona elementi con class="card" */
+/* Selettore di classe (punto): seleziona gli elementi con class="card" */
 .card {
   background: #ffffff;
   border-radius: 8px;
   padding: 16px;
 }
 
-/* Selettore di ID: seleziona l'elemento con id="header" */
-#header {
-  position: sticky;
-  top: 0;
+/* Selettore di ID (cancelletto): seleziona l'elemento con id="titolo" */
+#titolo {
+  text-align: center;
+}
+
+/* Più selettori separati da virgola condividono le stesse dichiarazioni */
+h1, h2, h3 {
+  font-family: Georgia, serif;
+}
+
+/* Pseudo-classe :hover: si applica quando il mouse è sopra l'elemento */
+a:hover {
+  text-decoration: underline;
 }`,
       },
       {
         type: "warning",
         content:
-          "L'ID deve essere unico nella pagina. Nella pratica moderna si preferiscono le classi perche sono riutilizzabili. Nei progetti React con MUI, lo styling avviene quasi sempre tramite la prop sx o styled-components, ma capire i selettori CSS resta fondamentale.",
+          "L'ID deve essere unico nella pagina. Nella pratica moderna si preferiscono le classi perché sono riutilizzabili: la stessa classe `.card` può essere usata da tutte le schede di prodotto.",
       },
       {
         type: "subheading",
@@ -64,13 +134,13 @@ p {
       {
         type: "text",
         content:
-          "I combinatori permettono di selezionare elementi in base alla loro posizione nell'albero HTML. Sono molto utili per stilizzare componenti annidati senza aggiungere classi extra.",
+          "I combinatori permettono di selezionare elementi in base alla loro posizione nell'albero HTML. Sono molto utili per stilizzare elementi annidati senza aggiungere classi extra.",
       },
       {
         type: "code",
         language: "css",
         title: "Combinatori: discendente, figlio, fratello",
-        code: `/* Discendente (spazio): qualsiasi <span> dentro .sidebar */
+        code: `/* Discendente (spazio): qualsiasi <span> dentro .sidebar, a qualsiasi profondità */
 .sidebar span {
   font-size: 14px;
 }
@@ -86,7 +156,7 @@ h2 + p {
   color: #666;
 }
 
-/* Fratello generale (~): tutti i <p> dopo un <h2> */
+/* Fratello generale (~): tutti i <p> che seguono un <h2> */
 h2 ~ p {
   line-height: 1.8;
 }`,
@@ -94,31 +164,53 @@ h2 ~ p {
       {
         type: "tip",
         content:
-          "Nelle applicazioni React reali, la sidebar usa spesso combinatori discendenti nella prop sx di MUI per stilizzare elementi interni: sx={{ '& .MuiListItemText-root': { fontSize: 14 } }}. Il simbolo '&' in sx rappresenta l'elemento corrente, come in SASS.",
+          "Non annidare troppo i selettori (es. `.page .main .list .item span`): diventano fragili, perché basta cambiare la struttura dell'HTML per romperli. Spesso è meglio dare una classe all'elemento da stilizzare.",
       },
       {
-        type: "heading",
-        content: "Proprieta CSS essenziali",
+        type: "subheading",
+        content: "Cascata, specificità ed ereditarietà",
       },
       {
         type: "text",
         content:
-          "Le proprieta CSS piu utilizzate si dividono in categorie: testo, colori, spaziatura e bordi. Vediamole con esempi pratici.",
+          "Cosa succede se due regole impostano la stessa proprietà sullo stesso elemento? Vince quella con **specificità** più alta: un ID batte una classe, che a sua volta batte un selettore di elemento. A parità di specificità vince la regola scritta **per ultima** (è la \"cascata\" che dà il nome al CSS). Inoltre alcune proprietà, come `color` e `font-family`, vengono **ereditate**: se le imposti su un genitore, valgono anche per i suoi figli.",
       },
       {
         type: "code",
         language: "css",
-        title: "Proprieta di testo e colore",
-        code: `/* Colori e testo */
-.title {
+        title: "Chi vince?",
+        code: `p { color: black; }        /* specificità bassa (elemento) */
+.price { color: green; }   /* vince sul selettore p (classe) */
+#offerta { color: red; }   /* vince su tutto (ID) */
+
+.price { color: orange; }  /* stessa specificità della .price sopra,
+                              ma scritta dopo: vince questa */
+
+/* Ereditarietà: tutto il testo dentro .card diventa blu scuro */
+.card { color: #0d47a1; }`,
+      },
+      {
+        type: "heading",
+        content: "Proprietà CSS essenziali",
+      },
+      {
+        type: "text",
+        content:
+          "Le proprietà CSS più utilizzate si dividono in categorie: testo, colori, spaziatura e bordi. I colori si possono scrivere per nome (`red`), in esadecimale (`#1976d2`) o con `rgb()`/`rgba()` (l'ultimo valore di `rgba` è la trasparenza, da 0 a 1).",
+      },
+      {
+        type: "code",
+        language: "css",
+        title: "Proprietà di testo e colore",
+        code: `.title {
   color: #1976d2;            /* colore del testo */
   background: #f5f5f5;       /* colore di sfondo */
-  background-color: rgba(0, 0, 0, 0.05); /* con trasparenza */
+  background-color: rgba(0, 0, 0, 0.05); /* sfondo con trasparenza */
   font-size: 1.5rem;         /* dimensione del testo */
-  font-weight: 600;          /* grassetto (100-900) */
-  font-family: 'Roboto', sans-serif;
+  font-weight: 600;          /* spessore (100-900, 700 = grassetto) */
+  font-family: 'Roboto', sans-serif; /* font, con alternativa */
   text-align: center;        /* allineamento */
-  text-transform: uppercase; /* trasforma il testo */
+  text-transform: uppercase; /* trasforma il testo in maiuscolo */
 }`,
       },
       {
@@ -131,12 +223,12 @@ h2 ~ p {
   margin-top: 8px;           /* singolo lato */
   padding: 24px;             /* spazio INTERNO */
   padding: 8px 16px;         /* verticale orizzontale */
-  padding: 8px 16px 12px 16px; /* top right bottom left */
+  padding: 8px 16px 12px 16px; /* sopra destra sotto sinistra */
 }
 
 /* Bordi */
 .card {
-  border: 1px solid #e0e0e0;
+  border: 1px solid #e0e0e0; /* spessore, stile, colore */
   border-radius: 8px;        /* angoli arrotondati */
   border-bottom: 2px solid #1976d2;
 }`,
@@ -148,13 +240,13 @@ h2 ~ p {
       {
         type: "text",
         content:
-          "Ogni elemento HTML e una \"scatola\" (box) composta da 4 strati concentrici: content (il contenuto), padding (spazio interno), border (bordo) e margin (spazio esterno). Capire il box model e cruciale perche determina come vengono calcolate le dimensioni.",
+          "Ogni elemento HTML è una \"scatola\" (box) composta da 4 strati concentrici: content (il contenuto), padding (spazio interno), border (bordo) e margin (spazio esterno). Capire il box model è cruciale perché determina come vengono calcolate le dimensioni.",
       },
       {
         type: "code",
         language: "css",
         title: "Box model e box-sizing",
-        code: `/* Senza box-sizing: width = content only */
+        code: `/* Senza box-sizing: width = solo il contenuto */
 .box-default {
   width: 200px;
   padding: 20px;
@@ -162,40 +254,40 @@ h2 ~ p {
   /* Larghezza totale = 200 + 20*2 + 2*2 = 244px! */
 }
 
-/* Con box-sizing: width = content + padding + border */
+/* Con border-box: width = contenuto + padding + border */
 .box-border {
   box-sizing: border-box;
   width: 200px;
   padding: 20px;
   border: 2px solid black;
-  /* Larghezza totale = 200px (il content si adatta) */
+  /* Larghezza totale = 200px (il contenuto si restringe) */
 }
 
-/* Pratica comune: applicare a TUTTI gli elementi */
-*, *::before, *::after {
+/* Pratica comune: applicarlo a TUTTI gli elementi (* = selettore universale) */
+* {
   box-sizing: border-box;
 }`,
       },
       {
         type: "info",
         content:
-          "La regola box-sizing: border-box e quasi sempre presente nei reset CSS moderni. Next.js la include di default nel suo CSS base, quindi in un progetto React/Next.js non serve aggiungerla manualmente.",
+          "La regola `box-sizing: border-box` è quasi sempre presente nei \"reset CSS\" moderni (piccoli fogli di stile che si mettono all'inizio di un progetto per partire da una base coerente). Molti framework la includono già.",
       },
       {
         type: "heading",
-        content: "La proprieta display",
+        content: "La proprietà display",
       },
       {
         type: "text",
         content:
-          "La proprieta display controlla come un elemento si comporta nel flusso della pagina. Ogni elemento HTML ha un valore display di default.",
+          "La proprietà `display` controlla come un elemento si comporta nel flusso della pagina. Ogni elemento HTML ha un valore `display` di default.",
       },
       {
         type: "code",
         language: "css",
         title: "Valori di display",
         code: `/* block: occupa tutta la larghezza, va a capo */
-/* Elementi block di default: div, p, h1-h6, section */
+/* Elementi block di default: div, p, h1-h6, ul, li, section */
 .full-width {
   display: block;
 }
@@ -207,7 +299,7 @@ h2 ~ p {
   /* ATTENZIONE: width e height non funzionano su inline! */
 }
 
-/* inline-block: inline ma accetta width/height */
+/* inline-block: sta in riga ma accetta width/height */
 .badge {
   display: inline-block;
   width: 24px;
@@ -223,24 +315,24 @@ h2 ~ p {
       },
       {
         type: "heading",
-        content: "Unita di misura",
+        content: "Unità di misura",
       },
       {
         type: "text",
         content:
-          "CSS offre diverse unita di misura. La scelta dell'unita giusta e importante per creare layout che funzionano su schermi di dimensioni diverse.",
+          "Il CSS offre diverse unità di misura. La scelta dell'unità giusta è importante per creare layout che funzionano su schermi di dimensioni diverse.",
       },
       {
         type: "code",
         language: "css",
-        title: "Unita di misura a confronto",
+        title: "Unità di misura a confronto",
         code: `/* px - pixel: valore fisso, preciso */
 .icon {
   width: 24px;
   height: 24px;
 }
 
-/* rem - relativo al font-size del root (<html>) */
+/* rem - relativo al font-size della radice (<html>) */
 /* Se html { font-size: 16px }, allora 1rem = 16px */
 .title {
   font-size: 2rem;     /* = 32px */
@@ -255,10 +347,10 @@ h2 ~ p {
 /* % - relativo al genitore */
 .container {
   width: 80%;          /* 80% del genitore */
-  max-width: 1200px;   /* ma non piu di 1200px */
+  max-width: 1200px;   /* ma non più di 1200px */
 }
 
-/* vh/vw - viewport height/width */
+/* vh/vw - percentuale dell'altezza/larghezza della finestra (viewport) */
 .hero {
   height: 100vh;       /* tutta l'altezza dello schermo */
   width: 100vw;        /* tutta la larghezza */
@@ -267,7 +359,7 @@ h2 ~ p {
       {
         type: "tip",
         content:
-          "MUI usa un sistema di spaziatura basato su multipli di 8px. Nella prop sx, i valori numerici per margin e padding vengono moltiplicati per il tema (default 8px): sx={{ p: 2 }} equivale a padding: 16px, sx={{ m: 3 }} equivale a margin: 24px.",
+          "Usa una scala di spaziature coerente, per esempio multipli di 8px (8, 16, 24, 32...). Un'interfaccia in cui margini e padding seguono sempre la stessa scala appare subito più ordinata.",
       },
       {
         type: "list",
@@ -278,13 +370,18 @@ h2 ~ p {
           "Usa em quando vuoi che un valore scali con il font-size del genitore",
         ],
       },
+      {
+        type: "info",
+        content:
+          "Più avanti nel corso vedrai che le librerie per costruire interfacce (come React e MUI) permettono di scrivere gli stili in altri modi, ma sotto il cofano è sempre CSS: selettori, proprietà e box model restano gli stessi.",
+      },
     ],
     exercises: [
       {
         type: "multiple-choice",
         title: "Il Box Model",
         description:
-          "Un elemento ha width: 300px, padding: 20px e border: 5px solid black. Senza box-sizing: border-box, qual e la larghezza totale dell'elemento?",
+          "Un elemento ha `width: 300px`, `padding: 20px` e `border: 5px solid black`. Senza `box-sizing: border-box`, qual è la larghezza totale dell'elemento?",
         difficulty: "facile",
         options: ["300px", "340px", "350px", "390px"],
         correct: 2,
@@ -295,7 +392,7 @@ h2 ~ p {
         type: "multiple-choice",
         title: "Selettori CSS",
         description:
-          "Quale selettore seleziona SOLO i tag <li> che sono figli diretti di un elemento con classe .nav?",
+          "Quale selettore seleziona SOLO i tag `<li>` che sono figli diretti di un elemento con classe `nav`?",
         difficulty: "facile",
         options: [
           "`.nav li`",
@@ -305,41 +402,146 @@ h2 ~ p {
         ],
         correct: 1,
         explanation:
-          "Il combinatore > seleziona solo i figli diretti. '.nav li' (spazio) selezionerebbe tutti i <li> discendenti a qualsiasi profondita. '+' seleziona il fratello adiacente e '~' i fratelli generali.",
+          "Il combinatore `>` seleziona solo i figli diretti. `.nav li` (spazio) selezionerebbe tutti i `<li>` discendenti a qualsiasi profondità. `+` seleziona il fratello adiacente e `~` i fratelli successivi.",
+      },
+      {
+        type: "multiple-choice",
+        title: "Specificità",
+        description:
+          "Un paragrafo è scritto così: `<p id=\"nota\" class=\"testo\">Ciao</p>`. Il CSS contiene:\n`#nota { color: red; }`\n`.testo { color: green; }`\n`p { color: blue; }`\nDi che colore sarà il testo?",
+        difficulty: "medio",
+        options: ["Blu", "Verde", "Rosso", "Nero"],
+        correct: 2,
+        explanation:
+          "Il selettore di ID ha la specificità più alta, quindi vince `#nota` e il testo è rosso, anche se è scritto per primo. L'ordine conta solo a parità di specificità.",
       },
       {
         type: "code",
-        title: "Calcola le dimensioni del box model",
+        mode: "css",
+        title: "Stilizza la card di un prodotto",
         description:
-          "Completa la funzione calcolaLarghezza che, dati width, padding e border, restituisce la larghezza totale dell'elemento SENZA box-sizing: border-box.\nRicorda: padding e border si applicano su entrambi i lati (sinistro e destro).",
-        difficulty: "medio",
-        starterCode: `function calcolaLarghezza(width, padding, border) {
-  // Calcola la larghezza totale dell'elemento
-  // considerando padding e border su ENTRAMBI i lati
-
+          "Nell'anteprima c'è la scheda di un prodotto. Completa il CSS in modo che:\n- `.card` abbia `padding: 16px`, un bordo `1px solid #ddd` e `border-radius: 8px`\n- il prezzo (`.price`) abbia `color: #2e7d32` e `font-weight: 700`\n- il titolo `h2` dentro la card (selettore `.card h2`) abbia `font-size: 1.25rem`",
+        difficulty: "facile",
+        previewHtml: `<div class="card">
+  <h2>Cuffie wireless</h2>
+  <p class="description">Audio cristallino, 30 ore di autonomia e custodia inclusa.</p>
+  <p class="price">49,90 €</p>
+</div>`,
+        starterCode: `.card {
+  width: 260px;
+  background: white;
+  /* aggiungi padding, bordo e angoli arrotondati */
 }
 
-// Test
-console.log(calcolaLarghezza(200, 20, 2));  // 244
-console.log(calcolaLarghezza(300, 10, 1));  // 322
-console.log(calcolaLarghezza(100, 0, 5));   // 110`,
-        solution: `function calcolaLarghezza(width, padding, border) {
-  return width + (padding * 2) + (border * 2);
+.card h2 {
+  margin-top: 0;
+  /* imposta la dimensione del testo */
 }
 
-// Test
-console.log(calcolaLarghezza(200, 20, 2));  // 244
-console.log(calcolaLarghezza(300, 10, 1));  // 322
-console.log(calcolaLarghezza(100, 0, 5));   // 110`,
+.price {
+  /* colore verde e grassetto */
+}`,
+        solution: `.card {
+  width: 260px;
+  background: white;
+  padding: 16px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+.card h2 {
+  margin-top: 0;
+  font-size: 1.25rem;
+}
+
+.price {
+  color: #2e7d32;
+  font-weight: 700;
+}`,
         validate: `
-const fn = new Function("width", "padding", "border", userCode.match(/\\{([\\s\\S]*?)\\}/)?.[1] || "");
-try {
-  const t1 = calcolaLarghezza(200, 20, 2) === 244;
-  const t2 = calcolaLarghezza(300, 10, 1) === 322;
-  const t3 = calcolaLarghezza(100, 0, 5) === 110;
-  return t1 && t2 && t3;
-} catch(e) { return false; }`,
-        testCode: "",
+const card = $cssRule(".card");
+if (card.padding !== "16px") return "Imposta \`padding: 16px\` su \`.card\`";
+if (card.border !== "1px solid #ddd") return "Aggiungi a \`.card\` il bordo \`border: 1px solid #ddd\`";
+if (card["border-radius"] !== "8px") return "Arrotonda gli angoli di \`.card\` con \`border-radius: 8px\`";
+const title = $cssRule(".card h2");
+if (title["font-size"] !== "1.25rem") return "Imposta \`font-size: 1.25rem\` nella regola \`.card h2\`";
+const price = $cssRule(".price");
+if (price.color !== "#2e7d32") return "Colora il prezzo con \`color: #2e7d32\` nella regola \`.price\`";
+if (price["font-weight"] !== "700" && price["font-weight"] !== "bold") return "Metti il prezzo in grassetto con \`font-weight: 700\`";
+return true;`,
+      },
+      {
+        type: "code",
+        mode: "css",
+        title: "Un menu di navigazione con i combinatori",
+        description:
+          "Il menu è un elenco `<ul class=\"menu\">`; una delle voci contiene un sottomenu. Scrivi il CSS in modo che:\n- `.menu` non abbia i pallini dell'elenco (`list-style: none`) e abbia `padding: 0`\n- solo le voci di primo livello (`<li>` **figli diretti** di `.menu`) abbiano `padding: 8px` e `border-bottom: 1px solid #eee`\n- tutti i link dentro il menu (selettore discendente `.menu a`) abbiano `color: #1976d2` e `text-decoration: none`\n- la classe `.active` abbia `font-weight: 700`",
+        difficulty: "medio",
+        previewHtml: `<ul class="menu">
+  <li><a href="#" class="active">Home</a></li>
+  <li><a href="#">Blog</a></li>
+  <li>
+    <a href="#">Categorie</a>
+    <ul>
+      <li><a href="#">Viaggi</a></li>
+      <li><a href="#">Cucina</a></li>
+    </ul>
+  </li>
+  <li><a href="#">Contatti</a></li>
+</ul>`,
+        starterCode: `.menu {
+  width: 220px;
+  /* togli i pallini e il padding */
+}
+
+/* voci di primo livello: scrivi il selettore con > */
+
+
+/* tutti i link del menu: scrivi il selettore discendente */
+
+
+/* voce attiva */
+`,
+        solution: `.menu {
+  width: 220px;
+  list-style: none;
+  padding: 0;
+}
+
+/* voci di primo livello: scrivi il selettore con > */
+.menu > li {
+  padding: 8px;
+  border-bottom: 1px solid #eee;
+}
+
+/* tutti i link del menu: scrivi il selettore discendente */
+.menu a {
+  color: #1976d2;
+  text-decoration: none;
+}
+
+/* voce attiva */
+.active {
+  font-weight: 700;
+}`,
+        validate: `
+const menu = $cssRule(".menu");
+if (menu["list-style"] !== "none" && menu["list-style-type"] !== "none") return "Togli i pallini da \`.menu\` con \`list-style: none\`";
+if (menu.padding !== "0" && menu.padding !== "0px") return "Imposta \`padding: 0\` su \`.menu\`";
+const item = $cssRule(".menu > li");
+if (Object.keys(item).length === 0) {
+  if (Object.keys($cssRule(".menu li")).length > 0) return "\`.menu li\` seleziona anche le voci del sottomenu: usa il combinatore figlio \`.menu > li\`";
+  return "Scrivi una regola con selettore \`.menu > li\` per le voci di primo livello";
+}
+if (item.padding !== "8px") return "Imposta \`padding: 8px\` nella regola \`.menu > li\`";
+if (item["border-bottom"] !== "1px solid #eee") return "Aggiungi \`border-bottom: 1px solid #eee\` nella regola \`.menu > li\`";
+const link = $cssRule(".menu a");
+if (Object.keys(link).length === 0) return "Scrivi una regola con il selettore discendente \`.menu a\` per i link";
+if (link.color !== "#1976d2") return "Imposta \`color: #1976d2\` nella regola \`.menu a\`";
+if (link["text-decoration"] !== "none") return "Togli la sottolineatura con \`text-decoration: none\` nella regola \`.menu a\`";
+const active = Object.assign({}, $cssRule(".active"), $cssRule("a.active"), $cssRule(".menu .active"), $cssRule(".menu a.active"));
+if (active["font-weight"] !== "700" && active["font-weight"] !== "bold") return "Metti in grassetto la voce attiva: \`.active { font-weight: 700; }\`";
+return true;`,
       },
     ],
   },
@@ -349,7 +551,7 @@ try {
       {
         type: "text",
         content:
-          "Flexbox (Flexible Box Layout) e un sistema di layout CSS progettato per distribuire spazio e allineare elementi in modo efficiente all'interno di un contenitore. Prima di Flexbox, centrare un elemento verticalmente era un incubo; ora basta una riga di codice.",
+          "Flexbox (Flexible Box Layout) è un sistema di layout CSS progettato per distribuire lo spazio e allineare elementi in modo efficiente all'interno di un contenitore. Prima di Flexbox, centrare un elemento verticalmente era un incubo; ora bastano poche righe di codice.",
       },
       {
         type: "info",
@@ -363,7 +565,17 @@ try {
       {
         type: "text",
         content:
-          "Per usare Flexbox, basta impostare display: flex sul contenitore genitore. Tutti i figli diretti diventano automaticamente \"flex items\" e si dispongono in riga.",
+          "Per usare Flexbox basta impostare `display: flex` sul contenitore genitore. Tutti i figli diretti diventano automaticamente \"flex item\" e si dispongono in riga.",
+      },
+      {
+        type: "code",
+        language: "html",
+        title: "L'HTML di partenza",
+        code: `<div class="container">
+  <div class="item">1</div>
+  <div class="item">2</div>
+  <div class="item">3</div>
+</div>`,
       },
       {
         type: "code",
@@ -372,7 +584,7 @@ try {
         code: `/* Il contenitore diventa un flex container */
 .container {
   display: flex;
-  /* I figli si dispongono in riga (default) */
+  /* I figli (.item) si dispongono in riga (default) */
 }
 
 /* flex-direction: cambia l'asse principale */
@@ -394,7 +606,7 @@ try {
       {
         type: "tip",
         content:
-          "In un progetto React/MUI, il layout principale usa spesso Flexbox tramite la prop sx: sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}. Quasi ogni componente MUI come Box e Stack usa Flexbox sotto il cofano.",
+          "Ricorda che `display: flex` agisce solo sui figli **diretti** del contenitore: i \"nipoti\" non diventano flex item. Se ti serve disporre anche loro, rendi flex anche il loro genitore.",
       },
       {
         type: "heading",
@@ -403,20 +615,20 @@ try {
       {
         type: "text",
         content:
-          "justify-content allinea gli elementi lungo l'asse principale (orizzontale per row, verticale per column). align-items li allinea lungo l'asse trasversale. Sono le due proprieta Flexbox che userai di più.",
+          "`justify-content` allinea gli elementi lungo l'asse principale (orizzontale per `row`, verticale per `column`). `align-items` li allinea lungo l'asse trasversale. Sono le due proprietà Flexbox che userai di più.",
       },
       {
         type: "code",
         language: "css",
         title: "justify-content: distribuzione sull'asse principale",
-        code: `/* Distribuisci gli elementi orizzontalmente */
+        code: `/* Valori possibili (se ne usa uno alla volta!) */
 .toolbar {
   display: flex;
   justify-content: flex-start;    /* all'inizio (default) */
   justify-content: flex-end;      /* alla fine */
   justify-content: center;        /* al centro */
-  justify-content: space-between; /* spazio tra gli elementi */
-  justify-content: space-around;  /* spazio intorno */
+  justify-content: space-between; /* primo e ultimo ai bordi, spazio uguale tra gli altri */
+  justify-content: space-around;  /* spazio intorno a ogni elemento */
   justify-content: space-evenly;  /* spazio uguale ovunque */
 }`,
       },
@@ -424,15 +636,15 @@ try {
         type: "code",
         language: "css",
         title: "align-items: allineamento sull'asse trasversale",
-        code: `/* Allinea gli elementi verticalmente */
+        code: `/* Valori possibili (se ne usa uno alla volta!) */
 .navbar {
   display: flex;
   height: 64px;
-  align-items: stretch;     /* allungati (default) */
+  align-items: stretch;     /* allungati per tutta l'altezza (default) */
   align-items: flex-start;  /* in alto */
   align-items: flex-end;    /* in basso */
   align-items: center;      /* al centro verticale */
-  align-items: baseline;    /* allinea il testo */
+  align-items: baseline;    /* allinea la linea di base del testo */
 }
 
 /* Centrare perfettamente un elemento */
@@ -442,6 +654,11 @@ try {
   align-items: center;
   height: 100vh;
 }`,
+      },
+      {
+        type: "info",
+        content:
+          "Se nello stesso blocco scrivi più volte la stessa proprietà, vale l'ultima. Gli esempi qui sopra elencano tutti i valori solo per mostrarli: nel codice reale ne scegli uno.",
       },
       {
         type: "code",
@@ -459,12 +676,12 @@ try {
       },
       {
         type: "heading",
-        content: "La proprieta gap",
+        content: "La proprietà gap",
       },
       {
         type: "text",
         content:
-          "La proprieta gap definisce lo spazio tra gli elementi flex. Prima di gap si usava margin sugli elementi figli, ma gap e molto piu pulito perche non aggiunge spazio extra prima del primo o dopo l'ultimo elemento.",
+          "La proprietà `gap` definisce lo spazio tra gli elementi flex. Prima di `gap` si usava `margin` sugli elementi figli, ma `gap` è molto più pulito perché non aggiunge spazio extra prima del primo o dopo l'ultimo elemento.",
       },
       {
         type: "code",
@@ -479,16 +696,16 @@ try {
 /* gap differente per riga e colonna */
 .grid-like {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: wrap;   /* vedi più sotto */
   row-gap: 16px;
   column-gap: 8px;
-  /* oppure shorthand: gap: 16px 8px; */
+  /* oppure in forma abbreviata: gap: 16px 8px; */
 }`,
       },
       {
         type: "tip",
         content:
-          "In MUI con la prop sx, gap accetta valori numerici che vengono moltiplicati per 8px (il tema di default): sx={{ display: 'flex', gap: 2 }} produce uno spazio di 16px tra gli elementi. Il componente Stack di MUI è fondamentalmente un Flexbox con gap integrato.",
+          "Preferisci `gap` ai margini sui singoli figli per spaziare gli elementi di un contenitore flex: il codice è più corto e non devi gestire a mano il primo o l'ultimo elemento.",
       },
       {
         type: "heading",
@@ -497,13 +714,13 @@ try {
       {
         type: "text",
         content:
-          "Queste tre proprieta controllano come i flex items crescono, si restringono e definiscono la loro dimensione iniziale. Insieme determinano il comportamento flessibile degli elementi.",
+          "Queste tre proprietà, da applicare ai flex item (i figli), controllano come crescono, come si restringono e qual è la loro dimensione iniziale. Insieme determinano il comportamento \"flessibile\" degli elementi.",
       },
       {
         type: "code",
         language: "css",
-        title: "Proprieta dei flex items",
-        code: `/* flex-grow: quanto l'elemento cresce rispetto agli altri */
+        title: "Proprietà dei flex item",
+        code: `/* flex-grow: quanto l'elemento cresce per riempire lo spazio libero */
 .sidebar {
   flex-grow: 0;    /* non cresce, mantiene la sua dimensione */
   width: 250px;
@@ -512,7 +729,7 @@ try {
   flex-grow: 1;    /* prende tutto lo spazio rimanente */
 }
 
-/* flex-shrink: quanto l'elemento si restringe */
+/* flex-shrink: quanto l'elemento si restringe se manca spazio */
 .logo {
   flex-shrink: 0;  /* non si restringe mai */
   width: 120px;
@@ -523,13 +740,18 @@ try {
   flex-basis: 33.33%; /* parte da 1/3 della larghezza */
 }
 
-/* Shorthand: flex: grow shrink basis */
+/* Forma abbreviata: flex: grow shrink basis */
 .item {
   flex: 1 0 auto;     /* cresce, non si restringe, dimensione automatica */
 }
 .equal-columns {
-  flex: 1;             /* equivale a flex: 1 1 0% */
+  flex: 1;             /* equivale a flex: 1 1 0%: colonne tutte uguali */
 }`,
+      },
+      {
+        type: "text",
+        content:
+          "Lo spazio libero viene diviso in proporzione ai valori di `flex-grow`. Esempio: un contenitore largo 600px con tre elementi da 100px lascia 300px liberi. Se i `flex-grow` sono 1, 2 e 0, il primo riceve 1/3 dello spazio libero (100px, totale 200px), il secondo 2/3 (200px, totale 300px) e il terzo nulla (resta 100px).",
       },
       {
         type: "heading",
@@ -538,7 +760,7 @@ try {
       {
         type: "text",
         content:
-          "Di default, i flex items cercano di stare tutti su una riga, anche se non c'e abbastanza spazio (si comprimono). Con flex-wrap: wrap gli elementi vanno a capo quando necessario, creando un comportamento simile a una griglia.",
+          "Di default i flex item cercano di stare tutti su una riga, anche se non c'è abbastanza spazio (si comprimono). Con `flex-wrap: wrap` gli elementi vanno a capo quando necessario, creando un comportamento simile a una griglia.",
       },
       {
         type: "code",
@@ -550,7 +772,7 @@ try {
   flex-wrap: nowrap; /* default */
 }
 
-/* Con wrap: vanno a capo quando non c'e spazio */
+/* Con wrap: vanno a capo quando non c'è spazio */
 .card-grid {
   display: flex;
   flex-wrap: wrap;
@@ -562,7 +784,7 @@ try {
   /* Le card vanno a capo quando non entrano */
 }
 
-/* Esempio pratico: griglia di tag/chip */
+/* Esempio pratico: elenco di tag di un articolo */
 .tags {
   display: flex;
   flex-wrap: wrap;
@@ -577,12 +799,12 @@ try {
       {
         type: "tip",
         content:
-          "Nelle applicazioni React reali, una sezione filtri usa spesso flex-wrap per disporre i chip dei filtri attivi: quando sono troppi per una riga, vanno automaticamente a capo mantenendo uno spazio uniforme con gap.",
+          "Per elenchi di lunghezza variabile (tag, filtri, miniature di una galleria) usa sempre `flex-wrap: wrap` insieme a `gap`: quando gli elementi sono troppi per una riga vanno a capo da soli, mantenendo una spaziatura uniforme.",
       },
       {
         type: "info",
         content:
-          "Un pattern molto comune e il layout \"sidebar + contenuto\": la sidebar ha una larghezza fissa (flex-shrink: 0) e il contenuto principale ha flex-grow: 1 per occupare tutto lo spazio rimanente.",
+          "Un pattern molto comune è il layout \"sidebar + contenuto\": la sidebar ha una larghezza fissa (`flex-shrink: 0`) e il contenuto principale ha `flex-grow: 1` per occupare tutto lo spazio rimanente.",
       },
     ],
     exercises: [
@@ -590,7 +812,7 @@ try {
         type: "multiple-choice",
         title: "Centrare con Flexbox",
         description:
-          "Quali due proprieta servono per centrare perfettamente un elemento sia orizzontalmente che verticalmente in un contenitore flex?",
+          "Quali due proprietà servono per centrare perfettamente un elemento sia orizzontalmente sia verticalmente in un contenitore flex (con la direzione di default)?",
         difficulty: "facile",
         options: [
           "`justify-content: center` e `align-items: center`",
@@ -600,13 +822,13 @@ try {
         ],
         correct: 0,
         explanation:
-          "justify-content: center centra sull'asse principale e align-items: center centra sull'asse trasversale. Insieme, centrano l'elemento perfettamente in entrambe le direzioni.",
+          "`justify-content: center` centra sull'asse principale e `align-items: center` centra sull'asse trasversale. Insieme centrano l'elemento in entrambe le direzioni.",
       },
       {
         type: "multiple-choice",
         title: "flex-direction e assi",
         description:
-          "Se imposti flex-direction: column su un contenitore flex, cosa fa justify-content: center?",
+          "Se imposti `flex-direction: column` su un contenitore flex, cosa fa `justify-content: center`?",
         difficulty: "medio",
         options: [
           "Centra gli elementi orizzontalmente",
@@ -616,49 +838,211 @@ try {
         ],
         correct: 1,
         explanation:
-          "Con flex-direction: column, l'asse principale diventa verticale. Siccome justify-content agisce sull'asse principale, centra gli elementi verticalmente. Per centrare orizzontalmente in questo caso, servirebbe align-items: center.",
+          "Con `flex-direction: column` l'asse principale diventa verticale. Siccome `justify-content` agisce sull'asse principale, centra gli elementi verticalmente. Per centrarli orizzontalmente, in questo caso, servirebbe `align-items: center`.",
+      },
+      {
+        type: "multiple-choice",
+        title: "Distribuire lo spazio con flex-grow",
+        description:
+          "Un contenitore flex è largo 500px e contiene due elementi con `flex-basis: 100px`. Il primo ha `flex-grow: 1`, il secondo `flex-grow: 3`. Quanto sarà largo il secondo elemento?",
+        difficulty: "difficile",
+        options: ["300px", "325px", "375px", "250px"],
+        correct: 1,
+        explanation:
+          "Lo spazio libero è 500 - 100 - 100 = 300px, diviso in 1 + 3 = 4 parti da 75px. Il secondo elemento riceve 3 parti (225px) in aggiunta alla sua base di 100px: 100 + 225 = 325px. Il primo riceve una parte: 100 + 75 = 175px.",
       },
       {
         type: "code",
-        title: "Simula un layout Flexbox",
+        mode: "css",
+        title: "Una barra di navigazione",
         description:
-          "Completa la funzione distribuisciSpazio che simula il comportamento di flex-grow.\nRiceve lo spazio totale disponibile, un array di dimensioni base degli elementi e un array di valori flex-grow.\nDeve restituire un array con le dimensioni finali di ogni elemento.\n\nLogica: lo spazio extra (totale - somma delle basi) viene distribuito proporzionalmente ai valori flex-grow.",
-        difficulty: "difficile",
-        starterCode: `function distribuisciSpazio(spazioTotale, basi, grows) {
-  // 1. Calcola lo spazio rimanente (totale - somma basi)
-  // 2. Calcola la somma dei flex-grow
-  // 3. Distribuisci lo spazio extra proporzionalmente
-
+          "Crea la barra di navigazione di un sito: il logo a sinistra e i link a destra, centrati verticalmente.\n- `.navbar`: `display: flex`, `justify-content: space-between` e `align-items: center`\n- `.links`: anche lei `display: flex`, con `gap: 16px` tra i link",
+        difficulty: "facile",
+        previewHtml: `<nav class="navbar">
+  <div class="logo">Il mio blog</div>
+  <div class="links">
+    <a href="#">Home</a>
+    <a href="#">Articoli</a>
+    <a href="#">Chi sono</a>
+  </div>
+</nav>`,
+        starterCode: `.navbar {
+  height: 64px;
+  padding: 0 16px;
+  background: #1976d2;
+  /* disponi logo e link ai due estremi, centrati in verticale */
 }
 
-// Test: 3 elementi in 600px
-// Basi: [100, 100, 100] = 300px usati, 300px rimasti
-// Grows: [1, 2, 0]
-// Elemento 0: 100 + (300 * 1/3) = 200
-// Elemento 1: 100 + (300 * 2/3) = 300
-// Elemento 2: 100 + 0 = 100
-console.log(distribuisciSpazio(600, [100, 100, 100], [1, 2, 0]));`,
-        solution: `function distribuisciSpazio(spazioTotale, basi, grows) {
-  const sommaBase = basi.reduce((sum, b) => sum + b, 0);
-  const spazioExtra = spazioTotale - sommaBase;
-  const sommaGrow = grows.reduce((sum, g) => sum + g, 0);
-
-  return basi.map((base, i) => {
-    if (sommaGrow === 0) return base;
-    return base + (spazioExtra * grows[i]) / sommaGrow;
-  });
+.logo {
+  color: white;
+  font-weight: 700;
+  font-size: 1.25rem;
 }
 
-console.log(distribuisciSpazio(600, [100, 100, 100], [1, 2, 0]));`,
+.links {
+  /* metti i link in riga con 16px di spazio tra loro */
+}
+
+.links a {
+  color: white;
+  text-decoration: none;
+}`,
+        solution: `.navbar {
+  height: 64px;
+  padding: 0 16px;
+  background: #1976d2;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  color: white;
+  font-weight: 700;
+  font-size: 1.25rem;
+}
+
+.links {
+  display: flex;
+  gap: 16px;
+}
+
+.links a {
+  color: white;
+  text-decoration: none;
+}`,
         validate: `
-try {
-  const r1 = distribuisciSpazio(600, [100, 100, 100], [1, 2, 0]);
-  const ok1 = Math.abs(r1[0] - 200) < 0.01 && Math.abs(r1[1] - 300) < 0.01 && Math.abs(r1[2] - 100) < 0.01;
-  const r2 = distribuisciSpazio(400, [50, 50], [1, 1]);
-  const ok2 = Math.abs(r2[0] - 200) < 0.01 && Math.abs(r2[1] - 200) < 0.01;
-  return ok1 && ok2;
-} catch(e) { return false; }`,
-        testCode: "",
+const nav = $cssRule(".navbar");
+if (nav.display !== "flex") return "Rendi \`.navbar\` un contenitore flex con \`display: flex\`";
+if (nav["justify-content"] !== "space-between") return "Usa \`justify-content: space-between\` su \`.navbar\` per spingere logo e link agli estremi";
+if (nav["align-items"] !== "center") return "Centra verticalmente il contenuto di \`.navbar\` con \`align-items: center\`";
+const links = $cssRule(".links");
+if (links.display !== "flex") return "Anche \`.links\` deve avere \`display: flex\`";
+if (links.gap !== "16px" && links["column-gap"] !== "16px") return "Aggiungi \`gap: 16px\` a \`.links\`";
+return true;`,
+      },
+      {
+        type: "code",
+        mode: "css",
+        title: "Layout sidebar + contenuto",
+        description:
+          "Costruisci il classico layout di un blog: una barra laterale a larghezza fissa e il contenuto che occupa tutto lo spazio rimanente.\n- `.layout`: `display: flex` e `gap: 16px`\n- `.sidebar`: `width: 180px` e `flex-shrink: 0` (non deve mai restringersi)\n- `.content`: `flex-grow: 1` (oppure `flex: 1`)",
+        difficulty: "medio",
+        previewHtml: `<div class="layout">
+  <aside class="sidebar">
+    <strong>Categorie</strong>
+    <p>Viaggi</p>
+    <p>Cucina</p>
+    <p>Tecnologia</p>
+  </aside>
+  <main class="content">
+    <h2>Il mio primo articolo</h2>
+    <p>Benvenuto nel blog! Qui racconto i miei viaggi, le ricette che provo e le novità che scopro ogni settimana.</p>
+  </main>
+</div>`,
+        starterCode: `.layout {
+  /* contenitore flex con 16px di spazio */
+}
+
+.sidebar {
+  background: #f1f5f9;
+  padding: 12px;
+  /* larghezza fissa che non si restringe */
+}
+
+.content {
+  background: #ffffff;
+  border: 1px solid #e0e0e0;
+  padding: 12px;
+  /* occupa tutto lo spazio rimanente */
+}`,
+        solution: `.layout {
+  display: flex;
+  gap: 16px;
+}
+
+.sidebar {
+  background: #f1f5f9;
+  padding: 12px;
+  width: 180px;
+  flex-shrink: 0;
+}
+
+.content {
+  background: #ffffff;
+  border: 1px solid #e0e0e0;
+  padding: 12px;
+  flex-grow: 1;
+}`,
+        validate: `
+const layout = $cssRule(".layout");
+if (layout.display !== "flex") return "Rendi \`.layout\` un contenitore flex con \`display: flex\`";
+if (layout.gap !== "16px" && layout["column-gap"] !== "16px") return "Aggiungi \`gap: 16px\` a \`.layout\`";
+const side = $cssRule(".sidebar");
+if (side.width !== "180px" && side["flex-basis"] !== "180px") return "Dai alla \`.sidebar\` una larghezza fissa: \`width: 180px\`";
+const sideFlex = (side.flex || "").split(" ");
+if (side["flex-shrink"] !== "0" && !(sideFlex.length >= 2 && sideFlex[1] === "0") && side.flex !== "none") return "Impedisci alla \`.sidebar\` di restringersi con \`flex-shrink: 0\`";
+const content = $cssRule(".content");
+const grow = content["flex-grow"] || (content.flex || "").split(" ")[0];
+if (!(parseFloat(grow) > 0)) return "Fai crescere \`.content\` con \`flex-grow: 1\` (o \`flex: 1\`)";
+return true;`,
+      },
+      {
+        type: "code",
+        mode: "css",
+        title: "Una galleria che va a capo",
+        description:
+          "Le foto della galleria devono disporsi in righe che vanno a capo quando non c'è più spazio.\n- `.gallery`: `display: flex`, `flex-wrap: wrap` e `gap: 8px`\n- `.photo`: `flex: 0 0 100px` (larghezza fissa di 100px, senza crescere né restringersi)",
+        difficulty: "medio",
+        previewHtml: `<div class="gallery">
+  <div class="photo">Mare</div>
+  <div class="photo">Montagna</div>
+  <div class="photo">Città</div>
+  <div class="photo">Lago</div>
+  <div class="photo">Bosco</div>
+  <div class="photo">Deserto</div>
+  <div class="photo">Isola</div>
+  <div class="photo">Collina</div>
+  <div class="photo">Fiume</div>
+  <div class="photo">Spiaggia</div>
+</div>`,
+        starterCode: `.gallery {
+  /* flex, a capo, 8px di spazio */
+}
+
+.photo {
+  height: 80px;
+  background: #90caf9;
+  border-radius: 6px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* larghezza fissa di 100px */
+}`,
+        solution: `.gallery {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.photo {
+  height: 80px;
+  background: #90caf9;
+  border-radius: 6px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex: 0 0 100px;
+}`,
+        validate: `
+const g = $cssRule(".gallery");
+if (g.display !== "flex") return "Rendi \`.gallery\` un contenitore flex con \`display: flex\`";
+if (g["flex-wrap"] !== "wrap" && !/\\bwrap\\b/.test(g["flex-flow"] || "")) return "Fai andare a capo le foto con \`flex-wrap: wrap\`";
+if (g.gap !== "8px") return "Aggiungi \`gap: 8px\` a \`.gallery\`";
+const p = $cssRule(".photo");
+const ok = p.flex === "0 0 100px" || (p["flex-grow"] === "0" && p["flex-shrink"] === "0" && (p["flex-basis"] === "100px" || p.width === "100px"));
+if (!ok) return "Imposta \`flex: 0 0 100px\` su \`.photo\`";
+return true;`,
       },
     ],
   },
@@ -668,7 +1052,7 @@ try {
       {
         type: "text",
         content:
-          "Le variabili CSS (ufficialmente \"custom properties\") permettono di definire valori riutilizzabili nel foglio di stile. Funzionano come le variabili in un linguaggio di programmazione: definisci un valore una volta e lo riutilizzi ovunque. Se devi cambiarlo, lo modifichi in un solo punto.",
+          "Le variabili CSS (ufficialmente \"custom properties\") permettono di definire valori riutilizzabili nel foglio di stile. Definisci un valore una volta (per esempio il colore principale del sito) e lo riutilizzi ovunque. Se devi cambiarlo, lo modifichi in un solo punto.",
       },
       {
         type: "heading",
@@ -677,14 +1061,15 @@ try {
       {
         type: "text",
         content:
-          "Le variabili CSS si definiscono con il prefisso -- e si usano con la funzione var(). Sono case-sensitive e seguono le regole di ereditarieta del CSS: un figlio eredita le variabili del genitore.",
+          "Le variabili CSS si definiscono con il prefisso `--` e si usano con la funzione `var()`. Distinguono maiuscole e minuscole (`--Color` e `--color` sono diverse) e seguono le regole di ereditarietà del CSS: un elemento figlio vede le variabili definite sui suoi genitori.",
       },
       {
         type: "code",
         language: "css",
         title: "Sintassi delle variabili CSS",
         code: `:root {
-  /* :root si applica a tutto il documento */
+  /* :root seleziona la radice del documento (<html>):
+     le variabili definite qui valgono in tutta la pagina */
   --primary-color: #1976d2;
   --secondary-color: #e91e63;
   --spacing-sm: 8px;
@@ -702,16 +1087,16 @@ try {
   font-family: var(--font-main);
 }
 
-/* var() accetta un valore di fallback */
+/* var() accetta un valore di riserva (fallback) */
 .card {
   color: var(--text-color, #333);
-  /* Se --text-color non e definita, usa #333 */
+  /* Se --text-color non è definita, usa #333 */
 }`,
       },
       {
         type: "tip",
         content:
-          "In un tipico globals.css di un progetto Next.js, si definiscono variabili CSS per il tema chiaro e scuro: :root { --background: #ffffff; --foreground: #171717; }. Nel tema scuro con @media (prefers-color-scheme: dark), queste diventano --background: #0a0a0a e --foreground: #ededed.",
+          "Raccogli in `:root` all'inizio del foglio di stile tutti i valori \"di design\" (colori, spaziature, raggi dei bordi, font). Avrai un unico punto da cui controllare l'aspetto dell'intero sito.",
       },
       {
         type: "subheading",
@@ -720,12 +1105,12 @@ try {
       {
         type: "text",
         content:
-          "Le variabili non devono per forza essere in :root. Puoi definirle su qualsiasi selettore e saranno accessibili solo a quell'elemento e ai suoi figli. Questo e utile per creare componenti con varianti.",
+          "Le variabili non devono per forza stare in `:root`. Puoi definirle su qualsiasi selettore e saranno accessibili solo a quell'elemento e ai suoi figli. Questo è utile per creare varianti di uno stesso elemento cambiando solo il valore di una variabile.",
       },
       {
         type: "code",
         language: "css",
-        title: "Variabili con scope e sovrascrizioni",
+        title: "Variabili con scope e sovrascritture",
         code: `:root {
   --btn-bg: #1976d2;
   --btn-color: white;
@@ -738,7 +1123,7 @@ try {
   padding: var(--btn-padding);
   border: none;
   border-radius: 4px;
-  cursor: pointer;
+  cursor: pointer; /* mostra la "manina" al passaggio del mouse */
 }
 
 /* Variante: sovrascriviamo solo la variabile */
@@ -750,7 +1135,7 @@ try {
   --btn-bg: #2e7d32;
 }
 
-/* Componente con variabili locali */
+/* Card con variabili locali */
 .card {
   --card-padding: 16px;
   --card-radius: 8px;
@@ -758,6 +1143,7 @@ try {
   border-radius: var(--card-radius);
 }
 
+/* .card.compact (senza spazio) = elemento che ha ENTRAMBE le classi */
 .card.compact {
   --card-padding: 8px;
   --card-radius: 4px;
@@ -766,7 +1152,7 @@ try {
       {
         type: "info",
         content:
-          "Le variabili CSS sono reattive: se modifichi il valore di una variabile (ad esempio tramite JavaScript o una media query), tutti gli elementi che la usano si aggiornano automaticamente. Questo le rende perfette per implementare temi chiaro/scuro.",
+          "Le variabili CSS sono \"vive\": se il valore di una variabile cambia (ad esempio dentro una media query, o più avanti tramite JavaScript), tutti gli elementi che la usano si aggiornano automaticamente. Questo le rende perfette per implementare temi chiaro/scuro.",
       },
       {
         type: "heading",
@@ -775,7 +1161,7 @@ try {
       {
         type: "text",
         content:
-          "Le media queries permettono di applicare stili diversi in base alle caratteristiche del dispositivo, principalmente la larghezza dello schermo. Sono il fondamento del responsive design: un sito che si adatta automaticamente a smartphone, tablet e desktop.",
+          "Le media queries permettono di applicare stili diversi in base alle caratteristiche del dispositivo, principalmente la larghezza dello schermo. Sono il fondamento del *responsive design*: un sito che si adatta automaticamente a smartphone, tablet e desktop. Le regole dentro `@media (...) { ... }` valgono solo quando la condizione è vera.",
       },
       {
         type: "code",
@@ -800,11 +1186,11 @@ try {
   .container {
     padding: 32px;
     max-width: 1200px;
-    margin: 0 auto; /* centra il contenitore */
+    margin: 0 auto; /* auto a destra e sinistra: centra il contenitore */
   }
 }
 
-/* Si puo anche usare max-width */
+/* Si può anche usare max-width: "fino a 600px" */
 @media (max-width: 600px) {
   .sidebar {
     display: none; /* nasconde la sidebar su mobile */
@@ -814,6 +1200,11 @@ try {
       {
         type: "subheading",
         content: "Breakpoint comuni",
+      },
+      {
+        type: "text",
+        content:
+          "I *breakpoint* sono le larghezze in cui il layout cambia. Non esistono valori obbligatori, ma questi sono molto diffusi:",
       },
       {
         type: "list",
@@ -829,7 +1220,7 @@ try {
       {
         type: "tip",
         content:
-          "MUI ha i suoi breakpoint integrati: xs (0px), sm (600px), md (900px), lg (1200px), xl (1536px). Nella prop sx puoi scrivere sx={{ p: { xs: 1, md: 3 } }} per avere padding diversi su mobile e desktop senza scrivere media queries manuali.",
+          "Scegli pochi breakpoint (due o tre) e usali in modo coerente in tutto il foglio di stile. E decidili in base al contenuto: aggiungi un breakpoint dove il layout \"si rompe\", non per un modello specifico di telefono.",
       },
       {
         type: "heading",
@@ -838,7 +1229,7 @@ try {
       {
         type: "text",
         content:
-          "Vediamo alcuni pattern che si usano spesso per creare layout responsivi. L'approccio \"mobile first\" e considerato la best practice: si parte dagli stili per mobile e si aggiungono modifiche per schermi piu grandi.",
+          "Vediamo alcuni pattern che si usano spesso per creare layout responsivi. L'approccio \"mobile first\" è considerato la buona pratica: si parte dagli stili per mobile e si aggiungono modifiche per schermi più grandi con `min-width`.",
       },
       {
         type: "code",
@@ -847,21 +1238,18 @@ try {
         code: `:root {
   --sidebar-width: 0px;
   --content-padding: 16px;
-  --columns: 1;
 }
 
 @media (min-width: 768px) {
   :root {
     --sidebar-width: 250px;
     --content-padding: 24px;
-    --columns: 2;
   }
 }
 
 @media (min-width: 1200px) {
   :root {
     --content-padding: 32px;
-    --columns: 3;
   }
 }
 
@@ -896,6 +1284,8 @@ try {
     flex-wrap: wrap;
   }
   .card {
+    /* calc() fa calcoli tra unità diverse:
+       metà della larghezza meno metà del gap */
     flex: 0 1 calc(50% - 8px); /* 2 colonne */
   }
 }
@@ -914,14 +1304,14 @@ try {
         type: "code",
         language: "css",
         title: "prefers-color-scheme: tema chiaro e scuro",
-        code: `/* Come in un globals.css tipico */
-:root {
+        code: `:root {
   --background: #ffffff;
   --foreground: #171717;
   --card-bg: #f5f5f5;
   --border-color: #e0e0e0;
 }
 
+/* Vale quando il sistema operativo dell'utente usa il tema scuro */
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
@@ -944,7 +1334,7 @@ body {
       {
         type: "warning",
         content:
-          "prefers-color-scheme rileva la preferenza del sistema operativo dell'utente. Non permette all'utente di scegliere il tema nel sito. Per un toggle manuale, serve JavaScript per aggiungere/rimuovere una classe (ad esempio .dark) sul body.",
+          "`prefers-color-scheme` rileva la preferenza del sistema operativo dell'utente, ma non gli permette di scegliere il tema nel sito. Per un pulsante \"tema chiaro/scuro\" serve JavaScript, che aggiunge o rimuove una classe (ad esempio `.dark`) sul `<body>`: lo imparerai nei prossimi moduli.",
       },
     ],
     exercises: [
@@ -952,7 +1342,7 @@ body {
         type: "multiple-choice",
         title: "Variabili CSS e fallback",
         description:
-          "Dato questo CSS:\n:root { --main-color: blue; }\n.box { color: var(--accent-color, red); }\n\nDi che colore sara il testo di .box?",
+          "Dato questo CSS:\n`:root { --main-color: blue; }`\n`.box { color: var(--accent-color, red); }`\n\nDi che colore sarà il testo di `.box`?",
         difficulty: "facile",
         options: [
           "Blu (blue)",
@@ -962,13 +1352,13 @@ body {
         ],
         correct: 1,
         explanation:
-          "La variabile --accent-color non e definita, quindi var() usa il valore di fallback specificato come secondo argomento: red. Se non ci fosse il fallback, il browser ignorerebbe la dichiarazione e userebbe il valore ereditato.",
+          "La variabile `--accent-color` non è definita, quindi `var()` usa il valore di fallback specificato come secondo argomento: red. Se non ci fosse il fallback, la dichiarazione non avrebbe effetto e il testo userebbe il colore ereditato.",
       },
       {
         type: "multiple-choice",
         title: "Media queries e mobile first",
         description:
-          "In un approccio \"mobile first\", quale media query e corretta per applicare stili a partire dalla larghezza tablet (768px)?",
+          "In un approccio \"mobile first\", quale media query è corretta per applicare stili a partire dalla larghezza tablet (768px)?",
         difficulty: "facile",
         options: [
           "`@media (max-width: 768px) { ... }`",
@@ -978,64 +1368,132 @@ body {
         ],
         correct: 1,
         explanation:
-          "Mobile first significa partire dagli stili per schermi piccoli e poi sovrascriverli per schermi piu grandi con min-width. max-width farebbe il contrario (desktop first). min-width: 768px significa 'a partire da 768px di larghezza in su'.",
+          "Mobile first significa partire dagli stili per schermi piccoli e poi sovrascriverli per schermi più grandi con `min-width`. `max-width` farebbe il contrario (desktop first). `min-width: 768px` significa \"a partire da 768px di larghezza in su\".",
       },
       {
         type: "code",
-        title: "Simula la risoluzione di variabili CSS",
+        mode: "css",
+        title: "Un tema con le variabili CSS",
         description:
-          "Completa la funzione risolviVariabile che simula il comportamento di var() in CSS.\nRiceve un nome di variabile e un oggetto che mappa nomi di variabili ai loro valori.\nSe la variabile esiste, restituisce il suo valore.\nSe non esiste e c'e un fallback (terzo parametro), restituisce il fallback.\nSe non esiste e non c'e fallback, restituisce null.",
+          "I pulsanti di un negozio online devono usare un tema basato su variabili.\n- In `:root` definisci `--primary: #1976d2` e `--radius: 6px`\n- `.btn` deve usare `var(--primary)` come sfondo (`background` o `background-color`) e `var(--radius)` per `border-radius`\n- `.btn-danger` non deve ridefinire lo sfondo: deve solo sovrascrivere la variabile, con `--primary: #d32f2f`",
         difficulty: "medio",
-        starterCode: `function risolviVariabile(nome, variabili, fallback) {
-  // Simula il comportamento di CSS var()
-  // 1. Cerca la variabile nell'oggetto variabili
-  // 2. Se trovata, restituisci il suo valore
-  // 3. Se non trovata e c'e un fallback, restituisci il fallback
-  // 4. Altrimenti restituisci null
-
+        previewHtml: `<div class="product">
+  <h3>Zaino da trekking</h3>
+  <p>Capienza 30 litri, impermeabile.</p>
+  <button class="btn">Aggiungi al carrello</button>
+  <button class="btn btn-danger">Rimuovi</button>
+</div>`,
+        starterCode: `:root {
+  /* definisci qui --primary e --radius */
 }
 
-// Test
-const tema = {
-  "--primary": "#1976d2",
-  "--background": "#ffffff",
-  "--font-size": "16px"
-};
-
-console.log(risolviVariabile("--primary", tema));           // "#1976d2"
-console.log(risolviVariabile("--accent", tema, "red"));     // "red"
-console.log(risolviVariabile("--accent", tema));            // null
-console.log(risolviVariabile("--background", tema, "pink"));// "#ffffff"`,
-        solution: `function risolviVariabile(nome, variabili, fallback) {
-  if (nome in variabili) {
-    return variabili[nome];
-  }
-  if (fallback !== undefined) {
-    return fallback;
-  }
-  return null;
+.btn {
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  cursor: pointer;
+  /* usa le variabili per sfondo e angoli */
 }
 
-const tema = {
-  "--primary": "#1976d2",
-  "--background": "#ffffff",
-  "--font-size": "16px"
-};
+.btn-danger {
+  /* sovrascrivi solo la variabile --primary */
+}`,
+        solution: `:root {
+  --primary: #1976d2;
+  --radius: 6px;
+}
 
-console.log(risolviVariabile("--primary", tema));
-console.log(risolviVariabile("--accent", tema, "red"));
-console.log(risolviVariabile("--accent", tema));
-console.log(risolviVariabile("--background", tema, "pink"));`,
+.btn {
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  cursor: pointer;
+  background: var(--primary);
+  border-radius: var(--radius);
+}
+
+.btn-danger {
+  --primary: #d32f2f;
+}`,
         validate: `
-try {
-  const t = { "--primary": "#1976d2", "--background": "#ffffff" };
-  const t1 = risolviVariabile("--primary", t) === "#1976d2";
-  const t2 = risolviVariabile("--accent", t, "red") === "red";
-  const t3 = risolviVariabile("--accent", t) === null;
-  const t4 = risolviVariabile("--background", t, "pink") === "#ffffff";
-  return t1 && t2 && t3 && t4;
-} catch(e) { return false; }`,
-        testCode: "",
+const rootVars = $cssRule(":root");
+if ((rootVars["--primary"] || "").toLowerCase() !== "#1976d2") return "Definisci in \`:root\` la variabile \`--primary: #1976d2\`";
+if (rootVars["--radius"] !== "6px") return "Definisci in \`:root\` la variabile \`--radius: 6px\`";
+const btn = $cssRule(".btn");
+const bg = btn["background-color"] || btn.background || "";
+if (!/var\\(\\s*--primary\\s*[,)]/.test(bg)) return "Usa \`var(--primary)\` come sfondo di \`.btn\`";
+if (!/var\\(\\s*--radius\\s*[,)]/.test(btn["border-radius"] || "")) return "Usa \`var(--radius)\` per il \`border-radius\` di \`.btn\`";
+const danger = Object.assign({}, $cssRule(".btn-danger"), $cssRule(".btn.btn-danger"));
+if (danger.background || danger["background-color"]) return "In \`.btn-danger\` non ridefinire lo sfondo: sovrascrivi solo la variabile \`--primary\`";
+if ((danger["--primary"] || "").toLowerCase() !== "#d32f2f") return "In \`.btn-danger\` sovrascrivi la variabile: \`--primary: #d32f2f\`";
+return true;`,
+      },
+      {
+        type: "code",
+        mode: "css",
+        title: "Card responsive con una media query",
+        description:
+          "Le card degli articoli di un blog devono stare in colonna su mobile e affiancate su schermi larghi (approccio mobile first).\n- `.cards`: `display: flex`, `flex-direction: column` e `gap: 16px`\n- dentro `@media (min-width: 600px)`, `.cards` deve avere `flex-direction: row`\n- sempre dentro la media query, `.card` deve avere `flex: 1`\n\nSuggerimento: trascina l'angolo in basso a destra dell'anteprima o allarga la finestra per vedere il cambiamento.",
+        difficulty: "medio",
+        previewHtml: `<div class="cards">
+  <article class="card"><h3>Ricette d'autunno</h3><p>Zucca, castagne e funghi: tre idee per la cena.</p></article>
+  <article class="card"><h3>Weekend in montagna</h3><p>Cosa mettere nello zaino per due giorni di trekking.</p></article>
+  <article class="card"><h3>Libri del mese</h3><p>I cinque romanzi che non riuscivo a smettere di leggere.</p></article>
+</div>`,
+        starterCode: `.cards {
+  /* mobile: card in colonna con 16px di spazio */
+}
+
+.card {
+  background: #fff8e1;
+  border: 1px solid #ffe082;
+  border-radius: 8px;
+  padding: 12px;
+}
+
+/* da 600px in su: card affiancate */
+`,
+        solution: `.cards {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.card {
+  background: #fff8e1;
+  border: 1px solid #ffe082;
+  border-radius: 8px;
+  padding: 12px;
+}
+
+/* da 600px in su: card affiancate */
+@media (min-width: 600px) {
+  .cards {
+    flex-direction: row;
+  }
+  .card {
+    flex: 1;
+  }
+}`,
+        validate: `
+const base = $cssRule(".cards");
+if (base.display !== "flex") return "Rendi \`.cards\` un contenitore flex con \`display: flex\` (fuori dalla media query)";
+if (base["flex-direction"] !== "column") return "Su mobile (fuori dalla media query) \`.cards\` deve avere \`flex-direction: column\`";
+if (base.gap !== "16px" && base["row-gap"] !== "16px") return "Aggiungi \`gap: 16px\` a \`.cards\`";
+const inMedia = function (sel) {
+  const out = {};
+  $cssRules.forEach(function (r) {
+    if (r.selector === sel && r.media && /min-width:\\s*600px/.test(r.media)) Object.assign(out, r.decls);
+  });
+  return out;
+};
+const hasMedia = $cssRules.some(function (r) { return r.media && /min-width:\\s*600px/.test(r.media); });
+if (!hasMedia) return "Scrivi una media query \`@media (min-width: 600px) { ... }\`";
+if (inMedia(".cards")["flex-direction"] !== "row") return "Dentro la media query imposta \`.cards { flex-direction: row; }\`";
+const card = inMedia(".card");
+const grow = card["flex-grow"] || (card.flex || "").split(" ")[0];
+if (!(parseFloat(grow) > 0)) return "Dentro la media query imposta \`.card { flex: 1; }\`";
+return true;`,
       },
     ],
   },
