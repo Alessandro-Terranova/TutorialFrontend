@@ -36,6 +36,8 @@ export const modules = [
       { id: "async", title: "Async/Await e Promises" },
       { id: "data-structures", title: "Set, Map e Iterazione" },
       { id: "modules", title: "Moduli e Operatori Moderni" },
+      { id: "dates-json", title: "Date, JSON e Librerie Esterne" },
+      { id: "http", title: "Chiamate HTTP: fetch e axios" },
     ],
   },
   {
@@ -85,6 +87,20 @@ export const modules = [
       { id: "basics", title: "Box, Stack, Typography e Button" },
       { id: "sx-prop", title: "La Prop sx e Styling" },
       { id: "forms", title: "Form Controls e Tabelle" },
+      { id: "layout", title: "Grid, Card, Accordion e Menu" },
+      { id: "theme", title: "Tema Personalizzato" },
+    ],
+  },
+  {
+    id: "mui-x",
+    title: "MUI X: DataGrid e Grafici",
+    icon: "table_chart",
+    color: "#7e57c2",
+    description: "Tabelle avanzate con DataGrid e grafici con MUI X Charts",
+    lessons: [
+      { id: "data-grid", title: "DataGrid: Tabelle Avanzate" },
+      { id: "editable-grid", title: "DataGrid Modificabile" },
+      { id: "charts", title: "Grafici: BarChart e PieChart" },
     ],
   },
   {
@@ -97,6 +113,8 @@ export const modules = [
       { id: "app-router", title: "App Router e Routing" },
       { id: "components-types", title: "Server vs Client Components" },
       { id: "dynamic-routes", title: "Route Dinamiche e Layout" },
+      { id: "route-handlers", title: "Route Handlers: API in Next.js" },
+      { id: "config", title: "Configurazione: Env, Font e Provider" },
     ],
   },
   {
@@ -107,6 +125,7 @@ export const modules = [
     description: "Pattern avanzati: stato annidato, autenticazione, custom hook compositi",
     lessons: [
       { id: "patterns", title: "Pattern Avanzati" },
+      { id: "dashboard", title: "Una Dashboard Completa" },
     ],
   },
 ];

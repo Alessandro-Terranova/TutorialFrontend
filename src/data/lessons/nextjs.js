@@ -148,13 +148,45 @@ export default function RootLayout({ children }) {
         difficulty: "medio",
         options: [
           "Aggiunge '/account' all'URL",
-          "Crea un gruppo organizzativo senza influenzare l'URL",
           "Genera un errore perché le parentesi non sono valide",
           "Crea una rotta dinamica con parametro 'account'",
+          "Crea un gruppo organizzativo senza influenzare l'URL",
         ],
-        correct: 1,
+        correct: 3,
         explanation:
-          "Le parentesi tonde creano un route group: organizzano i file in cartelle logiche (eventualmente con un layout comune) senza aggiungere segmenti all'URL. app/(account)/profilo/page.js risponde a /profilo.",
+          "Le parentesi tonde creano un route group: organizzano i file in cartelle logiche (eventualmente con un layout comune) senza aggiungere segmenti all'URL. app/(account)/profilo/page.js risponde a /profilo. Non è un errore (le parentesi sono un nome di cartella valido) e non è una rotta dinamica: quelle si scrivono con le parentesi quadre, come vedremo più avanti.",
+      },
+      {
+        type: "multiple-choice",
+        title: "Quale URL?",
+        description:
+          "Dato questo albero di file:\n``\napp/\n├── layout.js\n├── (negozio)/\n│   └── carrello/\n│       └── page.js\n└── componenti/\n    └── Bottone.js\n``\nQuale di questi URL mostra una pagina?",
+        difficulty: "medio",
+        options: [
+          "/negozio/carrello",
+          "/componenti/Bottone",
+          "/carrello",
+          "/(negozio)/carrello",
+        ],
+        correct: 2,
+        explanation:
+          "`(negozio)` è un route group e non compare nell'URL, quindi `app/(negozio)/carrello/page.js` risponde a `/carrello`. `/negozio/carrello` e `/(negozio)/carrello` non esistono proprio perché il gruppo è invisibile nell'URL. La cartella `componenti` non contiene un `page.js`: `Bottone.js` è un normale file di componente e non diventa una rotta.",
+      },
+      {
+        type: "multiple-choice",
+        title: "Il layout root",
+        description:
+          "Un collega scrive `app/layout.js` così:\n``\nexport default function RootLayout({ children }) {\n  return <main>{children}</main>;\n}\n``\nQual è il problema?",
+        difficulty: "medio",
+        options: [
+          "Il layout root deve contenere i tag <html> e <body>",
+          "Un layout non può ricevere children",
+          "Il layout deve chiamarsi page.js",
+          "Nessun problema: il layout root è facoltativo",
+        ],
+        correct: 0,
+        explanation:
+          "Il layout root è obbligatorio e deve restituire i tag `<html>` e `<body>`, dentro cui vengono poi inserite le pagine tramite `children`. Ricevere `children` è proprio il compito di un layout; `page.js` è un file diverso (il contenuto della rotta) e il layout root non è facoltativo.",
       },
       {
         type: "code",

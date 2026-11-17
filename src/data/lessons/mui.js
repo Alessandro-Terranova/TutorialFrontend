@@ -274,6 +274,8 @@ if (!/<Typography[^>]*variant=["']body2["']/.test(c)) return "Aggiungi un testo 
 if (!/<Chip[^>]*label=["']Attivo["']/.test(c)) return "Aggiungi un <Chip label=\\"Attivo\\" />";
 if (!/<\\/Paper>/.test(c)) return "Ricordati di chiudere il Paper con </Paper>, mettendo gli altri elementi al suo interno";
 return true;`,
+        solutionExplanation:
+          "`Paper` è la superficie della card: `elevation={3}` le dà l'ombra e `sx={{ p: 3 }}` aggiunge 3 × 8px = 24px di padding. Lo `Stack` interno mette uno spazio regolare tra titolo, testo e Chip senza dover scrivere margini a mano. Le due `Typography` usano varianti diverse per creare la gerarchia: `h5` per il titolo, `body2` per il testo.",
       },
       {
         type: "multiple-choice",
@@ -290,6 +292,22 @@ return true;`,
         correct: 2,
         explanation:
           'variant="contained" ha lo sfondo pieno e la massima evidenza visiva, ideale per l\'azione principale. "outlined" è per le azioni secondarie, "text" per quelle terziarie. "icon" non esiste come variante: per le icone si usa IconButton.',
+      },
+      {
+        type: "multiple-choice",
+        title: "Cosa renderizza Box?",
+        description:
+          "Quale elemento HTML viene generato da questo codice?\n`<Box component=\"section\" sx={{ p: 2 }}>Novità</Box>`",
+        difficulty: "facile",
+        options: [
+          "Un `<div>` con un attributo `component=\"section\"`",
+          "Un `<section>` con 16px di padding",
+          "Un `<Box>`: il browser lo mostra come elemento personalizzato",
+          "Niente: `component` accetta solo componenti React, non stringhe",
+        ],
+        correct: 1,
+        explanation:
+          "Box renderizza un `<div>` per default, ma la prop `component` cambia il tag generato: qui diventa un `<section>`, e `p: 2` aggiunge 2 × 8px = 16px di padding. `component` non finisce nell'HTML come attributo, accetta sia stringhe (\"section\", \"span\"...) sia componenti React, e `<Box>` non arriva mai al browser: è un componente React che produce HTML normale.",
       },
     ],
   },
@@ -560,6 +578,40 @@ if (!dir) return "Aggiungi flexDirection con un oggetto di breakpoint, es. flexD
 if (!/\\bxs\\s*:\\s*["']column["']/.test(dir[1])) return "Su mobile flexDirection deve essere \\"column\\": usa xs: \\"column\\"";
 if (!/\\bmd\\s*:\\s*["']row["']/.test(dir[1])) return "Su desktop flexDirection deve essere \\"row\\": usa md: \\"row\\"";
 return true;`,
+        solutionExplanation:
+          "Ogni proprietà di `sx` accetta un oggetto di breakpoint. Con l'approccio mobile-first, il valore di `xs` vale da 0px in su e quello di `md` lo sovrascrive da 900px in su: così la card è in colonna con 16px di padding sul telefono e in riga con 32px sullo schermo grande.",
+      },
+      {
+        type: "multiple-choice",
+        title: "Lo spread condizionale",
+        description:
+          "Con `isSelected` uguale a `false`, quali stili riceve il Paper?\n`<Paper sx={{ p: 2, ...(isSelected && { bgcolor: \"primary.main\", color: \"white\" }) }} />`",
+        difficulty: "medio",
+        options: [
+          "Solo `p: 2`",
+          "`p: 2`, `bgcolor` e `color`",
+          "Nessuno: lo spread di `false` genera un errore",
+          "`p: 2` e una proprietà `false: true`",
+        ],
+        correct: 0,
+        explanation:
+          "Con `isSelected` false, l'espressione `isSelected && {...}` vale `false`, e fare lo spread di `false` in un oggetto non aggiunge nessuna proprietà (e non dà errore). Resta quindi solo `p: 2`. Le proprietà `bgcolor` e `color` arrivano solo quando `isSelected` è true.",
+      },
+      {
+        type: "multiple-choice",
+        title: "Colorare i Chip interni",
+        description:
+          "Vuoi rendere in grassetto tutti i Chip contenuti in un Box, senza toccare i singoli Chip. Quale `sx` sul Box è corretto?",
+        difficulty: "medio",
+        options: [
+          '`sx={{ Chip: { fontWeight: "bold" } }}`',
+          '`sx={{ "&:hover": { fontWeight: "bold" } }}`',
+          '`sx={{ ".Chip": { fontWeight: "bold" } }}`',
+          '`sx={{ "& .MuiChip-root": { fontWeight: "bold" } }}`',
+        ],
+        correct: 3,
+        explanation:
+          "Ogni componente MUI ha una classe CSS del tipo `MuiNomeComponente-root`. Il selettore `\"& .MuiChip-root\"` significa \"gli elementi con classe MuiChip-root dentro l'elemento corrente\" (`&`). `Chip` come chiave verrebbe interpretato come una proprietà CSS inesistente, `.Chip` non è la classe usata da MUI, e `&:hover` cambia il Box stesso solo al passaggio del mouse.",
       },
       {
         type: "code",
@@ -616,6 +668,8 @@ if (!spread) return "Nel sx del Box aggiungi lo spread condizionale: ...(isActiv
 if (!/bgcolor\\s*:\\s*["']primary\\.main["']/.test(spread[1])) return "Dentro lo spread condizionale imposta bgcolor: \\"primary.main\\"";
 if (!/fontWeight\\s*:\\s*isActive\\s*\\?\\s*["']bold["']\\s*:\\s*["']normal["']/.test(c)) return "Nel sx del Typography imposta fontWeight con il ternario: fontWeight: isActive ? \\"bold\\" : \\"normal\\"";
 return true;`,
+        solutionExplanation:
+          "Lo spread `...(isActive && { ... })` aggiunge un intero gruppo di stili solo quando la voce è attiva; essendo scritto dopo gli stili base, il suo `\"&:hover\"` sostituisce quello grigio. Per una singola proprietà con due valori possibili, come `fontWeight`, il ternario è più semplice e leggibile.",
       },
     ],
   },
@@ -712,7 +766,7 @@ export default function ContactForm() {
         label="Età"
         type="number"
         size="small"
-        inputProps={{ min: 0, step: 1 }}
+        slotProps={{ htmlInput: { min: 0, step: 1 } }}
       />
     </Stack>
   );
@@ -774,6 +828,134 @@ export default function CityPicker() {
         type: "info",
         content:
           "Nota `renderInput={(params) => <TextField {...params} />}`: Autocomplete ti passa un oggetto `params` con tutte le props necessarie al campo di testo, e tu le \"spalmi\" sul TextField con lo spread. È lo stesso spread che conosci per gli oggetti, usato sulle props JSX.",
+      },
+      {
+        type: "subheading",
+        content: "Autocomplete multiplo come filtro",
+      },
+      {
+        type: "text",
+        content:
+          "Un uso molto comune di Autocomplete `multiple` è il filtro: l'utente sceglie una o più categorie e la lista mostra solo gli elementi corrispondenti. Tre dettagli lo rendono comodo:",
+      },
+      {
+        type: "list",
+        items: [
+          "`value` e `onChange` lo rendono **controllato**: il valore (un array) vive nello stato del componente. Attenzione: l'`onChange` di Autocomplete riceve due argomenti, `(event, newValue)`, e il nuovo valore è il **secondo**. Quando l'evento non ti serve, per convenzione lo chiami `_`: `onChange={(_, newValue) => ...}`.",
+          "`limitTags={2}` mostra al massimo 2 Chip quando il campo non ha il focus, e al posto degli altri scrive \"+3\" (o quanti sono): il campo non cresce all'infinito.",
+          "`placeholder` sul TextField è il testo grigio mostrato quando il campo è vuoto. Con un ternario puoi scrivere \"Tutti\" quando non è selezionato nulla: per un filtro, nessuna selezione significa infatti \"non escludere niente\". Quando ci sono dei Chip passi `undefined`, cioè nessun placeholder.",
+        ],
+      },
+      {
+        type: "code",
+        language: "javascript",
+        title: "Filtro per categorie con Autocomplete multiplo",
+        code: `import { useState } from "react";
+import { Autocomplete, TextField, Stack, Typography } from "@mui/material";
+
+const categories = ["Informatica", "Casa", "Viaggi", "Sport", "Libri", "Giochi"];
+
+export default function CategoryFilter() {
+  // Lo stato è un array: all'inizio nessuna categoria scelta
+  const [selected, setSelected] = useState([]);
+
+  return (
+    <Stack spacing={1} sx={{ width: 260 }}>
+      <Typography variant="body2">Categorie</Typography>
+      <Autocomplete
+        multiple
+        limitTags={2}
+        size="small"
+        options={categories}
+        value={selected}
+        // Il primo argomento (l'evento) non serve: lo chiamiamo _
+        onChange={(_, newValue) => setSelected(newValue)}
+        renderInput={(params) => (
+          <TextField
+            {...params}
+            // "Tutti" solo quando non c'è nessun Chip
+            placeholder={selected.length === 0 ? "Tutti" : undefined}
+          />
+        )}
+      />
+      <Typography variant="caption">
+        {selected.length === 0
+          ? "Nessun filtro: vedi tutti i prodotti"
+          : "Filtri attivi: " + selected.join(", ")}
+      </Typography>
+    </Stack>
+  );
+}`,
+      },
+      {
+        type: "info",
+        content:
+          "Quando le opzioni sono semplici stringhe (come `categories` qui sopra), non serve `getOptionLabel`: Autocomplete mostra direttamente la stringa. Ti serve solo quando le opzioni sono oggetti.",
+      },
+      {
+        type: "heading",
+        content: "Slider: scegliere un valore numerico",
+      },
+      {
+        type: "text",
+        content:
+          "Slider è una barra con un cursore da trascinare, perfetta per valori numerici in un intervallo (prezzo massimo, volume, percentuale). Le props principali:",
+      },
+      {
+        type: "list",
+        items: [
+          "`min` e `max`: gli estremi dell'intervallo (default 0 e 100); `step` è il passo (default 1).",
+          "`value` e `onChange`: come per Autocomplete, il nuovo valore è il **secondo** argomento: `onChange={(_, newValue) => setValue(newValue)}`.",
+          "`valueLabelDisplay`: quando mostrare l'etichetta con il valore sopra il cursore: `\"off\"` (default, mai), `\"auto\"` (mentre lo trascini o al passaggio del mouse), `\"on\"` (sempre).",
+          "`valueLabelFormat`: una funzione che riceve il numero e restituisce il testo da mostrare, es. `(v) => v + \" €\"`.",
+          "`track`: la barra colorata. Di default (`\"normal\"`) colora la parte da `min` al cursore; con `track=\"inverted\"` colora quella dal cursore a `max`, utile quando il valore rappresenta un minimo (\"almeno 3 stelle\"); con `track={false}` non colora nulla.",
+        ],
+      },
+      {
+        type: "code",
+        language: "javascript",
+        title: "Filtri a cursore: prezzo massimo e valutazione minima",
+        code: `import { useState } from "react";
+import { Slider, Stack, Typography } from "@mui/material";
+
+export default function PriceFilters() {
+  const [maxPrice, setMaxPrice] = useState(200);
+  const [minRating, setMinRating] = useState(3);
+
+  return (
+    <Stack spacing={3} sx={{ width: 260, pt: 3 }}>
+      <Typography variant="body2">Prezzo massimo</Typography>
+      <Slider
+        value={maxPrice}
+        onChange={(_, newValue) => setMaxPrice(newValue)}
+        min={0}
+        max={500}
+        step={10}
+        valueLabelDisplay="on"
+        valueLabelFormat={(v) => v + " €"}
+        aria-label="Prezzo massimo"
+      />
+
+      <Typography variant="body2">Valutazione minima</Typography>
+      <Slider
+        value={minRating}
+        onChange={(_, newValue) => setMinRating(newValue)}
+        min={1}
+        max={5}
+        valueLabelDisplay="auto"
+        valueLabelFormat={(v) => v + " stelle"}
+        // Coloriamo la parte "da qui in su": i valori accettati
+        track="inverted"
+        aria-label="Valutazione minima"
+      />
+    </Stack>
+  );
+}`,
+      },
+      {
+        type: "info",
+        content:
+          "Lo Slider non ha un'etichetta testuale visibile come TextField: aggiungi `aria-label` così chi usa uno screen reader sa a cosa serve il cursore.",
       },
       {
         type: "heading",
@@ -971,6 +1153,8 @@ for (const s of ["S", "M", "L"]) {
 }
 if (!new RegExp("<Typography[^>]*>[^<]*\\\\{[^}]*\\\\b" + val + "\\\\b[^}]*\\\\}").test(c)) return "Mostra il valore scelto dentro un Typography, es. <Typography>Selezionata: {" + val + "}</Typography>";
 return true;`,
+        solutionExplanation:
+          "È lo schema del componente controllato: il valore mostrato dal Select arriva sempre dallo stato (`value={size}`) e ogni scelta passa da `onChange`, che legge `e.target.value` (il `value` del MenuItem cliccato) e aggiorna lo stato. Il `Typography` legge lo stesso stato, quindi si aggiorna da solo; `size || \"nessuna\"` mostra un testo di riserva finché lo stato è la stringa vuota.",
       },
       {
         type: "multiple-choice",

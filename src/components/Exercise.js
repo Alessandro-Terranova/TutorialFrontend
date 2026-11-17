@@ -15,6 +15,11 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
+import Collapse from "@mui/material/Collapse";
+import LightbulbIcon from "@mui/icons-material/Lightbulb";
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+import CheckIcon from "@mui/icons-material/Check";
+import EditNoteIcon from "@mui/icons-material/EditNote";
 import RichText from "@/components/RichText";
 
 const RUN_TIMEOUT_MS = 5000;
@@ -140,6 +145,13 @@ function CodeExercise({ exercise }) {
   const [result, setResult] = useState(null);
   const [running, setRunning] = useState(false);
   const [showSolution, setShowSolution] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const copySolution = () => {
+    navigator.clipboard?.writeText(exercise.solution);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
   // mode:
   //  - "js" (default): il codice viene eseguito nella sandbox e si vede la console
   //  - "css": il CSS viene applicato a `exercise.previewHtml` in un'anteprima live
@@ -232,12 +244,13 @@ function CodeExercise({ exercise }) {
         </Button>
         {exercise.solution && (
           <Button
-            variant="outlined"
+            variant={showSolution ? "contained" : "outlined"}
+            color="success"
             startIcon={showSolution ? <VisibilityOffIcon /> : <VisibilityIcon />}
             onClick={() => setShowSolution(!showSolution)}
             size="small"
           >
-            {showSolution ? "Nascondi" : "Soluzione"}
+            {showSolution ? "Nascondi soluzione" : "Mostra soluzione"}
           </Button>
         )}
         <Typography variant="caption" color="text.secondary" sx={{ ml: "auto" }}>
@@ -255,35 +268,78 @@ function CodeExercise({ exercise }) {
           <RichText text={verdict.text} />
         </Alert>
       )}
-      {showSolution && exercise.solution && (
-        <Box
-          sx={{
-            bgcolor: "#f0fdf4",
-            border: "1px solid #bbf7d0",
-            borderRadius: 2,
-            p: 2,
-            mt: 1,
-          }}
-        >
-          <Typography variant="caption" fontWeight={600} color="success.main" gutterBottom>
-            Soluzione:
-          </Typography>
+      {exercise.solution && (
+        <Collapse in={showSolution} timeout={250} unmountOnExit>
           <Box
-            component="pre"
             sx={{
-              bgcolor: "#1e1e2e",
-              color: "#cdd6f4",
-              p: 2,
-              borderRadius: 1,
-              fontSize: 13,
-              fontFamily: "'Fira Code', 'Consolas', monospace",
-              overflow: "auto",
-              mt: 1,
+              mt: 2,
+              borderRadius: 2,
+              overflow: "hidden",
+              border: "2px solid",
+              borderColor: "success.main",
+              boxShadow: "0 4px 16px rgba(46, 204, 113, 0.18)",
             }}
           >
-            {exercise.solution}
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 1,
+                px: 2,
+                py: 1,
+                bgcolor: "success.main",
+                color: "#fff",
+              }}
+            >
+              <LightbulbIcon fontSize="small" />
+              <Typography variant="subtitle2" fontWeight={700} sx={{ flexGrow: 1 }}>
+                Soluzione proposta
+              </Typography>
+              <Button
+                size="small"
+                startIcon={copied ? <CheckIcon /> : <ContentCopyIcon />}
+                onClick={copySolution}
+                sx={{ color: "#fff", "&:hover": { bgcolor: "rgba(255,255,255,0.15)" } }}
+              >
+                {copied ? "Copiata" : "Copia"}
+              </Button>
+              <Button
+                size="small"
+                startIcon={<EditNoteIcon />}
+                onClick={() => {
+                  setCode(exercise.solution);
+                  setResult(null);
+                }}
+                sx={{ color: "#fff", "&:hover": { bgcolor: "rgba(255,255,255,0.15)" } }}
+              >
+                Usa nell&apos;editor
+              </Button>
+            </Box>
+            <Box
+              component="pre"
+              sx={{
+                bgcolor: "#1e1e2e",
+                color: "#cdd6f4",
+                p: 2,
+                m: 0,
+                fontSize: 13,
+                lineHeight: 1.6,
+                fontFamily: "'Fira Code', 'Consolas', monospace",
+                overflow: "auto",
+                maxHeight: 480,
+              }}
+            >
+              {exercise.solution}
+            </Box>
+            {exercise.solutionExplanation && (
+              <Box sx={{ px: 2, py: 1.5, bgcolor: "#f0fdf4" }}>
+                <Typography variant="body2">
+                  <RichText text={exercise.solutionExplanation} />
+                </Typography>
+              </Box>
+            )}
           </Box>
-        </Box>
+        </Collapse>
       )}
     </Box>
   );
@@ -338,16 +394,15 @@ function MultipleChoice({ exercise }) {
       </Button>
       {submitted && (
         <Alert severity={isCorrect ? "success" : "error"} sx={{ mt: 1 }}>
-          {isCorrect
-            ? "Corretto!"
-            : <RichText text={exercise.explanation || "Non corretto. Riprova!"} />}
+          <strong>{isCorrect ? "Corretto! " : "Non corretto. "}</strong>
+          {exercise.explanation ? <RichText text={exercise.explanation} /> : !isCorrect && "Riprova!"}
         </Alert>
       )}
     </Box>
   );
 }
 
-export default function Exercise({ exercise, index }) {
+export default function Exercise({ exercise, index, label = "Esercizio" }) {
   return (
     <Box
       sx={{
@@ -360,7 +415,7 @@ export default function Exercise({ exercise, index }) {
     >
       <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1.5 }}>
         <Chip
-          label={`Esercizio ${index}`}
+          label={`${label} ${index}`}
           size="small"
           color="primary"
           variant="outlined"

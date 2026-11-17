@@ -240,6 +240,44 @@ console.log(!!0);        // false`,
           '`typeof null` restituisce `"object"`. È un bug storico di JavaScript presente fin dalla prima versione del linguaggio e mai corretto per motivi di compatibilità.',
       },
       {
+        type: "multiple-choice",
+        title: "+ e - con le stringhe",
+        description:
+          'Cosa stampa questo codice?\n`console.log("3" + 2, "3" - 2);`',
+        difficulty: "facile",
+        options: ["`5 1`", "`32 32`", "`32 1`", "`NaN 1`"],
+        correct: 2,
+        explanation:
+          'Se uno dei due operandi è una stringa, `+` **concatena**: `"3" + 2` diventa `"32"`. L\'operatore `-` invece esiste solo per i numeri, quindi JavaScript converte `"3"` in `3` (coercion) e calcola `3 - 2 = 1`. Per questo `5 1` e `32 32` sono sbagliate, e non c\'è nessun `NaN`: `"3"` si converte senza problemi in un numero.',
+      },
+      {
+        type: "multiple-choice",
+        title: "Riassegnare una const",
+        description:
+          "Cosa succede eseguendo questo codice?\n`const total = 10;`\n`total = total + 5;`\n`console.log(total);`",
+        difficulty: "facile",
+        options: [
+          "Si verifica un errore (TypeError) alla seconda riga",
+          "Stampa `15`",
+          "Stampa `10`: la riassegnazione viene ignorata senza errori",
+          "Stampa `undefined`",
+        ],
+        correct: 0,
+        explanation:
+          "Una variabile dichiarata con `const` non può essere riassegnata: la seconda riga lancia `TypeError: Assignment to constant variable` e il programma si ferma prima del `console.log`. JavaScript non ignora in silenzio la riassegnazione e non cambia il valore. Se il valore deve cambiare, dichiara la variabile con `let`.",
+      },
+      {
+        type: "multiple-choice",
+        title: "|| e i valori falsy",
+        description:
+          'Cosa stampa questo codice?\n`const quantity = 0;`\n`const shown = quantity || "nessuno";`\n`console.log(shown);`',
+        difficulty: "medio",
+        options: ["`0`", "`true`", "`undefined`", "`nessuno`"],
+        correct: 3,
+        explanation:
+          '`||` restituisce il primo valore *truthy*, oppure l\'ultimo valore se nessuno lo è. `0` è *falsy*, quindi `||` passa al secondo operando e restituisce `"nessuno"`. Non restituisce `true`: gli operatori logici restituiscono uno dei valori, non necessariamente un boolean. Attenzione a questo comportamento quando `0` è un valore valido (come una quantità).',
+      },
+      {
         type: "code",
         title: "Strict equality",
         description:
@@ -281,6 +319,8 @@ if (score >= 90) {
 const message = grade !== "Bocciato" ? "Esame superato" : "Riprova";
 console.log(grade);
 console.log(message);`,
+        solutionExplanation:
+          "Le condizioni vengono controllate dall'alto verso il basso e viene eseguito solo il primo ramo vero: per questo si parte dalla soglia più alta (`>= 90`). Con `score = 75` la prima condizione è falsa e la seconda vera, quindi `grade` diventa `\"Promosso\"`. Il ternario produce direttamente un valore, per cui si può assegnare a `message` in una sola riga.",
         validate: `
 const code = $codeNoComments;
 if (!/\\bif\\s*\\(/.test(code)) return "Usa un'istruzione if (...) { ... }";
@@ -508,6 +548,44 @@ console.log(result); // 30`,
     ],
     exercises: [
       {
+        type: "multiple-choice",
+        title: "Hoisting",
+        description:
+          "Quale di questi due frammenti funziona senza errori?\n\n**A**\n`console.log(square(3));`\n`function square(n) { return n * n; }`\n\n**B**\n`console.log(square(3));`\n`const square = (n) => n * n;`",
+        difficulty: "medio",
+        options: [
+          "Entrambi stampano `9`",
+          "Solo A stampa `9`; B lancia un errore",
+          "Solo B stampa `9`; A lancia un errore",
+          "Nessuno dei due: una funzione va sempre definita prima di usarla",
+        ],
+        correct: 1,
+        explanation:
+          "Le *function declaration* (A) vengono sollevate (*hoisting*): sono disponibili in tutto lo scope, anche prima della riga in cui sono scritte. Una arrow function assegnata a `const` (B) segue invece le regole di `const`: prima della dichiarazione la variabile non è utilizzabile e si ottiene un `ReferenceError`. Quindi non funzionano entrambi né nessuno dei due, e il caso che fallisce è B, non A.",
+      },
+      {
+        type: "multiple-choice",
+        title: "Implicit return con le graffe",
+        description:
+          "Cosa stampa questo codice?\n`const double = (n) => { n * 2 };`\n`console.log(double(4));`",
+        difficulty: "medio",
+        options: ["`8`", "`4`", "Un errore di sintassi", "`undefined`"],
+        correct: 3,
+        explanation:
+          "Con le graffe `{ }` la arrow function ha un corpo a blocco, e in quel caso il *return implicito* non c'è: senza `return` la funzione restituisce `undefined`. Il codice è sintatticamente valido, quindi non c'è errore. Per ottenere `8` bisogna scrivere `(n) => n * 2` (senza graffe) oppure `(n) => { return n * 2; }`.",
+      },
+      {
+        type: "multiple-choice",
+        title: "Closure e contatori",
+        description:
+          "Cosa stampa questo codice?\n`const createCounter = () => {`\n`  let count = 0;`\n`  return () => { count++; return count; };`\n`};`\n`const a = createCounter();`\n`const b = createCounter();`\n`a(); a();`\n`console.log(a(), b());`",
+        difficulty: "difficile",
+        options: ["`3 1`", "`3 4`", "`1 1`", "`2 1`"],
+        correct: 0,
+        explanation:
+          "Ogni chiamata a `createCounter` crea una **nuova** variabile `count`, ricordata dalla funzione restituita (closure). `a` e `b` hanno quindi contatori separati: `a` è già stato chiamato due volte, e la terza chiamata restituisce `3`; `b` viene chiamato per la prima volta e restituisce `1`. `3 4` presuppone un contatore condiviso, `1 1` un contatore che si azzera a ogni chiamata, `2 1` dimentica che anche `a()` dentro il `console.log` incrementa.",
+      },
+      {
         type: "code",
         title: "Prima arrow function",
         description:
@@ -536,6 +614,8 @@ return true;`,
         solution: `const applyOperation = (a, b, operation = (x, y) => x + y) => operation(a, b);
 console.log(applyOperation(2, 3));
 console.log(applyOperation(2, 3, (x, y) => x * y));`,
+        solutionExplanation:
+          "Il valore di default di un parametro può essere qualsiasi espressione, anche una funzione: `operation = (x, y) => x + y`. Quando la chiamata non passa il terzo argomento, `operation` è `undefined` e viene usato il default; altrimenti si usa la funzione ricevuta. Il corpo si limita a chiamare `operation(a, b)`: è `applyOperation` a decidere *quando* chiamarla, il chiamante decide *cosa* fa.",
         validate: `
 if (typeof applyOperation !== "function") return "Definisci la funzione applyOperation";
 let r;
@@ -560,6 +640,8 @@ const double = createMultiplier(2);
 const tenTimes = createMultiplier(10);
 console.log(double(5));
 console.log(tenTimes(5));`,
+        solutionExplanation:
+          "`(factor) => (n) => n * factor` è una arrow function che restituisce (con il return implicito) un'altra arrow function. La funzione interna ricorda il valore di `factor` con cui è stata creata (closure): `double` ricorda `2`, `tenTimes` ricorda `10`, anche se `createMultiplier` ha già finito di essere eseguita. La forma estesa equivalente è `(factor) => { return (n) => { return n * factor; }; }`.",
         validate: `
 if (typeof createMultiplier !== "function") return "Definisci la funzione createMultiplier";
 const byThree = createMultiplier(3);
@@ -836,6 +918,49 @@ console.log(evenSquares); // [4, 16, 36]`,
     ],
     exercises: [
       {
+        type: "multiple-choice",
+        title: "Indici e length",
+        description:
+          'Cosa stampa questo codice?\n`const todos = ["Spesa", "Palestra", "Studiare"];`\n`console.log(todos[todos.length]);`',
+        difficulty: "facile",
+        options: ['`"Studiare"`', "`undefined`", "`3`", "Un errore: indice fuori dai limiti"],
+        correct: 1,
+        explanation:
+          'Gli indici partono da 0, quindi con 3 elementi gli indici validi sono 0, 1 e 2. `todos.length` vale `3` e `todos[3]` non esiste: leggere un indice inesistente restituisce `undefined`, senza errori. Per l\'ultimo elemento (`"Studiare"`) serve `todos[todos.length - 1]`; `3` sarebbe il valore di `todos.length`, non l\'elemento.',
+      },
+      {
+        type: "multiple-choice",
+        title: "slice o splice?",
+        description:
+          'Cosa stampa questo codice?\n`const nums = [10, 20, 30, 40];`\n`const part = nums.slice(1, 3);`\n`console.log(part, nums.length);`',
+        difficulty: "medio",
+        options: [
+          "`[20, 30] 2`",
+          "`[20, 30, 40] 4`",
+          "`[10, 20, 30] 4`",
+          "`[20, 30] 4`",
+        ],
+        correct: 3,
+        explanation:
+          "`slice(1, 3)` restituisce una **copia** degli elementi dall'indice 1 fino al 3 **escluso**, cioè `[20, 30]`, e non modifica l'array originale, che resta lungo 4. `[20, 30] 2` sarebbe il comportamento di `splice(1, 2)`, che invece rimuove gli elementi dall'originale; le altre due opzioni ignorano che l'indice di fine è escluso o che gli indici partono da 0.",
+      },
+      {
+        type: "multiple-choice",
+        title: "forEach o map?",
+        description:
+          "Vuoi ottenere un nuovo array con i prezzi aumentati di 2 euro. Quale codice è corretto?\n**A** `const updated = prices.forEach((p) => p + 2);`\n**B** `const updated = prices.map((p) => p + 2);`\n**C** `const updated = prices.filter((p) => p + 2);`",
+        difficulty: "medio",
+        options: [
+          "Solo B",
+          "A e B: fanno la stessa cosa",
+          "Solo A",
+          "B e C",
+        ],
+        correct: 0,
+        explanation:
+          "`map` crea un nuovo array con il valore restituito dal callback per ogni elemento: è esattamente ciò che serve. `forEach` chiama il callback ma restituisce sempre `undefined`, quindi `updated` sarebbe `undefined`. `filter` usa il valore restituito solo come condizione vero/falso: `p + 2` è un numero diverso da 0 (truthy) e quindi `filter` restituirebbe una copia dei prezzi **non modificati**.",
+      },
+      {
         type: "code",
         title: "Gestire una playlist",
         description:
@@ -885,6 +1010,8 @@ console.log(sumPositive([3, -2, 5, 0]));`,
 }
 
 console.log(sumPositive([3, -2, 5, 0]));`,
+        solutionExplanation:
+          "La variabile `total` parte da `0` ed è dichiarata con `let` perché viene aggiornata a ogni giro. `for...of` dà direttamente ogni numero e l'`if` decide se sommarlo. Partire da `0` gestisce automaticamente anche i casi limite: con un array vuoto (o senza numeri positivi) il ciclo non somma nulla e la funzione restituisce `0`.",
         validate: `
 if (typeof sumPositive !== "function") return "Definisci la funzione sumPositive";
 if (!/\\bfor\\s*\\(/.test($codeNoComments)) return "Usa un ciclo for o for...of";
@@ -911,6 +1038,8 @@ console.log(discountedPrices([10, 40, 20, 5]));`,
 };
 
 console.log(discountedPrices([10, 40, 20, 5]));`,
+        solutionExplanation:
+          "`filter` restituisce un nuovo array con i soli prezzi `>= 20`; su questo nuovo array si chiama subito `map`, che dimezza ogni elemento. L'ordine conta: se dimezzassi prima di filtrare, il prezzo `20` diventerebbe `10` e verrebbe scartato per errore. Né `filter` né `map` modificano l'array di partenza, quindi l'originale resta intatto.",
         validate: `
 if (typeof discountedPrices !== "function") return "Definisci la funzione discountedPrices";
 const code = $codeNoComments;
@@ -1287,6 +1416,49 @@ console.log(movie); // { title: "Inception", year: 2010, rating: 8.8 }`,
     ],
     exercises: [
       {
+        type: "multiple-choice",
+        title: "Spread: chi vince?",
+        description:
+          'Cosa stampa questo codice?\n`const base = { theme: "light", size: 14 };`\n`const result = { theme: "dark", ...base };`\n`console.log(result.theme);`',
+        difficulty: "medio",
+        options: ['`"dark"`', "`undefined`", '`"light"`', '`["dark", "light"]`'],
+        correct: 2,
+        explanation:
+          'Con lo spread le proprietà vengono copiate nell\'ordine in cui sono scritte, e una chiave ripetuta viene **sovrascritta** da quella che arriva dopo. Qui `...base` viene dopo `theme: "dark"`, quindi il suo `theme: "light"` vince. Una chiave in un oggetto può avere un solo valore (niente array di valori). Per far vincere `"dark"` bisogna scrivere `{ ...base, theme: "dark" }`.',
+      },
+      {
+        type: "multiple-choice",
+        title: "Dot o bracket notation?",
+        description:
+          'Cosa stampa questo codice?\n`const book = { title: "Dune", year: 1965 };`\n`const key = "year";`\n`console.log(book.key, book[key]);`',
+        difficulty: "medio",
+        options: [
+          "`1965 1965`",
+          "`undefined 1965`",
+          '`"year" 1965`',
+          "Un errore: `key` non è una proprietà",
+        ],
+        correct: 1,
+        explanation:
+          '`book.key` cerca una proprietà che si chiama letteralmente `"key"`, che non esiste: restituisce `undefined` (senza errori). `book[key]` invece usa il **valore** della variabile `key`, cioè `"year"`, e restituisce `1965`. Per questo quando il nome della chiave è in una variabile serve la bracket notation.',
+      },
+      {
+        type: "multiple-choice",
+        title: "Destructuring con rinomina e default",
+        description:
+          'Dopo questo codice, quanto valgono `label` e `stock`?\n`const product = { name: "Lampada", price: 30 };`\n`const { name: label, stock = 0 } = product;`',
+        difficulty: "difficile",
+        options: [
+          '`label` è `undefined`, `stock` è `0`',
+          '`label` è `"name"`, `stock` è `undefined`',
+          '`label` è `"Lampada"`, `stock` è `undefined`',
+          '`label` è `"Lampada"`, `stock` è `0`',
+        ],
+        correct: 3,
+        explanation:
+          '`name: label` significa "leggi la proprietà `name` e salvala in una variabile chiamata `label`", quindi `label` vale `"Lampada"` (e non viene creata nessuna variabile `name`). `stock = 0` è un valore di default: la proprietà `stock` non esiste nell\'oggetto, quindi si usa `0` invece di `undefined`.',
+      },
+      {
         type: "code",
         title: "Destructuring base",
         description:
@@ -1347,6 +1519,8 @@ const userConfig = {
 
 const finalConfig = { ...baseConfig, ...userConfig, lastUpdate: "2024-01-01" };
 console.log(finalConfig);`,
+        solutionExplanation:
+          "Lo spread copia le proprietà nell'ordine in cui è scritto: prima tutte quelle di `baseConfig`, poi quelle di `userConfig`, che sovrascrivono le chiavi ripetute (`theme` diventa `\"dark\"`). `lastUpdate` si aggiunge in coda come una normale proprietà. Poiché `finalConfig` è un oggetto nuovo, i due oggetti di partenza non vengono toccati.",
         validate: `
 if (!/\\.\\.\\.\\s*baseConfig/.test($codeNoComments) || !/\\.\\.\\.\\s*userConfig/.test($codeNoComments)) return "Usa lo spread: { ...baseConfig, ...userConfig, ... }";
 if (!$equal(baseConfig, { theme: "light", language: "it", showHeader: true })) return "Non modificare baseConfig";
@@ -1394,6 +1568,8 @@ function getAverage(scores) {
 }
 
 console.log(getAverage(scores));`,
+        solutionExplanation:
+          "`Object.entries` trasforma l'oggetto in un array di coppie `[nome, voto]`, così si può usare `length` per contare i voti e `for...of` per scorrerli. Nel ciclo, il destructuring `[, score]` salta il nome e prende solo il voto. Il controllo iniziale sull'oggetto vuoto evita la divisione `0 / 0`, che darebbe `NaN`. Con `Object.values(scores)` si otterrebbe direttamente l'array dei voti.",
         validate: `
 if (typeof getAverage !== "function") return "Definisci la funzione getAverage";
 const code = $codeNoComments;
@@ -1631,6 +1807,49 @@ console.log(passedTotal); // 23`,
     ],
     exercises: [
       {
+        type: "multiple-choice",
+        title: "find o filter?",
+        description:
+          'Cosa stampa questo codice?\n`const users = [{ id: 1, name: "Ada" }, { id: 2, name: "Leo" }];`\n`console.log(users.find((u) => u.id === 2));`\n`console.log(users.filter((u) => u.id === 3));`',
+        difficulty: "facile",
+        options: [
+          '`[{ id: 2, name: "Leo" }]` e poi `undefined`',
+          '`{ id: 2, name: "Leo" }` e poi `[]`',
+          '`{ id: 2, name: "Leo" }` e poi `undefined`',
+          "`1` e poi `-1`",
+        ],
+        correct: 1,
+        explanation:
+          "`find` restituisce **il primo elemento** che soddisfa la condizione (l'oggetto stesso, non un array), oppure `undefined` se non lo trova. `filter` restituisce **sempre un array**: se nessun elemento soddisfa la condizione, è un array vuoto `[]`, mai `undefined`. Gli indici (`1`, `-1`) sarebbero il risultato di `findIndex`.",
+      },
+      {
+        type: "multiple-choice",
+        title: "sort senza funzione di confronto",
+        description:
+          "Cosa stampa questo codice?\n`const prices = [25, 100, 9];`\n`const sorted = [...prices].sort();`\n`console.log(sorted, prices);`",
+        difficulty: "medio",
+        options: [
+          "`[9, 25, 100] [25, 100, 9]`",
+          "`[9, 25, 100] [9, 25, 100]`",
+          "`[100, 25, 9] [25, 100, 9]`",
+          "`[100, 25, 9] [100, 25, 9]`",
+        ],
+        correct: 2,
+        explanation:
+          'Senza funzione di confronto, `sort` confronta gli elementi **come testo**: `"100"` viene prima di `"25"` (perché `"1"` < `"2"`) e `"25"` prima di `"9"`. Il risultato è quindi `[100, 25, 9]`, non l\'ordine numerico. L\'originale invece resta `[25, 100, 9]`, perché è stata ordinata una copia fatta con lo spread. Per l\'ordine numerico serve `.sort((a, b) => a - b)`.',
+      },
+      {
+        type: "multiple-choice",
+        title: "reduce passo per passo",
+        description:
+          'Quanto vale `result`?\n`const cart = [{ price: 5, qty: 2 }, { price: 3, qty: 4 }];`\n`const result = cart.reduce((acc, item) => acc + item.price * item.qty, 100);`',
+        difficulty: "difficile",
+        options: ["`22`", "`114`", "`108`", "`122`"],
+        correct: 3,
+        explanation:
+          "Il secondo argomento di `reduce` è il valore iniziale dell'accumulatore, qui `100`. Primo giro: `100 + 5 * 2 = 110`. Secondo giro: `110 + 3 * 4 = 122`. `22` è il totale del carrello se si parte da `0`; `114` si otterrebbe sommando prezzi e quantità invece di moltiplicarli, `108` sommando solo i prezzi.",
+      },
+      {
         type: "code",
         title: "filter e map su oggetti",
         description:
@@ -1704,6 +1923,8 @@ const getTotal = (orders) => {
 };
 
 console.log(getTotal(orders));`,
+        solutionExplanation:
+          "A ogni giro il callback riceve il totale accumulato finora (`acc`) e l'ordine corrente, e restituisce il nuovo totale `acc + order.amount`. Il valore iniziale `0` è essenziale: è il punto di partenza della somma e, con un array vuoto, diventa direttamente il risultato invece di provocare un errore.",
         validate: `
 if (typeof getTotal !== "function") return "Definisci la funzione getTotal";
 if (!/\\.reduce\\(/.test($codeNoComments)) return "Usa il metodo reduce";

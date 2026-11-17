@@ -1,6 +1,6 @@
 "use client";
 
-import { use } from "react";
+import { use, useState } from "react";
 import AppShell from "@/components/AppShell";
 import LessonLayout from "@/components/LessonLayout";
 import CodeBlock from "@/components/CodeBlock";
@@ -9,6 +9,12 @@ import RichText from "@/components/RichText";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Alert from "@mui/material/Alert";
+import Tabs from "@mui/material/Tabs";
+import Tab from "@mui/material/Tab";
+import Button from "@mui/material/Button";
+import MenuBookIcon from "@mui/icons-material/MenuBook";
+import FitnessCenterIcon from "@mui/icons-material/FitnessCenter";
+import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import { getLesson } from "@/data/modules";
 
 import { lessons as cssLessons } from "@/data/lessons/css";
@@ -19,6 +25,7 @@ import { lessons as reactAdvancedLessons } from "@/data/lessons/react-advanced";
 import { lessons as reduxLessons } from "@/data/lessons/redux";
 import { lessons as nextjsLessons } from "@/data/lessons/nextjs";
 import { lessons as muiLessons } from "@/data/lessons/mui";
+import { lessons as muiXLessons } from "@/data/lessons/mui-x";
 import { lessons as projectLessons } from "@/data/lessons/project";
 
 const allLessons = {
@@ -30,6 +37,7 @@ const allLessons = {
   redux: reduxLessons,
   nextjs: nextjsLessons,
   mui: muiLessons,
+  "mui-x": muiXLessons,
   project: projectLessons,
 };
 
@@ -93,6 +101,83 @@ function Section({ section }) {
   return null;
 }
 
+// Due tab: la teoria e gli esercizi (prima le domande a risposta multipla, poi quelli di codice).
+function LessonTabs({ moduleId, lessonId, content }) {
+  const [tab, setTab] = useState(0);
+  const exercises = content.exercises || [];
+  const quizzes = exercises.filter((ex) => ex.type === "multiple-choice");
+  const codeExercises = exercises.filter((ex) => ex.type !== "multiple-choice");
+
+  const goToExercises = () => {
+    setTab(1);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  return (
+    <Box>
+      <Box
+        sx={{
+          position: "sticky",
+          top: 0,
+          zIndex: 5,
+          bgcolor: "background.default",
+          borderBottom: 1,
+          borderColor: "divider",
+          mb: 3,
+        }}
+      >
+        <Tabs value={tab} onChange={(_, v) => setTab(v)}>
+          <Tab icon={<MenuBookIcon />} iconPosition="start" label="Teoria" sx={{ fontWeight: 600, minHeight: 56 }} />
+          <Tab
+            icon={<FitnessCenterIcon />}
+            iconPosition="start"
+            label={`Esercizi (${exercises.length})`}
+            disabled={exercises.length === 0}
+            sx={{ fontWeight: 600, minHeight: 56 }}
+          />
+        </Tabs>
+      </Box>
+
+      {/* Le tab restano montate: il codice scritto negli esercizi non si perde cambiando tab */}
+      <Box role="tabpanel" hidden={tab !== 0}>
+        {content.sections.map((section, i) => (
+          <Section key={i} section={section} />
+        ))}
+        {exercises.length > 0 && (
+          <Box sx={{ mt: 5, textAlign: "center" }}>
+            <Button variant="contained" size="large" endIcon={<ArrowForwardIcon />} onClick={goToExercises}>
+              Mettiti alla prova: vai agli esercizi
+            </Button>
+          </Box>
+        )}
+      </Box>
+
+      <Box role="tabpanel" hidden={tab !== 1}>
+        {quizzes.length > 0 && (
+          <>
+            <Typography variant="h5" fontWeight={700} sx={{ mb: 1 }}>
+              Domande a risposta multipla
+            </Typography>
+            {quizzes.map((ex, i) => (
+              <Exercise key={`${moduleId}/${lessonId}/q${i}`} exercise={ex} index={i + 1} label="Domanda" />
+            ))}
+          </>
+        )}
+        {codeExercises.length > 0 && (
+          <>
+            <Typography variant="h5" fontWeight={700} sx={{ mt: quizzes.length ? 5 : 0, mb: 1 }}>
+              Esercizi di codice
+            </Typography>
+            {codeExercises.map((ex, i) => (
+              <Exercise key={`${moduleId}/${lessonId}/c${i}`} exercise={ex} index={i + 1} />
+            ))}
+          </>
+        )}
+      </Box>
+    </Box>
+  );
+}
+
 export default function LessonPage({ params }) {
   const resolvedParams = use(params);
   const slug = resolvedParams.slug || [];
@@ -125,20 +210,7 @@ export default function LessonPage({ params }) {
         lessonTitle={lessonMeta.lesson.title}
         moduleColor={lessonMeta.module.color}
       >
-        {lessonContent.sections.map((section, i) => (
-          <Section key={i} section={section} />
-        ))}
-
-        {lessonContent.exercises?.length > 0 && (
-          <Box sx={{ mt: 5 }}>
-            <Typography variant="h5" fontWeight={700} sx={{ mb: 2 }}>
-              Esercizi
-            </Typography>
-            {lessonContent.exercises.map((ex, i) => (
-              <Exercise key={`${moduleId}/${lessonId}/${i}`} exercise={ex} index={i + 1} />
-            ))}
-          </Box>
-        )}
+        <LessonTabs key={`${moduleId}/${lessonId}`} moduleId={moduleId} lessonId={lessonId} content={lessonContent} />
       </LessonLayout>
     </AppShell>
   );

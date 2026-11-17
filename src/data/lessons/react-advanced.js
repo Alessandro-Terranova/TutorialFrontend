@@ -232,6 +232,152 @@ function Meteo({ citta }) {
       },
       {
         type: "subheading",
+        content: "Un pattern reale: caricare e ricaricare i dati",
+      },
+      {
+        type: "text",
+        content:
+          "Nelle applicazioni vere una pagina carica i dati all'apertura e poi li ricarica più volte: dopo un salvataggio, dopo una cancellazione, quando l'utente preme \"Aggiorna\". Conviene quindi avere UNA sola funzione `fetchData`, memorizzata con useCallback, da usare sia nel `useEffect` iniziale sia in tutti gli altri punti.\n\nLa funzione riceve un oggetto di opzioni con un parametro di default: `async ({ silent = false } = {})`. È il destructuring nei parametri che già conosci, con due default: se chiami `fetchData()` senza argomenti, l'oggetto vale `{}` e quindi `silent` vale `false`; se chiami `fetchData({ silent: true })`, `silent` vale `true`.",
+      },
+      {
+        type: "code",
+        language: "javascript",
+        title: "fetchData con useCallback e ricaricamento silenzioso",
+        code: `import { useCallback, useEffect, useState } from "react";
+
+function PaginaOrdini() {
+  const [ordini, setOrdini] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchData = useCallback(async ({ silent = false } = {}) => {
+    // Lo spinner compare solo nei caricamenti "normali"
+    if (!silent) setLoading(true);
+    try {
+      const response = await fetch("/api/ordini");
+      const data = await response.json();
+      setOrdini(data);
+    } catch (error) {
+      console.error("Errore nel caricamento degli ordini:", error);
+      // In un ricaricamento silenzioso teniamo le righe che si vedono già
+      if (!silent) setOrdini([]);
+    } finally {
+      if (!silent) setLoading(false);
+    }
+  }, []); // nessuna dipendenza: la funzione resta sempre la stessa
+
+  // Primo caricamento, all'apertura della pagina
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  if (loading) return <p>Caricamento...</p>;
+
+  return <TabellaOrdini ordini={ordini} />;
+}`,
+      },
+      {
+        type: "text",
+        content:
+          "Perché il ricaricamento \"silenzioso\"? Guarda il componente: quando `loading` è true, al posto della tabella viene mostrato \"Caricamento...\". Se dopo ogni salvataggio richiamassimo `fetchData()` normale, la tabella sparirebbe per un attimo: React la **smonta** (la toglie dalla pagina) e poi ne crea una nuova. Smontare un componente significa perdere tutto il suo stato interno: la pagina che l'utente stava guardando, la riga selezionata, il testo di ricerca, lo scroll. Con `fetchData({ silent: true })` lo spinner non compare, la tabella resta montata e riceve solo le nuove righe tramite le props, mantenendo il suo stato.",
+      },
+      {
+        type: "text",
+        content:
+          "Il ricaricamento viene spesso chiesto da un componente figlio. La tabella sa quando un salvataggio è andato a buon fine, ma non sa come ricaricare i dati: lo sa la pagina. Si usa quindi il pattern della callback come prop: la pagina passa una funzione `onChanged` e la tabella la chiama dopo ogni salvataggio riuscito. Anche questa callback va memorizzata con useCallback, così il figlio riceve sempre la stessa funzione.",
+      },
+      {
+        type: "code",
+        language: "javascript",
+        title: "Il figlio avvisa il genitore con onChanged",
+        code: `function PaginaOrdini() {
+  // ... ordini, loading e fetchData come sopra ...
+
+  // Chiamata dalla tabella dopo ogni salvataggio riuscito
+  const handleOrdiniChanged = useCallback(() => {
+    fetchData({ silent: true }); // niente spinner: la tabella resta montata
+  }, [fetchData]);
+
+  if (loading) return <p>Caricamento...</p>;
+  return <TabellaOrdini ordini={ordini} onChanged={handleOrdiniChanged} />;
+}
+
+function TabellaOrdini({ ordini, onChanged }) {
+  const [paginaCorrente, setPaginaCorrente] = useState(1); // sopravvive ai ricaricamenti silenziosi
+
+  const segnaComeSpedito = async (id) => {
+    try {
+      await fetch("/api/ordini/" + id + "/spedito", { method: "POST" });
+      // Salvataggio riuscito: avvisiamo il genitore
+      // (?. chiama onChanged solo se il genitore l'ha passata)
+      onChanged?.();
+    } catch (error) {
+      console.error("Salvataggio non riuscito:", error);
+    }
+  };
+
+  return (
+    <ul>
+      {ordini.map((o) => (
+        <li key={o.id}>
+          Ordine {o.id} - {o.stato}
+          <button onClick={() => segnaComeSpedito(o.id)}>Segna come spedito</button>
+        </li>
+      ))}
+    </ul>
+  );
+}`,
+      },
+      {
+        type: "subheading",
+        content: "Configurazioni stabili: costanti di modulo e useMemo",
+      },
+      {
+        type: "text",
+        content:
+          "Lo stesso problema delle funzioni vale per oggetti e array: `{}` e `[]` scritti nel corpo di un componente sono un oggetto o un array NUOVI a ogni render (ricorda che `{} === {}` è false). Se finiscono nelle dipendenze di un useMemo o di un useEffect, il calcolo viene rifatto a ogni render anche se il contenuto non è cambiato.\n\nCaso tipico: il valore di default di una prop. Scrivere `opzioni = {}` nei parametri crea un oggetto nuovo a ogni render quando la prop non viene passata. La soluzione è definire una costante a livello di modulo (fuori dal componente), creata una sola volta: `const NO_OPTIONS = {}`. Per le configurazioni calcolate a partire dalle props (ad esempio le colonne di una tabella), si usa invece useMemo.",
+      },
+      {
+        type: "code",
+        language: "javascript",
+        title: "Default stabili e colonne calcolate con useMemo",
+        code: `import { useMemo } from "react";
+
+// Create UNA volta sola, quando il file viene caricato
+const NO_OPTIONS = {};
+const NO_FIELDS = [];
+
+function TabellaProdotti({ prodotti, etichette = NO_OPTIONS, campiNascosti = NO_FIELDS }) {
+  // Con "etichette = {}" qui sopra, etichette sarebbe un oggetto nuovo
+  // a ogni render e questo useMemo verrebbe ricalcolato ogni volta.
+  const colonne = useMemo(() => {
+    if (prodotti.length === 0) return [];
+    return Object.keys(prodotti[0])
+      .filter((campo) => !campiNascosti.includes(campo))
+      .map((campo) => ({
+        campo,
+        titolo: etichette[campo] || campo,
+      }));
+  }, [prodotti, etichette, campiNascosti]);
+
+  return (
+    <table>
+      <thead>
+        <tr>
+          {colonne.map((c) => <th key={c.campo}>{c.titolo}</th>)}
+        </tr>
+      </thead>
+      {/* ... righe ... */}
+    </table>
+  );
+}`,
+      },
+      {
+        type: "info",
+        content:
+          "Una costante di modulo funziona per i valori che non dipendono da props o stato (un default vuoto, un elenco fisso di opzioni). Se il valore dipende da props o stato, non può stare fuori dal componente: in quel caso si usa useMemo con le dipendenze giuste.",
+      },
+      {
+        type: "subheading",
         content: "Quando NON usare useMemo (e useCallback)",
       },
       {
@@ -345,6 +491,8 @@ if (!/,\\s*0\\s*\\)/.test(c)) return "Ricorda il valore iniziale di reduce: 0.";
 if (!/,\\s*\\[\\s*prodotti\\s*\\]\\s*\\)/.test(c)) return "Passa a useMemo l'array di dipendenze [prodotti] come secondo argomento.";
 if (!/\\{\\s*totale\\s*\\}/.test(c)) return "Mostra il totale nel JSX con {totale}.";
 return true;`,
+        solutionExplanation:
+          "`reduce` parte da 0 e, per ogni prodotto, aggiunge `prezzo * quantita` alla somma accumulata. Avvolgendo il calcolo in useMemo con dipendenza `[prodotti]`, il totale viene ricalcolato solo quando arriva un nuovo array di prodotti, non a ogni render del componente (ad esempio quando cambia uno stato che non riguarda il carrello).",
       },
       {
         type: "multiple-choice",
@@ -370,13 +518,45 @@ return true;`,
         difficulty: "medio",
         options: [
           "Per memorizzare una stringa costante come const titolo = 'Benvenuto'",
-          "Per filtrare e ordinare un array di 10.000 elementi ogni volta che cambia un filtro",
           "Per creare un gestore di eventi come onClick={() => alert('cliccato')}",
           "Per salvare il valore di un input di testo",
+          "Per filtrare e ordinare un array di 10.000 elementi ogni volta che cambia un filtro",
         ],
-        correct: 1,
+        correct: 3,
         explanation:
           "useMemo è ideale per operazioni costose come filtrare e ordinare grandi quantità di dati. Il costo della memorizzazione si ripaga quando il calcolo è pesante e le dipendenze non cambiano a ogni render. Per valori semplici o gestori di eventi, useMemo aggiunge complessità senza benefici; per il valore di un input serve useState.",
+      },
+      {
+        type: "multiple-choice",
+        title: "Il ricaricamento silenzioso",
+        description:
+          "Una pagina mostra `<p>Caricamento...</p>` quando `loading` è true, altrimenti `<TabellaOrdini />`. Dopo ogni salvataggio la tabella chiama `onChanged`, che esegue `fetchData({ silent: true })`:\n\nconst fetchData = useCallback(async ({ silent = false } = {}) => {\n  if (!silent) setLoading(true);\n  try { setOrdini(await caricaOrdini()); }\n  finally { if (!silent) setLoading(false); }\n}, []);\n\nPerché si passa `silent: true` invece di chiamare semplicemente `fetchData()`?",
+        difficulty: "difficile",
+        options: [
+          "Perché con `silent: true` la richiesta al server è più veloce",
+          "Perché senza argomenti `fetchData()` lancerebbe un errore: il parametro è obbligatorio",
+          "Perché così `loading` non diventa true: la tabella non viene sostituita dallo spinner, resta montata e conserva il suo stato (pagina, selezione)",
+          "Perché useCallback permette di chiamare la funzione senza argomenti una sola volta",
+        ],
+        correct: 2,
+        explanation:
+          "Con `silent: true` il codice salta `setLoading(true)`: il componente non mostra \"Caricamento...\", quindi `TabellaOrdini` non viene smontata e mantiene il suo stato interno, ricevendo solo le nuove righe. La velocità della richiesta è identica. `fetchData()` senza argomenti è lecito: grazie a `= {}` l'oggetto vale `{}` e `silent` vale false. useCallback non limita il numero di chiamate: restituisce sempre la stessa funzione finché le dipendenze non cambiano.",
+      },
+      {
+        type: "multiple-choice",
+        title: "Un valore di default che rompe useMemo",
+        description:
+          "In questo componente il calcolo delle colonne viene rifatto a OGNI render quando la prop `etichette` non viene passata. Qual è la correzione migliore?\n\nfunction Tabella({ prodotti, etichette = {} }) {\n  const colonne = useMemo(() => creaColonne(prodotti, etichette), [prodotti, etichette]);\n  // ...\n}",
+        difficulty: "medio",
+        options: [
+          "Definire fuori dal componente `const NO_OPTIONS = {};` e usare `etichette = NO_OPTIONS` come default",
+          "Togliere `etichette` dall'array di dipendenze di useMemo",
+          "Sostituire useMemo con useEffect",
+          "Salvare `{}` in una variabile `const vuoto = {};` dentro il componente, prima di useMemo",
+        ],
+        correct: 0,
+        explanation:
+          "Un default `{}` crea un oggetto nuovo a ogni render e, siccome `{} !== {}`, useMemo vede una dipendenza cambiata. Una costante di modulo viene creata una sola volta, quindi è sempre lo stesso oggetto. Togliere la dipendenza nasconde il problema e farebbe usare valori vecchi quando la prop cambia davvero; useEffect serve per gli effetti collaterali, non per calcolare valori; una variabile dentro il componente viene comunque ricreata a ogni render.",
       },
     ],
   },
@@ -667,6 +847,22 @@ return true;`,
         explanation:
           "I custom hook estraggono logica riutilizzabile. Attenzione: non condividono lo stato tra componenti (ogni uso crea il proprio stato indipendente) e non restituiscono JSX. Il vantaggio è evitare di duplicare logica complessa che coinvolge altri hook.",
       },
+      {
+        type: "multiple-choice",
+        title: "Stato indipendente in ogni componente",
+        description:
+          "Due componenti usano lo stesso hook:\n\nfunction CarrelloA() {\n  const { valore, incrementa } = useContatore(0);\n  // ...\n}\nfunction CarrelloB() {\n  const { valore } = useContatore(0);\n  // ...\n}\n\nSe in `CarrelloA` si chiama `incrementa()` tre volte, quanto vale `valore` in `CarrelloB`?",
+        difficulty: "medio",
+        options: [
+          "3, perché i due componenti usano lo stesso hook e quindi lo stesso stato",
+          "1, perché solo il primo incremento viene condiviso",
+          "undefined, perché un hook non può essere usato da due componenti",
+          "0, perché ogni chiamata a useContatore crea il proprio stato indipendente",
+        ],
+        correct: 3,
+        explanation:
+          "Un custom hook condivide la *logica*, non lo stato: ogni componente che chiama `useContatore` esegue il proprio `useState`, quindi ha un valore tutto suo. `CarrelloB` resta a 0. Usare lo stesso hook in più componenti è proprio lo scopo dei custom hook; per condividere davvero un dato tra componenti servono altri strumenti, come il Context della prossima lezione.",
+      },
     ],
   },
 
@@ -916,6 +1112,8 @@ if (!/useContext\\(\\s*ThemeContext\\s*\\)/.test(c)) return "In useTheme leggi i
 if (!/throw\\s+new\\s+Error\\(/.test(c)) return "In useTheme lancia un errore se il Context è undefined: throw new Error(\\"...\\").";
 if (!/function\\s+useTheme[\\s\\S]*throw[\\s\\S]*return\\s+\\w+/.test(c)) return "Alla fine di useTheme restituisci il valore del Context con return.";
 return true;`,
+        solutionExplanation:
+          "Il Provider tiene lo stato `tema` e mette nel `value` sia il valore sia la funzione per cambiarlo, così ogni discendente può leggerlo e modificarlo. `toggleTema` usa la forma funzionale di setTema per partire sempre dal valore più recente. `useTheme` nasconde `useContext(ThemeContext)` e, se il componente è fuori dal Provider (valore `undefined`), lancia subito un errore chiaro invece di lasciar fallire il codice più avanti.",
       },
       {
         type: "multiple-choice",
@@ -925,11 +1123,11 @@ return true;`,
         difficulty: "facile",
         options: [
           "Sempre, perché le props sono superate",
-          "Quando un dato deve attraversare molti livelli di componenti che non lo usano direttamente",
           "Solo per gestire il tema dell'applicazione",
+          "Quando un dato deve attraversare molti livelli di componenti che non lo usano direttamente",
           "Quando si vogliono migliorare le prestazioni del rendering",
         ],
-        correct: 1,
+        correct: 2,
         explanation:
           "Context è utile quando i dati devono attraversare molti livelli intermedi che non li usano (prop drilling). Non sostituisce le props nella comunicazione diretta genitore-figlio e non migliora le prestazioni di per sé (anzi, un uso eccessivo può peggiorarle, perché ogni cambiamento fa ridisegnare tutti i componenti che lo usano).",
       },
@@ -948,6 +1146,22 @@ return true;`,
         correct: 1,
         explanation:
           "useContext risale l'albero dei componenti e usa il valore del Provider più vicino. Annidare Provider dello stesso Context è lecito ed è utile per sovrascrivere un valore solo in una parte dell'app (ad esempio una sezione con tema scuro). Solo un componente fuori da ogni Provider riceve il valore di default di createContext.",
+      },
+      {
+        type: "multiple-choice",
+        title: "Un componente fuori dal Provider",
+        description:
+          "Con il custom hook `useUser` della lezione:\n\nexport function useUser() {\n  const context = useContext(UserContext); // createContext(undefined)\n  if (!context) {\n    throw new Error(\"useUser deve essere usato dentro un UserProvider\");\n  }\n  return context;\n}\n\nUn componente `Carrello` che chiama `useUser()` viene mostrato FUORI da `<UserProvider>`. Cosa succede?",
+        difficulty: "medio",
+        options: [
+          "Viene lanciato subito l'errore \"useUser deve essere usato dentro un UserProvider\"",
+          "useUser restituisce un oggetto vuoto {} e il componente mostra un nome vuoto",
+          "React cerca automaticamente il Provider più vicino in un'altra parte dell'app",
+          "Il componente funziona, ma username vale \"Mario Rossi\" perché è lo stato iniziale del Provider",
+        ],
+        correct: 0,
+        explanation:
+          "Fuori da ogni Provider, useContext restituisce il valore di default passato a createContext, cioè `undefined`. Il controllo `if (!context)` lo intercetta e lancia un errore con un messaggio chiaro. Non si ottiene un oggetto vuoto, React non va a cercare Provider in rami diversi dell'albero (risale solo verso gli antenati) e lo stato iniziale del Provider esiste solo dentro il Provider stesso.",
       },
     ],
   },

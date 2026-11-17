@@ -25,6 +25,11 @@ let total = 0;
 for (const file of files) {
   const { lessons } = await import(pathToFileURL(path.join(lessonsDir, file)).href);
   for (const [lessonId, lesson] of Object.entries(lessons)) {
+    const quizzes = (lesson.exercises || []).filter((e) => e.type === "multiple-choice").length;
+    if (quizzes < 3) {
+      console.log(`✗ ${file.replace(/\.js$/, "")}/${lessonId}: servono almeno 3 domande a risposta multipla (trovate ${quizzes})`);
+      failures++;
+    }
     for (const [i, ex] of (lesson.exercises || []).entries()) {
       const where = `${file.replace(/\.js$/, "")}/${lessonId} #${i + 1} "${ex.title}"`;
       if (ex.type === "multiple-choice") {
